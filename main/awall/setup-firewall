@@ -18,8 +18,9 @@ is_running() {
 }
 
 enable_policy() {
-	echo "Enabling policy $1"
-	awall enable $1
+	local pol=adp-$1
+	echo "Enabling policy $pol"
+	awall enable $pol
 }
 
 enable_if_running() {
@@ -39,7 +40,7 @@ list_to_json() {
 	local var=$1
 	eval set -- \$$var
 
-	echo -n "\"$var\": ["
+	echo -n "\"adp_$(echo $var | tr A-Z a-z)\": ["
 	local sep=" "
 	while [ "$1" ]; do
 		echo -n "$sep\"$1\""
@@ -54,7 +55,7 @@ WAN_IFACE=$(ip route | sed -E 's/^default .+ dev ([^ ]+)( .*)?$/\1/;ta;d;:a')
 info "WAN interface" $WAN_IFACE
 
 DHCP_ZONES=
-[ -f /var/run/udhcpc.$WAN_IFACE.pid ] && DHCP_ZONES=wan
+[ -f /var/run/udhcpc.$WAN_IFACE.pid ] && DHCP_ZONES=adp-wan
 
 if is_running dhcpd; then
 	LAN_IFACES=$(. /etc/conf.d/dhcpd && echo $DHCPD_IFACE)
@@ -88,7 +89,7 @@ if [ "$LAN_IFACES" ]; then
 	info "LAN interfaces" $LAN_IFACES
 	info "LAN addresses" $LAN_ADDRS
 	info "LAN private addresses" $LAN_PRIVATE_ADDRS
-	DHCP_ZONES="$DHCP_ZONES lan"
+	DHCP_ZONES="$DHCP_ZONES adp-lan"
 	enable_policy router
 fi
 
@@ -97,16 +98,14 @@ if [ "$DHCP_ZONES" ]; then
 	enable_policy dhcp
 fi
 
-HTTP_REPOS=$(grep ^http:// /etc/apk/repositories) && enable_policy http-client
-[ $(echo "$HTTP_REPOS" | egrep -v '^http://([.0-9]+|\[.+\])(:|/)' | wc -l) -eq 0 ] || \
-	enable_policy dns-client
+egrep "^https?://" /etc/apk/repositories && enable_policy web-client
 
 enable_if_running ntp-client chronyd ntpd openntpd
 enable_if_running ssh-server dropbear sshd
 
 enable_policy ping
 
-cat > /etc/awall/awall-policies.json <<EOF
+cat > /etc/awall/adp-config.json <<EOF
 {
 	"variable": {
 		$(list_to_json DHCP_ZONES),
@@ -114,7 +113,7 @@ cat > /etc/awall/awall-policies.json <<EOF
 		$(list_to_json LAN_IFACES),
 		$(list_to_json LAN_PRIVATE_ADDRS)
 	},
-	"zone": { "wan": { "iface": "$WAN_IFACE" } }
+	"zone": { "adp-wan": { "iface": "$WAN_IFACE" } }
 }
 EOF
 

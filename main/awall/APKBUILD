@@ -1,7 +1,7 @@
 # Contributor: Kaarle Ritvanen <kaarle.ritvanen@datakunkku.fi>
 # Maintainer: Kaarle Ritvanen <kaarle.ritvanen@datakunkku.fi>
 pkgname=awall
-pkgver=1.6.1
+pkgver=1.6.4
 pkgrel=0
 pkgdesc="Alpine Wall"
 url="https://git.alpinelinux.org/cgit/awall/"
@@ -51,5 +51,5 @@ policies() {
 	install -D "$srcdir"/setup-firewall "$subpkgdir"/usr/sbin/setup-firewall
 }
 
-sha512sums="2fb50ed96bab5445b628aead130512675ae1d36d28b4f36d17b48f5721aa335e353cd547eb9c775e23fbf69aec4509b8dc47f9e520a254507201ea69bf386c8f  awall-1.6.1.tar.xz
-0ec166d5e57f1f3eb9be40074f794c6f603b29888fd39d6e56256d3ba853745c768e37a516c8bc6c9a062eeb7652b4de1d7ef7ef63f75cf24d725459c76395de  setup-firewall"
+sha512sums="51f6339d7f27bdbefb78daa69dcd4bcc3d87f80fd5e1691d6a1d8c9931196f253e986ed16a48cbf34a3f5ccb897fdadedff29f78e1f61691563b3de703c10021  awall-1.6.4.tar.xz
+32f421b97b0d5d8cda4aa66c5f02319ffef12368d2c4903dbe9f6f3feb48959f6624706083c89cc2cd0ce2878c1c3962b4b7f906713623fe66181d071db37f61  setup-firewall"
