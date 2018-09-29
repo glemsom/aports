@@ -3,19 +3,19 @@
 # Contributor: Timo Teräs <timo.teras@iki.fi>
 # Maintainer: Timo Teräs <timo.teras@iki.fi>
 pkgname=youtube-dl
-pkgver=2018.08.04
-pkgrel=0
+pkgver=2018.09.08
+pkgrel=1
 pkgdesc="Command-line program to download videos from YouTube"
 url="https://youtube-dl.org"
 arch="noarch"
 license="Unlicense"
-depends="ffmpeg python3"
+depends="ffmpeg python3 py3-setuptools"
 options="!check"  # FIXME: run provided tests
 subpackages="$pkgname-doc
 	$pkgname-zsh-completion:zshcomp
 	$pkgname-bash-completion:bashcomp
 	$pkgname-fish-completion:fishcomp"
-source="https://github.com/rg3/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.gz"
+source="https://github.com/rg3/youtube-dl/releases/download/$pkgver/$pkgname-$pkgver.tar.gz"
 builddir="$srcdir/$pkgname"
 
 prepare() {
@@ -60,4 +60,4 @@ fishcomp() {
 		"$subpkgdir"/usr/share/fish/completions/
 }
 
-sha512sums="4a23dd644b039a8bc64d5d55821cc5470a29b3ce2c5ccea9eb2aa6ba753d675363e14b9ba959f6b0dfc62a97898032225c21eb4993fd742b273259d89ba99cba  youtube-dl-2018.08.04.tar.gz"
+sha512sums="c1cbf38a185d6ba1525eb08064f95aa252cf8d461f140cb48dc4a795e209f5d31bc1583f4d52c2ea9f1c15dac46c563603e46f72cc896a7fec54dcb2d0a49c0b  youtube-dl-2018.09.08.tar.gz"

@@ -1,8 +1,8 @@
 # Contributor: Carlo Landmeter <clandmeter@gmail.com>
-# Maintainer: Matt Smith <mcs@darkregion.net>
+# Maintainer: Fabian Affolter <fabian@affolter-engineering.ch>
 pkgname=py-sphinx
 _pkgname=${pkgname#py-}
-pkgver=1.7.6
+pkgver=1.8.0
 pkgrel=0
 pkgdesc="Python Documentation Generator"
 url="http://sphinx.pocoo.org/"
@@ -80,4 +80,4 @@ _py() {
 	done
 }
 
-sha512sums="8a29f82546f3f51d1d79aba7324f8b47e5c8941d4d10a957751b150b94bc40ce4fe69477d940b534612f6af266195e09bfdf9a5805abae6b1ba0720a9f82750b  sphinx-1.7.6.tar.gz"
+sha512sums="fc28bd4c94e5b5767de6a9e98ada14e595079b45d4417ec5c0bf75347c537bc5667cef3bc9cf7a9bdaf87cfcfa689e14f6bbafe7b9c4fb80047391d3cda1e9d8  sphinx-1.8.0.tar.gz"

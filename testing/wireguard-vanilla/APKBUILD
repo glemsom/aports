@@ -4,13 +4,13 @@
 # when changing _ver we *must* bump _rel
 # we must also match up _toolsrel with wireguard-tools
 _name=wireguard
-_ver=0.0.20180809
-_rel=1
+_ver=0.0.20180918
+_rel=2
 _toolsrel=0
 
 _flavor=${FLAVOR:-vanilla}
 _kpkg=linux-$_flavor
-_kver=4.14.66
+_kver=4.14.72
 _krel=0
 
 _kpkgver="$_kver-r$_krel"
@@ -64,4 +64,4 @@ package() {
 	done
 }
 
-sha512sums="2278cae078cf3ff9e0c43979ff559820d9d99b64c1ccdbc8a7fea3fc1a5fa0818d782a8962aefc07678599cc15f5a4237fd5dd7ffad108d639c39930979e3cc5  WireGuard-0.0.20180809.tar.xz"
+sha512sums="8e9cf26303d7bcc8b8becc8b2a174c54ac46a32d4eb0bda357aef5b71f50e3e860de3b7db955698c88965f1c7f680097463e20e49ec6dff5bf140e789a85ac56  WireGuard-0.0.20180918.tar.xz"
