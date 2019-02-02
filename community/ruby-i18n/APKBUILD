@@ -2,7 +2,7 @@
 # Maintainer: Jakub Jirutka <jakub@jirutka.cz>
 pkgname=ruby-i18n
 _gemname=${pkgname#ruby-}
-pkgver=1.1.0
+pkgver=1.5.2
 pkgrel=0
 pkgdesc="New wave Internationalization support for Ruby"
 url="https://github.com/svenfuchs/i18n"
@@ -33,7 +33,7 @@ package() {
 	cd "$gemdir"
 	rm -r cache/ build_info/ doc/
 	cd gems/$_gemname-$pkgver
-	rm -r gemfiles/ test/ *.md *LICENSE*
+	rm -r lib/i18n/tests/ *.md *LICENSE*
 }
 
-sha512sums="528e3c32d68aefe1ac4b0470249af2aec9a16b76f57f703182b6540d8e18625bf7e50aeda7782b6c64853f1be5561fe49fcb4d641d388371f8066b92d5a27161  ruby-i18n-1.1.0.tar.gz"
+sha512sums="438145abed34b27af26dc513d0dc30e32412ace3a057cf14a8bc8cb64734ac531bb0a8b7512372faed995fff8bce7a8dd4e44ee29560704646ab35d46d58db3c  ruby-i18n-1.5.2.tar.gz"

@@ -1,7 +1,7 @@
 # Contributor: Francesco Colista <fcolista@alpinelinux.org>
 # Maintainer: Francesco Colista <fcolista@alpinelinux.org>
 pkgname=docker-py
-pkgver=3.5.0
+pkgver=3.7.0
 pkgrel=0
 pkgdesc="Python library for the Docker Engine API"
 url="https://github.com/dotcloud/docker-py"
@@ -27,4 +27,4 @@ package() {
 	python3 setup.py install --prefix=/usr --root="$pkgdir"
 }
 
-sha512sums="c5ebc99df66d49f53c39ff897bd95afcbb92ced3ec6fd61148b6775cddf9e830454b1da5ac79ea0bba76f143f35f29dec66e7db5c6df33ca5157d3fe40cd4e93  docker-py-3.5.0.tar.gz"
+sha512sums="444634a26d0ce7af4850f346286cdac7f2c597aa6ce349c6371dbaa670aa0bcc2fa192221783b2059750d682580e34fcc5e115aeda0884838bf966decf9d0070  docker-py-3.7.0.tar.gz"

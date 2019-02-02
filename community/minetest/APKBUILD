@@ -2,7 +2,7 @@
 # Maintainer: Sascha Paunovic <azarus@posteo.net>
 pkgname=minetest
 pkgver=0.4.17.1
-pkgrel=0
+pkgrel=4
 pkgdesc="An infinite-world block sandbox game and a game engine"
 url="https://minetest.net/"
 # luajit is not available for disabled arches
@@ -12,7 +12,7 @@ license="LGPL-2.1 CC-BY-SA-3.0"
 depends="$pkgname-common"
 pkgusers="minetest"
 pkggroups="minetest"
-makedepends="sqlite-dev bzip2-dev libressl-dev irrlicht-dev cmake libvorbis-dev
+makedepends="sqlite-dev bzip2-dev openssl-dev irrlicht-dev cmake libvorbis-dev
 	libjpeg-turbo-dev libpng-dev openal-soft-dev libogg-dev mesa-dev
 	sqlite-dev luajit-dev hiredis-dev curl-dev"
 source="$pkgname-$pkgver.tar.gz::https://codeload.github.com/minetest/$pkgname/tar.gz/$pkgver
@@ -53,6 +53,7 @@ build() {
 }
 
 common() {
+	depends=
 	install -o minetest -g minetest -d "$subpkgdir"/var/lib/minetest
 	mkdir -p "$subpkgdir/usr/share/minetest"
 	mv "$pkgdir/usr/share/minetest/builtin" \
@@ -64,17 +65,18 @@ common() {
 package() {
 	cd "$builddir"/.build_client
 	make DESTDIR="$pkgdir" install
+	install -D -m755 "$srcdir"/minetest-server.initd \
+		"$pkgdir"/etc/init.d/minetest-server
+	install -D -m644 "$srcdir"/minetest-server.confd \
+		"$pkgdir"/etc/conf.d/minetest-server
 }
 
 server(){
+	depends="$pkgname-common"
 	mkdir -p "$subpkgdir/usr/bin"
 	cd "$builddir"
 	install -m644 -D $pkgname.conf.example \
 		"$subpkgdir"/etc/$pkgname/$pkgname.conf
-	install -D -m755 "$srcdir"/minetest-server.initd \
-		"$subpkgdir"/etc/init.d/minetest-server
-	install -D -m644 "$srcdir"/minetest-server.confd \
-		"$subpkgdir"/etc/conf.d/minetest-server
 	cp bin/minetestserver $subpkgdir/usr/bin
 }
 

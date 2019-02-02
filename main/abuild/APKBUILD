@@ -1,26 +1,28 @@
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 pkgname=abuild
-pkgver=3.2.0
+pkgver=3.3.0
 _ver=${pkgver%_git*}
 pkgrel=0
 pkgdesc="Script to build Alpine Packages"
 url="https://git.alpinelinux.org/cgit/abuild/"
 arch="all"
 license="GPL-2.0"
-depends="fakeroot sudo pax-utils libressl apk-tools>=2.0.7-r1 libc-utils
+depends="fakeroot sudo pax-utils openssl apk-tools>=2.0.7-r1 libc-utils
 	attr tar pkgconf patch lzip"
 if [ "$CBUILD" = "$CHOST" ]; then
 	depends="$depends curl"
 fi
 makedepends_build="pkgconfig"
-makedepends_host="libressl-dev zlib-dev"
+makedepends_host="openssl-dev zlib-dev"
 makedepends="$makedepends_host $makedepends_build"
 install="$pkgname.pre-install $pkgname.pre-upgrade"
 subpackages="apkbuild-cpan:cpan:noarch apkbuild-gem-resolver:gems:noarch
-             abuild-rootbld:_rootbld:noarch"
+             abuild-rootbld:_rootbld:noarch $pkgname-doc"
 options="suid !check"
 pkggroups="abuild"
-source="http://dev.alpinelinux.org/archive/abuild/abuild-$_ver.tar.xz"
+source="https://dev.alpinelinux.org/archive/abuild/abuild-$_ver.tar.xz
+	"
+
 builddir="$srcdir/$pkgname-$_ver"
 
 prepare() {
@@ -66,4 +68,4 @@ _rootbld() {
 	mkdir -p "$subpkgdir"
 }
 
-sha512sums="ee9ca5542750c8f109337bd6f17757e914b9df4800d2f2bc279b1eb7a39f5ba55692e5006437c9c4d9e428272488245742aec1da9dd176b8359f215ca8990bb2  abuild-3.2.0.tar.xz"
+sha512sums="c109a63107a0816117d781c1d3e664dd8d36648b0dc46a9e61d720c9813d50134cd8db4b282a8d27e546b5bd544296088c6d1b6996b230304d5db009f4ba4d52  abuild-3.3.0.tar.xz"

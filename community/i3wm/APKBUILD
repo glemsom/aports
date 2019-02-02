@@ -9,9 +9,10 @@ arch="all"
 license="BSD-3-Clause"
 makedepends="$depends_dev bison flex libxcb-dev xcb-util-cursor-dev
 	xcb-util-keysyms-dev xcb-util-wm-dev libev-dev pango-dev cairo-dev
-	yajl-dev startup-notification-dev pcre-dev libxkbcommon-dev xcb-util-xrm-dev"
+	yajl-dev startup-notification-dev pcre-dev libxkbcommon-dev
+	xcb-util-xrm-dev perl"
 subpackages="$pkgname-doc"
-source="http://i3wm.org/downloads/i3-$pkgver.tar.bz2
+source="https://i3wm.org/downloads/i3-$pkgver.tar.bz2
 	i3wm-musl-glob-tilde.patch
 	"
 builddir="$srcdir/i3-$pkgver"

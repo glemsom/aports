@@ -3,7 +3,7 @@
 # Maintainer: Jeff Bilyk <jbilyk@gmail.com>
 pkgname=cacti
 pkgver=1.1.38
-pkgrel=0
+pkgrel=1
 pkgdesc="The complete rrdtool-based graphing solution"
 url="http://www.cacti.net"
 arch="noarch"
@@ -14,10 +14,10 @@ pkggroups="www-data"
 depends="bash perl coreutils net-snmp-tools rrdtool ttf-dejavu"
 makedepends=""
 subpackages="$pkgname-doc $pkgname-lang $pkgname-setup \
-	$pkgname-php5:_php $pkgname-php7:_php
+	$pkgname-php7:_php
 	"
 install="$pkgname.pre-install $pkgname-setup.post-install"
-source="http://www.cacti.net/downloads/$pkgname-$pkgver.tar.gz
+source="https://www.cacti.net/downloads/$pkgname-$pkgver.tar.gz
 	$pkgname.crontab
 	$pkgname.nginx.conf
 	$pkgname.php-fpm.conf

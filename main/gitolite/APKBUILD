@@ -2,7 +2,7 @@
 # Maintainer:	Łukasz Jendrysik <scadu@yandex.com>
 # Contributor: Carlo Landmeter <clandmeter@gmail.com>
 pkgname=gitolite
-pkgver=3.6.8
+pkgver=3.6.11
 pkgrel=0
 pkgdesc="Centralized git server, with very fine-grained access control and many powerful features"
 url="https://github.com/sitaramc/gitolite"
@@ -15,6 +15,10 @@ pkggroups="git"
 source="$pkgname-$pkgver.tar.gz::https://github.com/sitaramc/gitolite/archive/v$pkgver.tar.gz"
 builddir="$srcdir"/$pkgname-$pkgver
 
+# secfixes:
+#   3.6.11-r0:
+#   - CVE-2018-20683
+
 package() {
 	install -d "$pkgdir"/usr/bin
 	install -d "$pkgdir"/usr/lib/gitolite
@@ -26,4 +30,4 @@ package() {
 	install -o git -g git -d -m 700 "$pkgdir"/var/lib/git
 }
 
-sha512sums="f65d4e4354079f868c9f9a943efb84ad4e29f96c69a3792c13dda383dac0133baa3d93925967c6be71e923b27e0ad91b57b5f1245cf64eeec0f0b719cbda4270  gitolite-3.6.8.tar.gz"
+sha512sums="7c11b3dfde9ecf9ef66185aab175d78302c42cc24f13e3e855fa27ffaee65b5887bdd7f96b00b6eed944b91af2b86993b284d1a09fe5a5a3cce82acd33631212  gitolite-3.6.11.tar.gz"

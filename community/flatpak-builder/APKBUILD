@@ -1,7 +1,7 @@
 # Contributor: André Klitzing <aklitzing@gmail.com>
 # Maintainer: André Klitzing <aklitzing@gmail.com>
 pkgname=flatpak-builder
-pkgver=1.0.0
+pkgver=1.0.3
 pkgrel=0
 pkgdesc="Tool to build flatpaks from source"
 url="http://flatpak.org"
@@ -44,5 +44,5 @@ package() {
 	install -D -m644 COPYING "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
 }
 
-sha512sums="d586e7e5eb82a84b0e80cd9a08d5a928bbd1eef3e8d1792f0922fb81d9d7df7179c474c133cec6b2e02e4fac21dac820e19f1f4d5b75e332b24b2d96b83f4e70  flatpak-builder-1.0.0.tar.xz
+sha512sums="d9c2e751b49919c30dfc990e2116bddff36bad7230c504fa4b61c113eb915950025fc391b59a509ca0545e2b11529f9afaf37b2d13b6fd5fa5a29c294fc7e039  flatpak-builder-1.0.3.tar.xz
 9287ed146bf71665aa436a2c2110cc5edc829a7b4a3e3190947580850fe9ecfd2bb6adb015c692af022d425fb5259390fcdcbd402e8b0d12ee5d2c1a1071ed4f  musl-fixes.patch"

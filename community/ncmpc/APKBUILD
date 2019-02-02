@@ -2,25 +2,26 @@
 # Contributor: Peter Bui <pnutzh4x0r@gmail.com>
 # Maintainer: Sören Tempel <soeren+alpine@soeren-tempel.net>
 pkgname=ncmpc
-pkgver=0.31
+pkgver=0.33
 pkgrel=0
 pkgdesc="Ncurses client for the Music Player Daemon (MPD)"
 url="https://www.musicpd.org/clients/ncmpc"
 arch="all"
 license="GPL-2.0-or-later"
-makedepends="glib-dev libmpdclient-dev meson ncurses-dev py-sphinx"
+makedepends="glib-dev libmpdclient-dev meson ncurses-dev py-sphinx boost-dev"
 subpackages="$pkgname-doc $pkgname-lang $pkgname-dbg"
-source="http://www.musicpd.org/download/$pkgname/0/$pkgname-$pkgver.tar.xz"
+source="https://www.musicpd.org/download/$pkgname/0/$pkgname-$pkgver.tar.xz"
 builddir="$srcdir/$pkgname-$pkgver"
 
 build() {
 	cd "$builddir"
-	meson \
+	LDFLAGS="$LDFLAGS -lintl" meson \
 		--prefix=/usr \
 		--sysconfdir=/etc \
-		--mandir=/usr/share/man \
+		--mandir=/usr/share \
 		--localstatedir=/var \
 		--buildtype=release \
+		-Dlirc=disabled \
 		-Dcurses=ncurses \
 		-Dlyrics_screen=true \
 		-Dlyrics_plugin_dir=share/$pkgname/lyrics \
@@ -45,4 +46,4 @@ package() {
 	rm -rf "$pkgdir"/usr/share/doc/$pkgname/html
 }
 
-sha512sums="0d3fed08f54afd9aef6342928a3f3b63a973d86ec6510f54c59271316aad856cd1a493e193f676971d90c40ef26486789e8580f2df528bd031251265c48a5eac  ncmpc-0.31.tar.xz"
+sha512sums="47730003c9a8ad5b6e682de4b4d3c8882d3266659fcd73ea131d1bba3d6b4d9ac66bb1a3522d63cb238ca9e22d8035907b9d7621a0b5106763770b17325f53b9  ncmpc-0.33.tar.xz"

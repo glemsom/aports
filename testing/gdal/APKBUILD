@@ -1,7 +1,7 @@
 # Contributor: Trevor R.H. Clarke <trevor@notcows.com>
 # Maintainer: Trevor R.H. Clarke <trevor@notcows.com>
 pkgname=gdal
-pkgver=2.3.1
+pkgver=2.4.0
 pkgrel=0
 pkgdesc="A translator library for raster and vector geospatial data formats"
 url="http://gdal.org"
@@ -72,4 +72,4 @@ check() {
 	# confirms PostgreSQL/PostGIS support
 	apps/ogr2ogr --formats | grep "PostgreSQL -vector- (rw+): PostgreSQL/PostGIS"
 }
-sha512sums="9c016788478d15155d8be69eac2988a31bd59bd8dc6ef440cef71c833a3f9563cdb37e6c9b2219eb416f9e11bed199268469e15f3228c520dc6e74f1ce2fdbf3  gdal-2.3.1.tar.xz"
+sha512sums="d4eb6535043b1495f691ab96aa8087d9254aa01efbc57a4051f8b9f4f6b2537719d7bf03ff82c3f6cfd0499a973c491fa9da9f5854dbd9863a0ec9796d3642bb  gdal-2.4.0.tar.xz"

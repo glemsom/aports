@@ -2,11 +2,11 @@
 # Contributor: Jakub Jirutka <jakub@jirutka.cz>
 # Maintainer: Timo Teras <timo.teras@iki.fi>
 pkgname=openjdk8
-_icedteaver=3.8.0
+_icedteaver=3.10.0
 # pkgver is <JDK version>.<JDK update>.<JDK build>
 # Check https://icedtea.classpath.org/wiki/Main_Page when updating!
-pkgver=8.171.11
-pkgrel=2
+pkgver=8.191.12
+pkgrel=0
 pkgdesc="OpenJDK 8 provided by IcedTea"
 url="https://icedtea.classpath.org/"
 arch="all"
@@ -69,6 +69,24 @@ source="https://icedtea.classpath.org/download/source/icedtea-$_icedteaver.tar.x
 	"
 builddir="$srcdir/icedtea-$_icedteaver"
 
+# secfixes:
+#   8.191.12-r0:
+#     - CVE-2018-3136
+#     - CVE-2018-3139
+#     - CVE-2018-3149
+#     - CVE-2018-3169
+#     - CVE-2018-3180
+#     - CVE-2018-3183
+#     - CVE-2018-3214
+#     - CVE-2018-13785
+#     - CVE-2018-16435
+#   8.181.13-r0:
+#     - CVE-2018-2938
+#     - CVE-2018-2940
+#     - CVE-2018-2952
+#     - CVE-2018-2973
+#     - CVE-2018-3639
+
 unpack() {
 	if [ -z "$force" ]; then
 		verify
@@ -82,8 +100,8 @@ unpack() {
 prepare() {
 	cd "$builddir"
 
-	local ver_u=$(sed -En 's/^JDK_UPDATE_VERSION\s*=\s*(\S+).*/\1/p' Makefile.am)
-	local ver_b=$(sed -En 's/^BUILD_VERSION\s*=\s*b(\S+).*/\1/p' Makefile.am)
+	local ver_u=$(sed -En 's/^\s*JDK_UPDATE_VERSION\s*=\s*(\S+).*/\1/p' acinclude.m4)
+	local ver_b=$(sed -En 's/^\s*BUILD_VERSION\s*=\s*b(\S+).*/\1/p' acinclude.m4)
 	[ "${pkgver#*.}" = "$ver_u.$ver_b" ] \
 		|| die "Version mismatch, source is 8.$ver_u.$ver_b, but abuild defines $pkgver!"
 
@@ -125,7 +143,7 @@ build() {
 	echo "icedtea patches: $DISTRIBUTION_PATCHES"
 
 	cd "$builddir"
-	./configure \
+	bash ./configure \
 		--build=$CBUILD \
 		--host=$CHOST \
 		--prefix="$_java_home" \
@@ -265,15 +283,15 @@ demos() {
 		"$subpkgdir"/$_java_home/
 }
 
-sha512sums="6336d35c11dbe16c96bc07eaa760fd849a2cd317416aba72b0732f8f1e52c9e3fedde5398d4a7f5a3057d4b6ae229965d597b3f5df09a76b5f31bbad0ad02a9a  icedtea-3.8.0.tar.xz
-e438a7ab0eb4e4374278afdbd40cab66875c9704f80a8963f0c965ce995744bcf23814c734ffd10e95329c7b767337fff18e3478c3f03481f8e15a5a9bfc853f  openjdk-3.8.0.tar.xz
-a41d53d2d6471b94878ba18caf525f1b64e72c2ae6926a9f1f5dac2e9a9366151d35156fb519cca8aeeda97d8e42cc258a93390170859b3035de4da69e48e321  corba-3.8.0.tar.xz
-3eb04788776612f0de0b058908417c4735e6b1cfb56afaf73748e1f3121b25d6eea710cd1d72ed19f8788c8e00b701265d79237da3542d0947c00d37b4308e9c  jaxp-3.8.0.tar.xz
-1431e71e2281eef893904e686c8d33587c4332ed7cfacd5fd2e278fe0a4e6f225e03d22b8ca73517b030e3e33ffba964f023bed9b9e4f4a6f14b8cced43ce0a5  jaxws-3.8.0.tar.xz
-9f6b6e42e8bea6a00c9833bd9775bfa5c63d1126e25fc376f4ba2cf5601dea8ab6a3f1d442d5fb188de3f74ce0a6410dc3a8463f798b1aa23822a272faa5aa73  jdk-3.8.0.tar.xz
-fd57023505d69246593ed24d90ad7052a88362ef7106900eca59e61ad5cadc247215cc9e8d410f9150e33a72126247ce1bb809540985062515b3d31d77d1535e  langtools-3.8.0.tar.xz
-8c4b060611b867c43fbe6cac3d2f06f6979950781872b387220e12c7066b3efde24160b7bd03189350a6518615b492703425c2ea67a26c6b4d187f843093a780  hotspot-3.8.0.tar.xz
-7c6d51a6565fe8c670a59caf001b1c0821b7fb2e42b2bbe24b35e337df4fc664c87868e0c55dcaa168f9c3e973ab9e75bca93d660e242c07d0f21eff83d674b5  nashorn-3.8.0.tar.xz
+sha512sums="af244a8bdb083e6273de14a04c0f2c21513a9cbe3fd2437c1503f3df88ef7ec77449387e24e4d8cb0fe7dbe0b8b023ea6a3041f145a00560999781027322c697  icedtea-3.10.0.tar.xz
+dcd7a9a73ee9fb13317fbf0778e002309194ab035289c4095b3d4940f76dbd21b7b7c7eda414b9208dc6a9eadc078eddbe51900b86b6b1eb66de3b9e15ec0868  openjdk-3.10.0.tar.xz
+8593710e672c841b76b4e36b917671545e7204039d0ccb88ab71da41b4690766af48f6bd0b6b4530e58ddb9ab716f9ac448c4d934471c9a9757a32f35340a0fe  corba-3.10.0.tar.xz
+47d6691e4cc572e21738452137784bfcc6734b5ac80792e6556d6734596802d7ca0ab7efec1535e0234e32ed20b36647b61ab2b13b7b3356f5c9c4393d7ca73c  jaxp-3.10.0.tar.xz
+33f2c248d6f92b68905a5e0f3f308420cc6f980cd0bea52ff534a9af624f6119b00bf5c92f76b2734fd2793fb54ef1759ce66a5f9347b7bbc34e32be381a7f27  jaxws-3.10.0.tar.xz
+4c0c68edaa27bf73d4edf69ca44a5c40228b132538c37ae05c522b360c1d7b8899e28ec43873f4b51fe731ff344b78861cec3d6e9eb16565eaa1f224b11e93b2  jdk-3.10.0.tar.xz
+8b5d1f221bc920e4fab755732e5db2e4dda944208536cd3703692acf7560e882dbf47195a1ecab7606f2d61a77a2e63a8fdfbc74a2622f11f622d49b2bfa49b2  langtools-3.10.0.tar.xz
+265f519a8deb9c94a4e614c0ab0e1e707dc6982bb9e83f19101d8a8ec68f0c27f25edf1f9d5940ed5fe8c3eaa563297a9b4fb6d09a7488dc9c82f21179790f09  hotspot-3.10.0.tar.xz
+7bbd0de8738affb24f8fd59bb22db856f3dc247bd3aaa58eba455f3af442c9bd1d0ad563114931104329eac47a30764dde8cc699b09c3729fb26dfd585a25079  nashorn-3.10.0.tar.xz
 1f470432275d5beaa8b4e4352a2f24a4a00593546dc4f3bd857794c89e521e8e6d6abc540762bbd769be3e1e3da058e134dc5dc066d12b9b8a1f0656040a795c  fix-paxmark.patch
 09104b19f647dce9ba0835163c05cc7e5e3ec9852b277f22b2d7a02bd483968853544125a09e384e96ba8811f2bbdc9546e05e378582ec6a554ede797ca5ad98  icedtea-hotspot-musl.patch
 e5cf4d70f96fc1e72ae8b97a887adb96092ff36584711cbb8de9d9fa9e859cb8731d638838de0d9591239fc44ffe5c74422d1842bd9f10a0c00dff1627bdeeef  icedtea-hotspot-musl-ppc.patch

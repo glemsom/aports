@@ -1,14 +1,14 @@
 # Contributor: Natanael Copa <ncopa@alpinelinux.org>
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 pkgname=msmtp
-pkgver=1.6.8
+pkgver=1.8.2
 pkgrel=0
 pkgdesc="SMTP client with a sendmail compatible interface"
 url="https://marlam.de/msmtp/"
 arch="all"
 license="GPL-3.0-or-later"
 options="!check" # no test suite
-makedepends="gettext-dev libressl-dev"
+makedepends="gettext-dev gnutls-dev"
 subpackages="$pkgname-doc $pkgname-lang $pkgname-vim:vim:noarch"
 source="https://marlam.de/msmtp/releases/$pkgname-$pkgver.tar.xz"
 
@@ -21,7 +21,7 @@ build() {
 		--sysconfdir=/etc \
 		--mandir=/usr/share/man \
 		--localstatedir=/var \
-		--with-ssl=openssl
+		--with-ssl=gnutls
 	make
 }
 
@@ -38,4 +38,4 @@ vim() {
 		"$subpkgdir"/usr/share/vim/vimfiles/syntax/$pkgname.vim
 }
 
-sha512sums="58ccdb6f16ab31959aeb1929c11f820219d4be062edca209c5986e4e0932d718f6f39c81727d05cd448779cedc4ab3e7bb557ce9f5dd3e7cc95e0aa5c3b623bf  msmtp-1.6.8.tar.xz"
+sha512sums="1f37be6f6bb01ddb3ba202673d7ba6457e6e9d8cfb718fdb5e9c19162b85e08c1487f160011775e626df0e37c414dcfbb20380d14084fbe80c46287eec15f5e6  msmtp-1.8.2.tar.xz"

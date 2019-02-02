@@ -2,7 +2,7 @@
 
 _flavor=vanilla
 pkgname=linux-${_flavor}
-pkgver=4.14.72
+pkgver=4.19.18
 case $pkgver in
 	*.*.*)	_kernver=${pkgver%.*};;
 	*.*) _kernver=$pkgver;;
@@ -11,23 +11,22 @@ pkgrel=0
 pkgdesc="Linux vanilla kernel"
 url="http://kernel.org"
 depends="mkinitfs"
-_depends_dev="perl gmp-dev elfutils-dev bash"
-makedepends="$_depends_dev sed installkernel bc linux-headers linux-firmware"
+_depends_dev="perl gmp-dev elfutils-dev bash flex bison"
+makedepends="$_depends_dev sed installkernel bc linux-headers linux-firmware openssl-dev"
 options="!strip"
 _config=${config:-config-vanilla.${CARCH}}
 install=
 source="https://cdn.kernel.org/pub/linux/kernel/v${pkgver%%.*}.x/linux-$_kernver.tar.xz
-
-	0001-HID-apple-fix-Fn-key-Magic-Keyboard-on-bluetooth.patch
-
 	config-vanilla.aarch64
 	config-vanilla.armhf
+	config-vanilla.armv7
 	config-vanilla.x86
 	config-vanilla.x86_64
 	config-vanilla.ppc
 	config-vanilla.ppc64le
 	config-vanilla.s390x
 
+	config-virt.aarch64
 	config-virt.x86
 	config-virt.x86_64
 	"
@@ -70,7 +69,7 @@ prepare() {
 	cd "$srcdir"/linux-$_kernver
 	if [ "$_kernver" != "$pkgver" ]; then
 		msg "Applying patch-$pkgver.xz"
-		unxz -c < "$srcdir"/patch-$pkgver.xz | patch -p1 -N || return 1
+		unxz -c < "$srcdir"/patch-$pkgver.xz | patch -p1 -N
 	fi
 
 	# first apply patches in specified order
@@ -97,26 +96,25 @@ prepare() {
 
 	for i in $_flavors; do
 		local _config=config-$i.${CARCH}
-		local _builddir="$srcdir"/build-$i
+		local _builddir="$srcdir"/build-$i-$CARCH
 		mkdir -p "$_builddir"
-		echo "-$pkgrel-$i" > "$srcdir"/build-$i/localversion-alpine \
+		echo "-$pkgrel-$i" > "$_builddir"/localversion-alpine \
 			|| return 1
 
-		cp "$srcdir"/$_config "$_builddir"/.config || return 1
+		cp "$srcdir"/$_config "$_builddir"/.config
 		make -C "$srcdir"/linux-$_kernver \
 			O="$_builddir" \
 			ARCH="$_carch" HOSTCC="$HOSTCC" \
-			silentoldconfig || return 1
+			listnewconfig oldconfig
 	done
 }
 
 build() {
 	unset LDFLAGS
 	for i in $_flavors; do
-		cd "$srcdir"/build-$i
+		cd "$srcdir"/build-$i-$CARCH
 		make ARCH="$_carch" CC="${CC:-gcc}" \
-			KBUILD_BUILD_VERSION="$((pkgrel + 1 ))-Alpine" \
-			|| return 1
+			KBUILD_BUILD_VERSION="$((pkgrel + 1 ))-Alpine"
 	done
 }
 
@@ -124,7 +122,7 @@ _package() {
 	local _buildflavor="$1" _outdir="$2"
 	local _abi_release=${pkgver}-${pkgrel}-${_buildflavor}
 
-	cd "$srcdir"/build-$_buildflavor || return 1
+	cd "$srcdir"/build-$_buildflavor-$CARCH
 
 	mkdir -p "$_outdir"/boot "$_outdir"/lib/modules
 
@@ -212,7 +210,7 @@ _dev() {
 	find $(find arch -name include -type d -print) -type f \
 		| cpio -pdm "$dir"
 
-	install -Dm644 "$srcdir"/build-$_flavor/Module.symvers \
+	install -Dm644 "$srcdir"/build-$_flavor-$CARCH/Module.symvers \
 		"$dir"/Module.symvers
 
 	mkdir -p "$subpkgdir"/lib/modules/${_abi_release}
@@ -220,15 +218,16 @@ _dev() {
 		"$subpkgdir"/lib/modules/${_abi_release}/build
 }
 
-sha512sums="77e43a02d766c3d73b7e25c4aafb2e931d6b16e870510c22cef0cdb05c3acb7952b8908ebad12b10ef982c6efbe286364b1544586e715cf38390e483927904d8  linux-4.14.tar.xz
-5373728be2b507c3db5e042e1d768740df7965078868afdc46418b1adc4cae3d8f9f1aedb59975a0f2acf8754340499354fcf97c503397a5d9886ccc9689b782  0001-HID-apple-fix-Fn-key-Magic-Keyboard-on-bluetooth.patch
-b7d8a264cdd08b2661710d4326ec7bbaa35363dd19a390a7ffaf157eadb59291e1c6f027fbc242e7851e17d7721a7fc8cbd4642327e52398fd8634e8ef742061  config-vanilla.aarch64
-251b9498b18929724b084718085709ba4f899820f3373231744918f7bc1d8d02554529ddcf249a6e952e55eb2c3d908c6fc2dacc773a44a3587e48dbdf3dd358  config-vanilla.armhf
-052ccc49fdefe0d8ed3e6119a1ab632a7b9020ea9cbb54b8055f1e45334244a3dd8534fed3bc2f3f9a3bcb9363795d48fc4c6c48cf7032f6202b09971dc9e181  config-vanilla.x86
-41729137917ee5e06a76ce2c2b4d1d153eb493efb7a9cd7881367934db9ad8d9a9251071923d8d26f1e7a030d702f4dd66e24d4d26a294f957db27bb42f9d40d  config-vanilla.x86_64
-03a14f009996319fc24fc1a4eae26e250f7cf6213bcdce0f82c3d0b4b54b81517f55e0445df0460d30f6b61f22519f04ac219ce3017c7cf72acd14c43e781a8b  config-vanilla.ppc
-f60b743952c080a4f8e61930034e2c8f173fbd321d5ebdec92023319c5f6335ed3e1ba04921b6e83f938fd2d32ca29aac14747650cd96608c69053764164ce35  config-vanilla.ppc64le
-10ecea3e0a101a898e347a42d74f9a3d8f226153cf487e1d65f59fb557b6fdaccab0d2ad6cf705c6cdeb5ed053eb7c5edecc655b3700e4ba237e965c0b6e417e  config-vanilla.s390x
-72e31d5a1c929c15a96e80b72c332751af4a2d7becbf30ef36e9ccda62038075e77381ceda612d49ea6324f0a087e4312c66eb2df9406aa132a62eee6f303c7f  config-virt.x86
-dd40f51d6f69d34ef4c46cf25c5330905937888ebd0773764071f7fa9439c76556e0370f0b59de2f93dd16aaa913704b39e6e266fd75c6fda637e313f4ded847  config-virt.x86_64
-de7063521534454f17d113af463a2ab4b855ce7c6123ce7bfd34d04e7ab7d286531152844303618f599c8030a5ef0c4a862ada7178a07b82c203e6a395f7ff2c  patch-4.14.72.xz"
+sha512sums="ab67cc746b375a8b135e8b23e35e1d6787930d19b3c26b2679787d62951cbdbc3bb66f8ededeb9b890e5008b2459397f9018f1a6772fdef67780b06a4cb9f6f4  linux-4.19.tar.xz
+af3d633e28e5699b6314c2c57c2c671d2103e1181e5465e32f474dc9a07453090ef44f5028cb3bcca7e528db548a77a8b2fc790a08fdbada0322de62f93de9e6  config-vanilla.aarch64
+3c60cb2eee228de79b67d65682d67d25147cfcc321c0dcc27dbefa1eb4ab6ec692fe08df8f14aa868e09a9ad3581b3770a3dd4b9255c585f35f5725e29d2eeb1  config-vanilla.armhf
+3c60cb2eee228de79b67d65682d67d25147cfcc321c0dcc27dbefa1eb4ab6ec692fe08df8f14aa868e09a9ad3581b3770a3dd4b9255c585f35f5725e29d2eeb1  config-vanilla.armv7
+cbc431ed447eefc83fa39fbb7396ed7e04739b5210600a20e6a5bd1b8fc42a985d9c4df0deee8e8a3f6a928b5cad870b637d3390ef49090f653c24ccab8f7a1f  config-vanilla.x86
+d4c60ff52b83a490293a4cc0b5ddf53c3f15c4b0f28f67c7c0279eb2e6d5de3fa17041c3eaa8e43a4f926b2dda4074c2acf3073d1ae1f923f797692bdf67e968  config-vanilla.x86_64
+96651aca476c905c04d616565a2dd08066167c1d4887e2ddc86c4b7cdda44257ef633a9bcf745a91f00f88023dde8f1804c56b258e7e99232bb8bfa25d0ba4db  config-vanilla.ppc
+c7e146b33460b4ff69adffb680e794536038c8a6bf5af90a6474fc7dfafeea80a6659f4f4bfe2fd6285a17c39db49f1420636ea1512131edec8ac1d7ab31e7ef  config-vanilla.ppc64le
+c6dc137c3b0518284da53a8876c18a58bd299be4980b3c183949c7e57bef97570d73f3c568888fa392a769226dacc5558082b44b388f79d9a7daa677bbc5f9f4  config-vanilla.s390x
+2f4b32df9f0168dd3388443ca8aa8e77a2e061ce68d4227d651fe6a6dec06e7b55d94fec135f6f5b64d573b2c7327d454e98199290b6c720fa5eb47b4bfe143b  config-virt.aarch64
+0fbe2986a564664c4081267c10c51f14e7cbf416c2812e898a4b31260a64eebcc11da75e155af099b9e409aba275e7a67dac6ef1147e9fd856f65778a3a62a49  config-virt.x86
+0a3d194ccd06df7dda28775608b23e79a6641be9d545b623bffdeccc66e1f4de224dc419b84fa640b21b1badbffcd1eb33fc52f35a261b9a049699ac3569bbde  config-virt.x86_64
+f7a6539d0cc957ba5293e27ed2c0e3847be3704bd1cab1a1f271f3924c73abcf8220aa813d9f034b60701291a700e5d5ac779043f7e32562ce037e5db6832008  patch-4.19.18.xz"

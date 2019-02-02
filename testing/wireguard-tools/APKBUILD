@@ -1,17 +1,26 @@
 # Contributor: Stuart Cardall <developer@it-offshore.co.uk>
 # Maintainer: Stuart Cardall <developer@it-offshore.co.uk>
 
+# NOTE: pkgrel must match _toolsrel in wireguard-vanilla
 pkgname=wireguard-tools
-pkgver=0.0.20180918
-pkgrel=0
+pkgver=0.0.20190123
+pkgrel=2
 pkgdesc="Next generation secure network tunnel: userspace tools"
 arch='all'
 url='https://www.wireguard.com'
 license="GPL-2.0"
 makedepends="libmnl-dev"
-subpackages="$pkgname-doc $pkgname-bash-completion:bashcomp:noarch"
+depends="$pkgname-wg $pkgname-wg-quick"
+subpackages="
+	$pkgname-doc
+	$pkgname-bash-completion:bashcomp:noarch
+	$pkgname-wg:_split
+	$pkgname-wg-quick:_split:noarch
+	"
 options="!check"
-source="https://git.zx2c4.com/WireGuard/snapshot/WireGuard-$pkgver.tar.xz"
+source="https://git.zx2c4.com/WireGuard/snapshot/WireGuard-$pkgver.tar.xz
+	alpine-compat.patch
+	"
 builddir="$srcdir"/WireGuard-$pkgver
 
 build() {
@@ -34,6 +43,17 @@ package() {
 	cp -rf "$builddir"/contrib/examples "$pkgdir/usr/share/doc/$pkgname/"
 }
 
+_split() {
+	local cmd=${subpkgname/$pkgname-}
+	pkgdesc="$pkgdesc ($cmd)"
+	case $cmd in
+		wg-quick) depends="$pkgname-wg iproute2 bash openresolv" ;;
+		*) depends= ;;
+	esac
+	mkdir -p "$subpkgdir"/usr/bin
+	mv "$pkgdir"/usr/bin/$cmd "$subpkgdir"/usr/bin/
+}
+
 bashcomp() {
 	depends="bash"
 	pkgdesc="WireGuard bash completions"
@@ -42,4 +62,5 @@ bashcomp() {
 	mv "$pkgdir"/usr/share "$subpkgdir"/usr
 }
 
-sha512sums="8e9cf26303d7bcc8b8becc8b2a174c54ac46a32d4eb0bda357aef5b71f50e3e860de3b7db955698c88965f1c7f680097463e20e49ec6dff5bf140e789a85ac56  WireGuard-0.0.20180918.tar.xz"
+sha512sums="8be40cebabca2a40f98ee10d6fa93708b12b17c6b0eab9aa8b7fab353d78fbd5b280b7b90cb2973cf74a1b9d47c3d250bf3ede6d1318129a45d57e21329b7f59  WireGuard-0.0.20190123.tar.xz
+4577574333f023217ae6e0945807e1ccd2dec7caa87e329b1d5b44569f6b5969663ad74f8154b85d3dc7063dd762649e3fa87c7667e238ffb77c0e5df9245a5e  alpine-compat.patch"

@@ -1,7 +1,7 @@
 # Contributor: Kevin Daudt <kdaudt@alpinelinux.org>
 # Maintainer: Kevin Daudt <kdaudt@alpinelinux.org>
 pkgname=ipython
-pkgver=6.5.0
+pkgver=7.2.0
 pkgrel=0
 pkgdesc="A rich toolkit to help you make the most of using Python interactively"
 url="https://ipython.org/"
@@ -10,7 +10,7 @@ license="BSD-3-Clause"
 depends="
 	py3-traitlets
 	py3-pexpect
-	py3-prompt_toolkit<2.0
+	py3-prompt_toolkit>2.0.0
 	py3-jedi
 	py3-pygments
 	py3-pickleshare
@@ -40,4 +40,4 @@ package() {
 	python3 setup.py install --prefix=/usr --root="$pkgdir"
 }
 
-sha512sums="a6f19a1e1a5c11ad84071e1b1fb20e2617a4d6b713888057d4cffbb1b076cf5472068809d7091bbd7e475e23373a249f029ea376ec10d93c9cf9a3782369b152  ipython-6.5.0.tar.gz"
+sha512sums="5a0f58f51f98007fff659dc95e659620533b268e4486460bec9cb589e7aa7e75766fd268bcb70a65d1f49548dbd3e9ccceb634c576b17654a1032b5b3219b6a1  ipython-7.2.0.tar.gz"

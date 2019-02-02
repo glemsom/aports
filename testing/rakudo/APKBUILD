@@ -1,17 +1,18 @@
 # Contributor: Curt Tilmes <Curt.Tilmes@nasa.gov>
 # Maintainer: Curt Tilmes <Curt.Tilmes@nasa.gov>
 pkgname=rakudo
-pkgver=2018.08
+pkgver=2018.11
 pkgrel=0
 pkgdesc="A compiler for the Perl 6 programming language"
 url="http://rakudo.org/"
-arch="all !x86 !armhf !armv7"
+arch="all !x86 !armhf !armv7 !s390x"
 license="Artistic-2.0"
 depends="nqp libffi"
 makedepends="perl-utils moarvm-dev libffi-dev"
 install=""
 subpackages="$pkgname-dev $pkgname-doc"
-source="${pkgname}-${pkgver}.tar.gz::https://github.com/rakudo/rakudo/archive/$pkgver.tar.gz"
+source="${pkgname}-${pkgver}.tar.gz::https://github.com/rakudo/rakudo/archive/$pkgver.tar.gz
+	perf-increase-tolerance.patch"
 builddir="$srcdir"/rakudo-"$pkgver"
 
 build() {
@@ -52,4 +53,5 @@ doc() {
 	done
 }
 
-sha512sums="1730b8d5953b1b49e82da8207df4b8925682e0cd96a7406dba959dd54dffec4b0c0a68639289f7522aa7829fa687b93024a7e3c617b59439921b206ab6330183  rakudo-2018.08.tar.gz"
+sha512sums="3ade13f51bcfccaa445043368d4b46d3bb2a4d934cd404f04374418a15f81b1bf431125b8133e61936df319b5d11426e77e99b118fd42a35dfbe1efd7267763f  rakudo-2018.11.tar.gz
+74a3e3bff623a8922d2aae2f43e25be1a7b8a2b0b128bc8eb15fa9f03307fe603cb342b644607b7d74b3a084fb936c47113ab6249a0e23bb3107727383201152  perf-increase-tolerance.patch"

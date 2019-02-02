@@ -1,7 +1,7 @@
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 
 pkgname=linux-rpi
-pkgver=4.14.69
+pkgver=4.19.18
 case $pkgver in
 *.*.*)	_kernver=${pkgver%.*};;
 *.*)	_kernver=${pkgver};;
@@ -11,19 +11,23 @@ pkgdesc="Linux kernel with Raspberry Pi patches"
 url=https://github.com/raspberrypi/linux
 depends="mkinitfs"
 _depends_dev="perl gmp-dev elfutils-dev bash"
-makedepends="$_depends_dev sed installkernel bc linux-headers linux-firmware"
+makedepends="$_depends_dev sed installkernel bc linux-headers linux-firmware
+	bison flex openssl-dev
+"
 options="!strip !check"
-# rpi patches are git diff against latest release tag from:
-# linux-4.9.y       https://github.com/raspberrypi/linux/tree/rpi-4.9.y
+_rpi_repo="git://github.com/raspberrypi/linux.git"
+_linux_repo="git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git"
 source="https://kernel.org/pub/linux/kernel/v4.x/linux-$_kernver.tar.xz
 	https://kernel.org/pub/linux/kernel/v4.x/patch-$pkgver.xz
-	https://dev.alpinelinux.org/archive/rpi-patches/rpi-4.14.67-alpine.patch
+	https://dev.alpinelinux.org/archive/rpi-patches/rpi-$pkgver-alpine.patch
 
 	issue-4973.patch
 
 	config-changes-rpi.armhf
 	config-changes-rpi.aarch64
 	config-changes-rpi2.armhf
+	config-changes-rpi.armv7
+	config-changes-rpi2.armv7
 	"
 subpackages=""
 arch="armhf armv7 aarch64"
@@ -200,6 +204,24 @@ _package() {
 	fi
 }
 
+genpatch() {
+	local RPI_REPO_PATH="$HOME/repositories/linux-rpi"
+	msg "Checking out/pulling the Linux kernel git repository.."
+	mkdir -p "$RPI_REPO_PATH" && cd "$RPI_REPO_PATH"
+	git clone "$_linux_repo" "$RPI_REPO_PATH" 2>/dev/null || git pull
+	msg "Fetching raspberry git repository.."
+	git remote add rpi "$_rpi_repo" 2>/dev/null || true
+	git fetch rpi
+	msg "Generating rpi patch: rpi-$pkgver.patch"
+	mkdir -p "$srcdir"
+	git diff v$pkgver remotes/rpi/rpi-${pkgver%.*}.y > \
+		"$srcdir"/rpi-$pkgver.patch
+	msg "Sending patch to dev.alpinelinux.org.."
+	scp "$srcdir"/rpi-$pkgver.patch \
+		dev.alpinelinux.org:/archive/rpi-patches/rpi-$pkgver.patch
+	cd "$startdir" && abuild checksum
+}
+
 # main flavor installs in $pkgdir
 package() {
 	depends="$depends linux-firmware-brcm"
@@ -261,10 +283,12 @@ _dev() {
 		"$subpkgdir"/lib/modules/${_abi_release}/build
 }
 
-sha512sums="77e43a02d766c3d73b7e25c4aafb2e931d6b16e870510c22cef0cdb05c3acb7952b8908ebad12b10ef982c6efbe286364b1544586e715cf38390e483927904d8  linux-4.14.tar.xz
-0e17f70c898a58384ffd29c599a52cccfea30a820f1e55cdf9f46f319370b1c0dc16e9000b1a2dfa84779463b757b8810cbe881c919b635801ae078b5e3c0513  patch-4.14.69.xz
-9ee4c5425d6402e1e53a908038c11b50112f5f9dfe765cd1485564b4e02f1b83a9a48af140b4085d513d5af53f7d246bac7465d8e778d7f2a26c8602e4962a39  rpi-4.14.67-alpine.patch
+sha512sums="ab67cc746b375a8b135e8b23e35e1d6787930d19b3c26b2679787d62951cbdbc3bb66f8ededeb9b890e5008b2459397f9018f1a6772fdef67780b06a4cb9f6f4  linux-4.19.tar.xz
+f7a6539d0cc957ba5293e27ed2c0e3847be3704bd1cab1a1f271f3924c73abcf8220aa813d9f034b60701291a700e5d5ac779043f7e32562ce037e5db6832008  patch-4.19.18.xz
+5162f638df2cf903e9bccfe11e6aabb7d8591c1546cab957379c7d90311381e63f4af46ae31ab2b265c4655b35ccb78a99e927375713c66c44acc16fd5522a8f  rpi-4.19.18-alpine.patch
 501c91bf2538a18102da59bbccc3097f9c3c90079acc0e946ff075074160c09b8a66934e5ce5470e170f0e4f93d114709a95230367426d0bb7ea02c4bdf4cc9b  issue-4973.patch
-2f6d7ba43ba13b10cf5ef8e139fa978bee4689cd22ecf356559657ff604317770ede717dc706ee1e8cb999f73a574f5c6332b4bfbe99177389b2f75d60a742c9  config-changes-rpi.armhf
-2f6d7ba43ba13b10cf5ef8e139fa978bee4689cd22ecf356559657ff604317770ede717dc706ee1e8cb999f73a574f5c6332b4bfbe99177389b2f75d60a742c9  config-changes-rpi.aarch64
-2f6d7ba43ba13b10cf5ef8e139fa978bee4689cd22ecf356559657ff604317770ede717dc706ee1e8cb999f73a574f5c6332b4bfbe99177389b2f75d60a742c9  config-changes-rpi2.armhf"
+6c1c1c61ceb323eecb0e81e226af6b5b8fef7c8c075b1eb836639f465de5ef5d23648716c953d295250f8c6567546782956afe644573b84920a4f6902a1a0454  config-changes-rpi.armhf
+6c1c1c61ceb323eecb0e81e226af6b5b8fef7c8c075b1eb836639f465de5ef5d23648716c953d295250f8c6567546782956afe644573b84920a4f6902a1a0454  config-changes-rpi.aarch64
+6c1c1c61ceb323eecb0e81e226af6b5b8fef7c8c075b1eb836639f465de5ef5d23648716c953d295250f8c6567546782956afe644573b84920a4f6902a1a0454  config-changes-rpi2.armhf
+6c1c1c61ceb323eecb0e81e226af6b5b8fef7c8c075b1eb836639f465de5ef5d23648716c953d295250f8c6567546782956afe644573b84920a4f6902a1a0454  config-changes-rpi.armv7
+6c1c1c61ceb323eecb0e81e226af6b5b8fef7c8c075b1eb836639f465de5ef5d23648716c953d295250f8c6567546782956afe644573b84920a4f6902a1a0454  config-changes-rpi2.armv7"
