@@ -2,8 +2,9 @@
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 
 pkgname=edk2
-pkgver=0.0.20170624
-_commitid=vUDK2017
+pkgver=0.0.20181115
+_commitid=edk2-stable201811
+_openssl_ver=1.1.0h
 pkgrel=0
 pkgdesc="EFI Development Kit II"
 url="https://github.com/tianocore/tianocore.github.io/wiki/EDK-II/"
@@ -14,7 +15,8 @@ makedepends="bash python2 iasl nasm util-linux-dev"
 install=""
 subpackages="ovmf"
 source="$pkgname-$pkgver.tar.gz::https://github.com/tianocore/$pkgname/archive/$_commitid.tar.gz
-	build-hack.patch"
+	build-hack.patch
+	https://www.openssl.org/source/openssl-$_openssl_ver.tar.gz"
 builddir="$srcdir/$pkgname-$_commitid"
 
 case "$CARCH" in
@@ -23,13 +25,15 @@ x86_64)		TARGET_ARCH=X64; OVMFPKG=OvmfPkgX64.dsc;;
 esac
 
 # use GCC49 instead of GCC5 until gcc 6.3 (see: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=70955)
-TOOLCHAIN=GCC49
-RELEASE=DEBUG
+TOOLCHAIN=GCC5
+RELEASE=RELEASE
 
 prepare() {
 	cd "$builddir"
 	# unix line endings for the files to be patched
 	sed -e 's/\r$//' -i BaseTools/Source/C/VfrCompile/VfrUtilityLib.cpp BaseTools/Source/C/VolInfo/VolInfo.c
+	rm -rf $srcdir/edk2-$_commitid/CryptoPkg/Library/OpensslLib/openssl
+	ln -sf $srcdir/openssl-$_openssl_ver $srcdir/edk2-$_commitid/CryptoPkg/Library/OpensslLib/openssl
 	default_prepare
 }
 
@@ -81,5 +85,6 @@ ovmf() {
 	ln -s ../OVMF/OVMF.fd "$subpkgdir"/usr/share/ovmf/bios.bin
 }
 
-sha512sums="d941a661d570b0f69962105920b3524c4aac1f4883468914305eb68015148d70f6593c52872a79a6143cf87dc44e9ce2b8957834b4524cb8a04b12473c6d7d81  edk2-0.0.20170624.tar.gz
-a7d4ab2c82b62ba01c86e59f53bd3896d661c9bfbb9db9598734155b66d5fe03eca4a2a9993a14d3bf555992c6d01ba5d7a15868ff9ec6ed98b8a9b3895bb7df  build-hack.patch"
+sha512sums="103cb503b73a57996b4ea7c941cb788ebf276e0f4b55480acf2080a632e956d27b0cf4b2a9cb41bac04e1c6aecf38d51c4b49432908e2fcbe6e10ced94d01573  edk2-0.0.20181115.tar.gz
+a7d4ab2c82b62ba01c86e59f53bd3896d661c9bfbb9db9598734155b66d5fe03eca4a2a9993a14d3bf555992c6d01ba5d7a15868ff9ec6ed98b8a9b3895bb7df  build-hack.patch
+fb7750fcd98e6126eb5b92e7ed63d811a5cfa3391d98572003d925f6c7b477690df86a9aa1fa6bf6bf33d02c6c7aee6cff50a38faa8911409f310645898fda39  openssl-1.1.0h.tar.gz"
