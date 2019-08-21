@@ -2,9 +2,9 @@
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 
 pkgname=edk2
-pkgver=0.0.20181115
-_commitid=edk2-stable201811
-_openssl_ver=1.1.0h
+pkgver=0.0.201905
+_commitid=edk2-stable201905
+_openssl_ver=1.1.1
 pkgrel=0
 pkgdesc="EFI Development Kit II"
 url="https://github.com/tianocore/tianocore.github.io/wiki/EDK-II/"
@@ -85,6 +85,3 @@ ovmf() {
 	ln -s ../OVMF/OVMF.fd "$subpkgdir"/usr/share/ovmf/bios.bin
 }
 
-sha512sums="103cb503b73a57996b4ea7c941cb788ebf276e0f4b55480acf2080a632e956d27b0cf4b2a9cb41bac04e1c6aecf38d51c4b49432908e2fcbe6e10ced94d01573  edk2-0.0.20181115.tar.gz
-a7d4ab2c82b62ba01c86e59f53bd3896d661c9bfbb9db9598734155b66d5fe03eca4a2a9993a14d3bf555992c6d01ba5d7a15868ff9ec6ed98b8a9b3895bb7df  build-hack.patch
-fb7750fcd98e6126eb5b92e7ed63d811a5cfa3391d98572003d925f6c7b477690df86a9aa1fa6bf6bf33d02c6c7aee6cff50a38faa8911409f310645898fda39  openssl-1.1.0h.tar.gz"
