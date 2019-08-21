@@ -1,6 +1,6 @@
-# Maintainer: Natanael Copa <ncopa@alpinelinux.org>
+# Maintainer: Glenn Sommer <glemsom@gmail.com>
 
-_flavor=vanilla
+_flavor=dkvm
 pkgname=linux-${_flavor}
 pkgver=4.19.67
 case $pkgver in
