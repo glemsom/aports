@@ -4,7 +4,7 @@
 pkgname=edk2
 pkgver=0.0.201905
 _commitid=edk2-stable201905
-_openssl_ver=1.1.1
+_openssl_ver=1.1.1b
 pkgrel=0
 pkgdesc="EFI Development Kit II"
 url="https://github.com/tianocore/tianocore.github.io/wiki/EDK-II/"
@@ -87,4 +87,4 @@ ovmf() {
 
 sha512sums="91188923f7d1ab83c0d6abf7ec6d59f357d0341a617ad6a3ae05f3d0e041dff43f62b014b0c5fc5d15e16d8f1c279c581a5cd64b31e3d52b340d7ef90adb50f1  edk2-0.0.201905.tar.gz
 a7d4ab2c82b62ba01c86e59f53bd3896d661c9bfbb9db9598734155b66d5fe03eca4a2a9993a14d3bf555992c6d01ba5d7a15868ff9ec6ed98b8a9b3895bb7df  build-hack.patch
-c0284a4fe84bdf765ca5bc5148da4441ffc36392cfecaf9d372af00cf93b6de5681cab1248b6f8246474532155dc205da5ad49549ad7c61c07c917145e7c9c71  openssl-1.1.1.tar.gz"
+b54025fbb4fe264466f3b0d762aad4be45bd23cd48bdb26d901d4c41a40bfd776177e02230995ab181a695435039dbad313f4b9a563239a70807a2e19ecf045d  openssl-1.1.1b.tar.gz"
