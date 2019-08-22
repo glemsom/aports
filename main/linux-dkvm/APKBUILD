@@ -8,13 +8,13 @@ case $pkgver in
 	*.*) _kernver=$pkgver;;
 esac
 pkgrel=0
-pkgdesc="Linux vanilla kernel"
+pkgdesc="Linux DKVM kernel"
 url="http://kernel.org"
 depends="mkinitfs"
 _depends_dev="perl gmp-dev elfutils-dev bash flex bison"
 makedepends="$_depends_dev sed installkernel bc linux-headers linux-firmware openssl-dev"
 options="!strip"
-_config=${config:-config-vanilla.${CARCH}}
+_config=${config:-config-dkvm.${CARCH}}
 install=
 source="https://cdn.kernel.org/pub/linux/kernel/v${pkgver%%.*}.x/linux-$_kernver.tar.xz
 	config-dkvm.x86_64
@@ -152,7 +152,7 @@ _package() {
 package() {
 	depends="$depends linux-firmware-any"
 
-	_package vanilla "$pkgdir"
+	_package dkvm "$pkgdir"
 }
 
 # subflavors install in $subpkgdir
@@ -211,8 +211,8 @@ _dev() {
 
 	# FIXME: For unknown reasons the permissions of those files becomes
 	#        root read-only. work-around til we figured out why.
-	chmod 644 "$subpkgdir"/usr/src/linux-headers-*-vanilla/arch/*/include/generated/uapi/asm/* \
-		"$subpkgdir"/usr/src/linux-headers-*-vanilla/.missing-syscalls.d \
+	chmod 644 "$subpkgdir"/usr/src/linux-headers-*-dkvm/arch/*/include/generated/uapi/asm/* \
+		"$subpkgdir"/usr/src/linux-headers-*-dkvm/.missing-syscalls.d \
 		|| :
 
 }
