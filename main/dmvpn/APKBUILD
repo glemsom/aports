@@ -1,7 +1,7 @@
 # Contributor: Kaarle Ritvanen <kaarle.ritvanen@datakunkku.fi>
 # Maintainer: Kaarle Ritvanen <kaarle.ritvanen@datakunkku.fi>
 pkgname=dmvpn
-pkgver=1.1.0
+pkgver=1.2.1
 pkgrel=0
 pkgdesc="Dynamic Multipoint VPN"
 url="https://git.alpinelinux.org/cgit/dmvpn-tools/"
@@ -58,4 +58,4 @@ dmvpn() {
 	install -D -m 644 dmvpn.lua "$subpkgdir"/usr/share/lua/5.2/dmvpn.lua
 }
 
-sha512sums="d1aa19afcbc7ce634dc92718f4effa903dfc2d93705aa2dda018f900497ee2876d11844458eafb33b011942cf93f64a59a9bae0db187346f1c364bd8620cae77  dmvpn-tools-1.1.0.tar.bz2"
+sha512sums="f39ad5b65a39d22a635a5f82f6024e21a6f899119718b5775eba965b903f007f611f6ea2c3456766f6f1e48d00fa43ddc5a8b3e8c9a732785c3db5ddf057c7b8  dmvpn-tools-1.2.1.tar.bz2"

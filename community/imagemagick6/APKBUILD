@@ -3,7 +3,7 @@
 # Maintainer: Jakub Jirutka <jakub@jirutka.cz>
 pkgname=imagemagick6
 _pkgname=ImageMagick6
-pkgver=6.9.10.60
+pkgver=6.9.10.68
 _pkgver=${pkgver%.*}-${pkgver##*.}
 _abiver=${pkgname#imagemagick}
 pkgrel=0
@@ -186,4 +186,4 @@ _cxx() {
 	mv "$pkgdir"/usr/lib/libMagick++*.so.* "$subpkgdir"/usr/lib/
 }
 
-sha512sums="e8a28fdce0e48261cbd68ec6e863e06ecfc4830ce0042f36a257f5e6d524e1deb260f590f6e04d01679148b69bd317813198237ef835777b13cb1adb09b5bea3  ImageMagick6-6.9.10-60.tar.gz"
+sha512sums="867b6b7b88fafc6afbe65a0ef6f812a5a7eb0a0f24b8635dce6f923fc52954b3c96d925dffebb7e3cfc43dfa411c1aa3c03dc4393c40f25daa17e45689685647  ImageMagick6-6.9.10-68.tar.gz"
