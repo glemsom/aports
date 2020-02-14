@@ -2,12 +2,12 @@
 # Maintainer: Fabio Ribeiro <fabiorphp@gmail.com>
 pkgname=php7-pecl-mailparse
 _pkgreal=mailparse
-pkgver=3.0.2
-pkgrel=4
+pkgver=3.0.4
+pkgrel=0
 pkgdesc="PHP extension for parsing and working with email messages - PECL"
 url="https://pecl.php.net/package/mailparse"
 arch="all"
-license="PHP"
+license="PHP-3.01"
 depends="php7-common php7-mbstring"
 makedepends="php7-dev autoconf re2c"
 source="$pkgname-$pkgver.tgz::https://pecl.php.net/get/$_pkgreal-$pkgver.tgz"
@@ -16,25 +16,19 @@ provides="php7-mailparse=$pkgver-r$pkgrel" # for backward compatibility
 replaces="php7-mailparse" # for backward compatibility
 
 build() {
-	cd "$builddir"
-
 	phpize7
 	./configure --prefix=/usr --with-php-config=php-config7
 	make
 }
 
 check() {
-	cd "$builddir"
 	# Tests require mbstring extension which is not bundled
 	sed -i 's#PHP_TEST_SHARED_EXTENSIONS =  `#PHP_TEST_SHARED_EXTENSIONS = -d extension=/usr/lib/php7/modules/mbstring.so `#' Makefile
-	# Current upstream package has no test data for following tests
-	rm -f tests/011.phpt tests/bug001.phpt tests/parse_test_messages.phpt
 	make NO_INTERACTION=1 REPORT_EXIT_STATUS=1 test
 }
 
 package() {
 	local confdir="$pkgdir/etc/php7/conf.d"
-	cd "$builddir"
 
 	make INSTALL_ROOT="$pkgdir" install
 
@@ -42,4 +36,4 @@ package() {
 	echo "extension=$_pkgreal.so" > "$confdir"/60_$_pkgreal.ini
 }
 
-sha512sums="be04e15cf3577542447186d7ead4e31159c171c99de0a255d4ee2f6f760b80ecb44be056bd9089180601f622b9a71f4331f194e1adaa702d1d964009682896f6  php7-pecl-mailparse-3.0.2.tgz"
+sha512sums="71eaebc1dc8a4698e60e170facaba16a5a9314bcb21c375b2f9a3069d7f1da819bfabc736b244e3f87131149d4efd9363120e77d8a078a0ede15113123d13ce3  php7-pecl-mailparse-3.0.4.tgz"

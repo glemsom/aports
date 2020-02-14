@@ -1,0 +1,32 @@
+# Maintainer: Drew DeVault <sir@cmpwn.com>
+pkgname=mdbook
+pkgver=0.3.5
+pkgrel=1
+pkgdesc="mdBook is a utility to create modern online books from Markdown files"
+url="https://rust-lang.github.io/mdBook/"
+arch="all !s390x" # limited by cargo
+license="MPL-2.0"
+makedepends="rust cargo"
+source="$pkgname-$pkgver.tar.gz::https://github.com/rust-lang-nursery/mdBook/archive/v$pkgver.tar.gz"
+builddir="$srcdir/mdBook-$pkgver"
+export CARGO_HOME="$srcdir"/cargo
+
+build() {
+	case "$CARCH" in
+		x86)
+			export CFLAGS="$CFLAGS -fno-stack-protector"
+			;;
+	esac
+
+	cargo build --release --verbose
+}
+
+check() {
+	cargo test --all --release --verbose
+}
+
+package() {
+	install -Dm755 target/release/mdbook "$pkgdir"/usr/bin/mdbook
+}
+
+sha512sums="754fa8ed418f7208e4ff1315d0c3576ae84c302f7cbfcb329964d0e430946f3b080b1a946a81cc2d0f7e70875b8ada226515e50935e8422b966deea8a500930d  mdbook-0.3.5.tar.gz"

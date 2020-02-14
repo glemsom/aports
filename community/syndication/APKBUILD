@@ -1,0 +1,40 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=syndication
+pkgver=5.67.0
+pkgrel=0
+pkgdesc="An RSS/Atom parser library"
+arch="all !armhf" # armhf blocked by extra-cmake-modules
+url="https://community.kde.org/Frameworks"
+license="LGPL-2.0-or-later AND BSD-3-Clause"
+depends_dev="qt5-qtbase-dev kcodecs-dev"
+makedepends="$depends_dev extra-cmake-modules doxygen graphviz qt5-qttools-dev"
+source="https://download.kde.org/stable/frameworks/${pkgver%.*}/syndication-$pkgver.tar.xz"
+subpackages="$pkgname-dev $pkgname-doc"
+
+prepare() {
+	default_prepare
+
+	mkdir "$builddir"/build
+}
+
+build() {
+	cd "$builddir"/build
+	cmake "$builddir" \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DBUILD_QCH=ON
+	make
+}
+
+check() {
+	cd "$builddir"/build
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest
+}
+
+package() {
+	cd "$builddir"/build
+	DESTDIR="$pkgdir" make install
+}
+sha512sums="c8d1b56b5ac6661bd0156a1b611b3ccf27713c1fc688e3491046f6297f7dfe1b3b8591bd0157613cbe421032ab5f16ed17ab67630175ac0b8f1b7f74bcf011d9  syndication-5.67.0.tar.xz"

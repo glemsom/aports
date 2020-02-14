@@ -1,0 +1,44 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=latte-dock
+pkgver=0.9.8.1
+pkgrel=0
+arch="all !armhf" # armhf blocked by qt5-qtdeclarative
+url="https://store.kde.org/p/1169519/"
+pkgdesc="A dock based on Plasma Frameworks"
+license="LGPL-2.0-or-later AND GPL-2.0-or-later"
+depends="kactivities"
+makedepends="extra-cmake-modules qt5-qtbase-dev qt5-qtdeclarative-dev libksysguard-dev
+	kactivities-dev karchive-dev kcoreaddons-dev kguiaddons-dev kcrash-dev
+	kdbusaddons-dev kdeclarative-dev kglobalaccel-dev ki18n-dev kiconthemes-dev
+	knewstuff-dev knotifications-dev plasma-framework-dev kwayland-dev
+	kwindowsystem-dev kxmlgui-dev xcb-util-dev plasma-desktop-dev"
+source="https://download.kde.org/stable/latte-dock/latte-dock-$pkgver.tar.xz"
+subpackages="$pkgname-lang"
+
+prepare() {
+	default_prepare
+
+	mkdir "$builddir"/build
+}
+
+build() {
+	cd "$builddir"/build
+	cmake "$builddir" \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	cd "$builddir"/build
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest
+}
+
+package() {
+	cd "$builddir"/build
+	DESTDIR="$pkgdir" make install
+}
+
+sha512sums="64676084edb930a5e325a5b41a9d909111dee3cdfd6416ecc7909e8837620bfd578988d586882040097d09655c8dd021fadccee859179b98193de23344d5b7b3  latte-dock-0.9.8.1.tar.xz"

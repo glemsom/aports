@@ -1,0 +1,39 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=kjsembed
+pkgver=5.67.0
+pkgrel=0
+pkgdesc="JavaScript bindings for QObject"
+arch="all !armhf" # armhf blocked by extra-cmake-modules
+url="https://community.kde.org/Frameworks"
+license="LGPL-2.1-or-later"
+depends_dev="qt5-qtsvg-dev kjs-dev ki18n-dev"
+makedepends="$depends_dev extra-cmake-modules qt5-qttools-dev qt5-qttools-static kdoctools-dev"
+source="https://download.kde.org/stable/frameworks/${pkgver%.*}/portingAids/kjsembed-$pkgver.tar.xz"
+subpackages="$pkgname-dev $pkgname-doc $pkgname-lang"
+
+prepare() {
+	default_prepare
+
+	mkdir "$builddir"/build
+}
+
+build() {
+	cd "$builddir"/build
+	cmake "$builddir" \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	cd "$builddir"/build
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest
+}
+
+package() {
+	cd "$builddir"/build
+	DESTDIR="$pkgdir" make install
+}
+sha512sums="1c1f5b35c8deb14452399ccfb476d69c2cbfdfa1fea4e04ff99a6c6fa9b9264af811ce8e9115209655303fd7853d95fb7825bfe486378f20cc9ade45acc74ad5  kjsembed-5.67.0.tar.xz"

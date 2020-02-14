@@ -2,52 +2,44 @@
 # Maintainer: Francesco Colista <fcolista@alpinelinux.org>
 pkgname=py3-qt5
 _pkgname=PyQt5
-pkgver=5.11.3
-pkgrel=0
+pkgver=5.13.1
+pkgrel=1
 pkgdesc="A set of Python 3 bindings for the Qt toolkit"
 url="http://riverbankcomputing.co.uk/software/pyqt/intro"
-arch="all"
+arch="all !armhf" # armhf blocked by qt5-qtdeclarative
 license="GPL-2.0-or-later"
-depends="py-sip"
-makedepends="python3-dev py-dbus-dev py-sip-dev
+depends="python3 py3-sip-pyqt5"
+makedepends="python3-dev py3-dbus-dev py-sip-dev
 	qt5-qtbase-dev libx11-dev qt5-qtsvg-dev qt5-qtwebsockets-dev
-	py-opengl qt5-qtconnectivity-dev qt5-qtmultimedia-dev qt5-qttools-dev
+	py3-opengl qt5-qtconnectivity-dev qt5-qtmultimedia-dev qt5-qttools-dev
 	qt5-qtserialport-dev qt5-qtx11extras-dev qt5-qtdeclarative-dev
+	qt5-qtwebchannel-dev
 	"
-# not all arches support qtwebengine
-case "$CARCH" in
-armhf|aarch64|x86_64)
-	makedepends="$makedepends qt5-qtwebengine-dev" ;;
-esac
-
-source="https://sourceforge.net/projects/pyqt/files/$_pkgname/PyQt-$pkgver/${_pkgname}_gpl-$pkgver.zip"
-builddir="${srcdir}/${_pkgname}_gpl-${pkgver}"
+source="https://www.riverbankcomputing.com/static/Downloads/PyQt5/$pkgver/PyQt5_gpl-$pkgver.tar.gz"
+builddir="$srcdir/${_pkgname}_gpl-$pkgver"
 
 prepare() {
 	default_prepare
-	cd "$builddir"
 	sed -i '/target_config.dbus_inc_dirs = \[\]/d' configure.py
 }
 
 build() {
-	cd "$builddir"
 	python3 configure.py \
 		--confirm-license \
 		--qmake /usr/lib/qt5/bin/qmake \
 		--sip /usr/bin/sip \
+		--sipdir /usr/share/sip/PyQt5 \
 		--qsci-api
-	find -name 'Makefile' | xargs sed -i 's|-Wl,-rpath,/usr/lib||g;s|-Wl,-rpath,.* ||g'
+	find . -name 'Makefile' -print0 | xargs sed -i 's|-Wl,-rpath,/usr/lib||g;s|-Wl,-rpath,.* ||g'
 	make
 }
 
 check() {
-    cd "$builddir"
-    make check
+	make check
 }
 
-package(){
-	cd "$builddir"
-	make -j1 DESTDIR="${pkgdir}" INSTALL_ROOT="${pkgdir}" install
+package() {
+	make -j1 DESTDIR="$pkgdir" INSTALL_ROOT="$pkgdir" install
 }
 
-sha512sums="d261d81c08c568a331a69c1aab59818432d2d93781481f1f1f10533705a9fdbaa5bed8ada963d9165a017d4583eae6a00f9604213d40033e28d75755debfd595  PyQt5_gpl-5.11.3.zip"
+sha512sums="7b7001b16a8c730d7ff2d340fa1dd118868b53519e8f75e8c2ce00b44e3637ac6a31b41a7456fc610df11ff3928b924cb54c0c3712f22ed4df5058fd8bc77281  PyQt5_gpl-5.13.1.tar.gz"

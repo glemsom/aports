@@ -1,7 +1,7 @@
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 
 pkgname=linux-rpi
-pkgver=4.19.18
+pkgver=5.4.18
 case $pkgver in
 *.*.*)	_kernver=${pkgver%.*};;
 *.*)	_kernver=${pkgver};;
@@ -17,17 +17,19 @@ makedepends="$_depends_dev sed installkernel bc linux-headers linux-firmware
 options="!strip !check"
 _rpi_repo="git://github.com/raspberrypi/linux.git"
 _linux_repo="git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git"
-source="https://kernel.org/pub/linux/kernel/v4.x/linux-$_kernver.tar.xz
-	https://kernel.org/pub/linux/kernel/v4.x/patch-$pkgver.xz
+source="https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-$_kernver.tar.xz
+	https://cdn.kernel.org/pub/linux/kernel/v5.x/patch-$pkgver.xz
 	https://dev.alpinelinux.org/archive/rpi-patches/rpi-$pkgver-alpine.patch
 
 	issue-4973.patch
 
 	config-changes-rpi.armhf
+	config-changes-rpi.armv7
 	config-changes-rpi.aarch64
 	config-changes-rpi2.armhf
-	config-changes-rpi.armv7
 	config-changes-rpi2.armv7
+	config-changes-rpi4.armv7
+	config-changes-rpi4.aarch64
 	"
 subpackages=""
 arch="armhf armv7 aarch64"
@@ -109,6 +111,7 @@ _genconfig() {
 		rpi) defconfig=bcmrpi_defconfig
 		[ "$CARCH" = "aarch64" ] && defconfig=bcmrpi3_defconfig ;;
 		rpi2) defconfig=bcm2709_defconfig ;;
+		rpi4) defconfig=bcm2711_defconfig ;;
 		*) die "Unknown flavor: $flavor" ;;
 	esac
 
@@ -116,12 +119,18 @@ _genconfig() {
 		"$builddir"/.config
 
 	while read line; do
-		[ ${line:0:1} = "#" ] && continue
+		# skip comments
+		case "$line" in
+			"#"*) continue;;
+		esac
 		local option=${line%%=*} str=
 		local cmd=$(echo $line | cut -d= -f2)
 		case "$cmd" in
-			enable|disable|module) str= ;;
-			set-str|set-val) str=${line##*=} ;;
+			y) cmd="enable";;
+			n) cmd="disable";;
+			m) cmd="module";;
+			'"'*) cmd="set-str"; str="${line#*=}";;
+			[0-9]*) cmd="set-val"; str="${line#*=}";;
 			*) die "Command $cmd not accepted" ;;
 		esac
 		msg "[$flavor] $cmd: $option $str"
@@ -183,12 +192,17 @@ _package() {
 	esac
 
 	cd "$srcdir"/build-$_buildflavor
-	local INSTALL_DTBS_PATH="$_outdir"/usr/lib/linux-${_abi_release}
+	# modules_install seems to regenerate a defect Modules.symvers. Work
+	# around it by backing it up and restore it after modules_install
+	cp Module.symvers Module.symvers.backup
+
+	local INSTALL_DTBS_PATH="$_outdir"/boot/dtbs-$_buildflavor
 	make -j1 modules_install $_install \
 		ARCH="$_carch" \
 		INSTALL_MOD_PATH="$_outdir" \
 		INSTALL_PATH="$_outdir"/boot \
 		INSTALL_DTBS_PATH="$INSTALL_DTBS_PATH"
+	cp Module.symvers.backup Module.symvers
 
 	rm -f "$_outdir"/lib/modules/${_abi_release}/build \
 		"$_outdir"/lib/modules/${_abi_release}/source
@@ -231,8 +245,12 @@ package() {
 # subflavors install in $subpkgdir
 rpi2() {
 	depends="$depends linux-firmware-brcm"
-
 	_package rpi2 "$subpkgdir"
+}
+
+rpi4() {
+	depends="$depends linux-firmware-brcm"
+	_package rpi4 "$subpkgdir"
 }
 
 _dev() {
@@ -254,7 +272,7 @@ _dev() {
 	mkdir -p "$dir"
 	cp "$srcdir"/build-$_flavor/.config "$dir"/.config
 	make -j1 -C "$srcdir"/linux-$_kernver O="$dir" HOSTCC="${CC:-gcc}" \
-		silentoldconfig prepare modules_prepare scripts
+		syncconfig prepare modules_prepare scripts
 
 	# remove the stuff that points to real sources. we want 3rd party
 	# modules to believe this is the soruces
@@ -283,12 +301,14 @@ _dev() {
 		"$subpkgdir"/lib/modules/${_abi_release}/build
 }
 
-sha512sums="ab67cc746b375a8b135e8b23e35e1d6787930d19b3c26b2679787d62951cbdbc3bb66f8ededeb9b890e5008b2459397f9018f1a6772fdef67780b06a4cb9f6f4  linux-4.19.tar.xz
-f7a6539d0cc957ba5293e27ed2c0e3847be3704bd1cab1a1f271f3924c73abcf8220aa813d9f034b60701291a700e5d5ac779043f7e32562ce037e5db6832008  patch-4.19.18.xz
-5162f638df2cf903e9bccfe11e6aabb7d8591c1546cab957379c7d90311381e63f4af46ae31ab2b265c4655b35ccb78a99e927375713c66c44acc16fd5522a8f  rpi-4.19.18-alpine.patch
+sha512sums="9f60f77e8ab972b9438ac648bed17551c8491d6585a5e85f694b2eaa4c623fbc61eb18419b2656b6795eac5deec0edaa04547fc6723fbda52256bd7f3486898f  linux-5.4.tar.xz
+25e8ca187add056d9275002eded1bcd400e8d216f6db8d15179fda0bf6da934ef5d351ae73b81e9fa6295d784095dd83afe772b38c02bbb72ffb808937dedf93  patch-5.4.18.xz
+7d7434005a0ee3050f1af69ce503d6e0e682214f9fbcb2b8b2fdcbac27f4edbe00a28c3f7ca52963437c39332769f91107d0c4c3ca26cd44a850f862778c9986  rpi-5.4.18-alpine.patch
 501c91bf2538a18102da59bbccc3097f9c3c90079acc0e946ff075074160c09b8a66934e5ce5470e170f0e4f93d114709a95230367426d0bb7ea02c4bdf4cc9b  issue-4973.patch
-6c1c1c61ceb323eecb0e81e226af6b5b8fef7c8c075b1eb836639f465de5ef5d23648716c953d295250f8c6567546782956afe644573b84920a4f6902a1a0454  config-changes-rpi.armhf
-6c1c1c61ceb323eecb0e81e226af6b5b8fef7c8c075b1eb836639f465de5ef5d23648716c953d295250f8c6567546782956afe644573b84920a4f6902a1a0454  config-changes-rpi.aarch64
-6c1c1c61ceb323eecb0e81e226af6b5b8fef7c8c075b1eb836639f465de5ef5d23648716c953d295250f8c6567546782956afe644573b84920a4f6902a1a0454  config-changes-rpi2.armhf
-6c1c1c61ceb323eecb0e81e226af6b5b8fef7c8c075b1eb836639f465de5ef5d23648716c953d295250f8c6567546782956afe644573b84920a4f6902a1a0454  config-changes-rpi.armv7
-6c1c1c61ceb323eecb0e81e226af6b5b8fef7c8c075b1eb836639f465de5ef5d23648716c953d295250f8c6567546782956afe644573b84920a4f6902a1a0454  config-changes-rpi2.armv7"
+bf827937d72085dcd886b8efdf0c930f825dd0778e1baccc535a78475f855a8d457b13647840e8d6e6d81035b856d9e747bb42b6d56ae4e53b73ed3212fc2f4d  config-changes-rpi.armhf
+bf827937d72085dcd886b8efdf0c930f825dd0778e1baccc535a78475f855a8d457b13647840e8d6e6d81035b856d9e747bb42b6d56ae4e53b73ed3212fc2f4d  config-changes-rpi.armv7
+bf827937d72085dcd886b8efdf0c930f825dd0778e1baccc535a78475f855a8d457b13647840e8d6e6d81035b856d9e747bb42b6d56ae4e53b73ed3212fc2f4d  config-changes-rpi.aarch64
+bf827937d72085dcd886b8efdf0c930f825dd0778e1baccc535a78475f855a8d457b13647840e8d6e6d81035b856d9e747bb42b6d56ae4e53b73ed3212fc2f4d  config-changes-rpi2.armhf
+bf827937d72085dcd886b8efdf0c930f825dd0778e1baccc535a78475f855a8d457b13647840e8d6e6d81035b856d9e747bb42b6d56ae4e53b73ed3212fc2f4d  config-changes-rpi2.armv7
+bf827937d72085dcd886b8efdf0c930f825dd0778e1baccc535a78475f855a8d457b13647840e8d6e6d81035b856d9e747bb42b6d56ae4e53b73ed3212fc2f4d  config-changes-rpi4.armv7
+bf827937d72085dcd886b8efdf0c930f825dd0778e1baccc535a78475f855a8d457b13647840e8d6e6d81035b856d9e747bb42b6d56ae4e53b73ed3212fc2f4d  config-changes-rpi4.aarch64"

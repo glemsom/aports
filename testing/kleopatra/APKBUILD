@@ -1,0 +1,33 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=kleopatra
+pkgver=19.12.2
+pkgrel=0
+arch="all !armhf"
+url="https://www.kde.org/applications/utilities/kleopatra/"
+pkgdesc="Certificate Manager and Unified Crypto GUI"
+license="GPL-2.0-or-later AND GFDL-1.2-only"
+depends="gnupg pinentry-gtk" # Preferably pinentry-qt, but pinentry is in main and Qt5 is in community so it's disabled
+makedepends="extra-cmake-modules qt5-qtbase-dev kcmutils-dev kwidgetsaddons-dev kconfigwidgets-dev kcoreaddons-dev kcodecs-dev kconfig-dev ki18n-dev kiconthemes-dev kitemmodels-dev kxmlgui-dev kwindowsystem-dev kdoctools-dev kcrash-dev kdoctools-dev kdbusaddons-dev gpgme-dev qgpgme libkleo-dev kmime-dev libassuan-dev boost-dev"
+checkdepends="xvfb-run"
+source="https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz"
+subpackages="$pkgname-doc $pkgname-lang"
+
+build() {
+	cmake \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	# kuniqueservicetest requires running dbus
+	CTEST_OUTPUT_ON_FAILURE=TRUE xvfb-run ctest -E "kuniqueservicetest"
+}
+
+package() {
+	DESTDIR="$pkgdir" make install
+}
+
+sha512sums="9c22c6aac485e1ab1a24326d33758f12480c474e9eca57c6651fc85f88a477ce66a8b33e7adbad42561672d93357e7c947596573594a458d01829116e762b658  kleopatra-19.12.2.tar.xz"

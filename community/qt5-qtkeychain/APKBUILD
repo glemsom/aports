@@ -1,33 +1,37 @@
 # Contributor: Leonardo Arena <rnalrd@alpinelinux.org>
 # Maintainer: Leonardo Arena <rnalrd@alpinelinux.org>
 pkgname=qt5-qtkeychain
-_realname=qtkeychain
-pkgver=0.8.0
+pkgver=0.10.0
 pkgrel=0
 pkgdesc="Qt API to store passwords and other secret data"
 url="https://github.com/frankosterfeld/qtkeychain"
 arch="all"
-license="BSD"
-makedepends="$depends_dev cmake qt5-qttools-dev"
+license="BSD-2-Clause"
+makedepends="cmake qt5-qttools-dev libsecret-dev"
 subpackages="$pkgname-dev"
 replaces="qtkeychain"
 source="$pkgname-$pkgver.tar.gz::https://github.com/frankosterfeld/qtkeychain/archive/v$pkgver.tar.gz"
 options="!check"
-builddir="$srcdir"/$_realname-$pkgver
+builddir="$srcdir"/qtkeychain-$pkgver
 
 build() {
-	cd "$builddir"
+	if [ "$CBUILD" != "$CHOST" ]; then
+		CMAKE_CROSSOPTS="-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_HOST_SYSTEM_NAME=Linux"
+	fi
+
 	cmake \
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		-DCMAKE_INSTALL_LIBDIR=lib \
-		-DCMAKE_INSTALL_LIBEXECDIR=lib/${_realname} \
-		-DCMAKE_BUILD_TYPE=Release
-	make || return 1
+		-DBUILD_SHARED_LIBS=True \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_CXX_FLAGS="$CXXFLAGS" \
+		-DCMAKE_C_FLAGS="$CFLAGS" \
+		$CMAKE_CROSSOPTS
+	make
 }
 
 package() {
-	cd "$builddir"
 	make DESTDIR="$pkgdir" install
 }
 
-sha512sums="be83ebc665a7916e96a2fd9990c72cd29373196591cf557fa6f9691f332ab67cc5475cab240c3e50e76cb37e0b7f189f0a1f2c3a70a6f655918e1d2465ed2f33  qt5-qtkeychain-0.8.0.tar.gz"
+sha512sums="de35d1a39c717db5c8c3b8a59571e96ed8925836a7043dd9f236c284bf92de4875c4b53686ba73244bbc84b55a88d44316a16da3012e50cbc7594fbf0b1140b6  qt5-qtkeychain-0.10.0.tar.gz"

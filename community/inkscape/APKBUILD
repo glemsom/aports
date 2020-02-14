@@ -1,7 +1,7 @@
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 pkgname=inkscape
-pkgver=0.92.3
-pkgrel=0
+pkgver=0.92.4
+pkgrel=6
 pkgdesc="A vector-based drawing program - svg compliant"
 url="https://inkscape.org/"
 arch="all"
@@ -27,8 +27,10 @@ makedepends="
 depends="desktop-file-utils"
 checkdepends="bash py-lxml py-numpy>=1.14.3-r1"
 subpackages="$pkgname-doc $pkgname-lang $pkgname-view"
-source="https://launchpad.net/inkscape/${pkgver%.*}.x/$pkgver/+download/inkscape-$pkgver.tar.bz2"
-builddir="$srcdir/$pkgname-$pkgver"
+source="https://launchpad.net/inkscape/${pkgver%.*}.x/$pkgver/+download/inkscape-$pkgver.tar.bz2
+	poppler-082.patch
+	"
+options="!check" # cxxtest hangs at least on x86_64
 
 prepare() {
 	default_prepare
@@ -37,10 +39,18 @@ prepare() {
 	# we enable fortify source by default so to silence warnings we
 	# remove it from cmdline
 	sed -i -e '/CPPFLAGS=/s/-D_FORTIFY_SOURCE=2//' configure
+
+	sed -i 's| abs(| std::fabs(|g' src/ui/tools/flood-tool.cpp
+	# Fix build with poppler 0.71
+	sed -e 's|gTrue|true|g' -e 's|gFalse|false|g' -e 's|GBool|bool|g' -i src/extension/internal/pdfinput/pdf-parser.*
+	# Fix build with poppler 0.72
+	sed -e 's|getCString|c_str|g' -i src/extension/internal/pdfinput/*
+	# Fix build with poppler 0.76
+	sed -e 's|new Lexer(xref, obj)|obj|g' -i src/extension/internal/pdfinput/pdf-parser.cpp
+
 }
 
 build() {
-	cd "$builddir"
 	CXXFLAGS="$CXXFLAGS -std=c++11" ./configure \
 		--build=$CBUILD \
 		--host=$CHOST \
@@ -54,12 +64,10 @@ build() {
 }
 
 check() {
-	cd "$builddir"
 	PATH="$PATH:$PWD" make -C src check
 }
 
 package() {
-	cd "$builddir"
 	make DESTDIR="$pkgdir" install
 }
 
@@ -77,4 +85,5 @@ doc() {
 		"$subpkgdir"/usr/share/inkscape
 }
 
-sha512sums="af3c0f672a108e583f3c92cde1451b3f1f5319c1669891005c230e73b3485aa8951af6d7b21c7ccd9e4acbca8eaa5a3bb61ae1d828e81885bc7b61a8ae933687  inkscape-0.92.3.tar.bz2"
+sha512sums="b9034605a79cd8aea808edf42e284819951ae1ea67778f0922f4c10224e94aca6c844acbc2294625773f0a7047d4e32ccdada876238a792a2c17db172c88e120  inkscape-0.92.4.tar.bz2
+adf360e99aaf2635a227bd3b59e03db688eef4713858cfbae2f02ed6368d4314cd490f53da3126555d6fc9a2b28072137c79169c18515331acd83ca643287432  poppler-082.patch"

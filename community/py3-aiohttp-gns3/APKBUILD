@@ -2,16 +2,15 @@
 # Maintainer: Francesco Colista <fcolista@alpinelinux.org>
 pkgname=py3-aiohttp-gns3
 _pkgname=aiohttp
-pkgver=2.3.10
-pkgrel=1
+pkgver=3.6.2
+pkgrel=0
 pkgdesc="HTTP client/server for asyncio - GNS3 compatible version"
 url="https://pypi.python.org/pypi/aiohttp"
 arch="all"
 license="Apache-2.0"
 depends="python3 py3-async-timeout-gns3 py3-chardet py3-multidict py3-yarl 
-	py3-idna-ssl py3-attrs"
-makedepends="python3-dev py3-setuptools cython-dev"
-conflicts="py3-aiohttp"
+	py3-idna-ssl py3-attrs !py3-aiohttp"
+makedepends="python3-dev py3-setuptools cython"
 source="$pkgname-$pkgver.tar.gz::https://files.pythonhosted.org/packages/source/${_pkgname:0:1}/$_pkgname/$_pkgname-$pkgver.tar.gz"
 builddir="$srcdir/$_pkgname-$pkgver"
 
@@ -30,4 +29,4 @@ package() {
 	python3 setup.py install --root="$pkgdir" --optimize=1
 }
 
-sha512sums="e4ea725bbd3d7d749f2ec21eea1ff9f5c836fbeaa17ad72f77e378c69b008448e57503175bee6adff86110f65edc915cb6368df3011d1d9d61cf47718b086be0  py3-aiohttp-gns3-2.3.10.tar.gz"
+sha512sums="49bd3089158c05ff6312420190ccd7fed95efb4a18b8aff7497d5507c71c692080d6949801edabdcd95379ca8e6614398408118d72ff1e782399e059e2cfc1a8  py3-aiohttp-gns3-3.6.2.tar.gz"

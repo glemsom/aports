@@ -1,15 +1,14 @@
 # Contributor: Jakub Jirutka <jakub@jirutka.cz>
 # Maintainer: Jakub Jirutka <jakub@jirutka.cz>
 pkgname=ameba
-pkgver=0.8.0
+pkgver=0.11.0
 pkgrel=0
 pkgdesc="A static code analysis tool for Crystal"
-url="https://veelenga.github.io/ameba/"
-arch="x86_64"  # limited by crystal. build fails on aarch64
+url="https://github.com/crystal-ameba/ameba"
+arch="x86_64 aarch64"
 license="MIT"
 makedepends="crystal libxml2-dev shards yaml-dev"
-source="$pkgname-$pkgver.tar.gz::https://github.com/veelenga/$pkgname/archive/v$pkgver.tar.gz
-	fix-makefile.patch"
+source="$pkgname-$pkgver.tar.gz::https://github.com/veelenga/$pkgname/archive/v$pkgver.tar.gz"
 builddir="$srcdir/$pkgname-$pkgver"
 
 export CRYSTAL_CACHE_DIR="$srcdir/.cache"
@@ -29,5 +28,4 @@ package() {
 	make install PREFIX="$pkgdir/usr"
 }
 
-sha512sums="5ee602374f7b3c7241bfe16d0afeb74af5acf5b3530d8cac3b3b59c8c9b39e017bec018b04bdb79d973cd473ed84c07a7d8e8ed376d1f0c7ecff9a3fe48971c6  ameba-0.8.0.tar.gz
-0acb42fe00c650b801f88911457e3d83f7297719494094e8687b67093d5641b6f892d63c603fd2d346a8db06128158ae4ace3a8a9bd5852b838c6a4d6104e9d6  fix-makefile.patch"
+sha512sums="3dd410480693dd6cd6f98b5eee4f7cb72f7a3ede3acf3fdbc1aa717ae8001431628e5c1f81322cf78b3cce192be942e813ee853dd954f221eea46dc3704bd723  ameba-0.11.0.tar.gz"

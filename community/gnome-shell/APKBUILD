@@ -1,0 +1,82 @@
+# Contributor: Rasmus Thomsen <oss@cogitri.dev>
+# Maintainer: Rasmus Thomsen <oss@cogitri.dev>
+pkgname=gnome-shell
+pkgver=3.34.3
+pkgrel=1
+pkgdesc="GNOME shell"
+url="https://wiki.gnome.org/Projects/GnomeShell"
+arch="all !s390x !ppc64le"
+license="GPL-2.0-or-later"
+depends="accountsservice
+	caribou
+	elogind
+	gsettings-desktop-schemas
+	upower
+	ibus
+	librsvg
+	network-manager-applet
+	gnome-bluetooth
+	gnome-control-center
+	font-adobe-source-code-pro
+	ttf-cantarell
+	adwaita-icon-theme
+	gnome-themes-standard"
+makedepends="gnome-desktop-dev
+	libxml2-dev
+	libcanberra-dev
+	gobject-introspection-dev
+	startup-notification-dev
+	libsoup-dev
+	polkit-dev
+	gcr-dev
+	gjs-dev
+	mutter-dev
+	libcroco-dev
+	pulseaudio-dev
+	evolution-data-server-dev evolution-dev
+	python3
+	meson
+	libxml2-utils
+	ibus-dev
+	sassc
+	networkmanager-dev
+	network-manager-applet-dev
+	gnome-control-center-dev
+	py3-setuptools
+	gnome-bluetooth-dev
+	gstreamer-dev
+	gnome-autoar-dev
+	asciidoc
+	libcap"
+checkdepends="
+	xvfb-run
+	mesa-dri-swrast
+	gdm
+	"
+subpackages="$pkgname-lang $pkgname-doc $pkgname-dbg"
+source="https://download.gnome.org/sources/gnome-shell/${pkgver%.*}/gnome-shell-$pkgver.tar.xz"
+options="!check" # Tests have circular dependency 'gnome-shell <-> gdm'
+
+build() {
+	meson \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--localstatedir=/var \
+		--buildtype=debugoptimized \
+		-Dsystemd=false \
+		. output
+	ninja -C output
+}
+
+check() {
+	xvfb-run ninja -C output test
+}
+
+package() {
+	DESTDIR="$pkgdir" ninja -C output install
+	#allow realtime scheduling
+	setcap cap_sys_nice+ep "$pkgdir"/usr/bin/gnome-shell
+}
+
+sha512sums="7831a4e7f5356d675b91a2feb551edf0e85e7ba8962f556f9448fc4c537afe1ee35e8b53cd9c349ff62bf783a24f0686ce9282175156eaf962db1fb26c499d28  gnome-shell-3.34.3.tar.xz"

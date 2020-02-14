@@ -2,50 +2,46 @@
 # Contributor: Leonardo Arena <rnalrd@alpinelinux.org>
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 pkgname=util-linux
-pkgver=2.33
+pkgver=2.35.1
 
 case $pkgver in
 	*.*.*) _v=${pkgver%.*};;
 	*.*) _v=$pkgver;;
 esac
 
-pkgrel=0
+pkgrel=1
 pkgdesc="Random collection of Linux utilities"
-url="http://git.kernel.org/cgit/utils/util-linux/util-linux.git"
+url="https://git.kernel.org/cgit/utils/util-linux/util-linux.git"
 arch="all"
 license="GPL-2.0 GPL-2.0-or-later LGPL-2.0-or-later BSD Public-Domain"
 depends="findmnt"
 makedepends_build="autoconf automake libtool"
 makedepends_host="zlib-dev ncurses-dev linux-headers libcap-ng-dev"
 options="suid"
-source="https://www.kernel.org/pub/linux/utils/$pkgname/v${_v}/$pkgname-$pkgver.tar.xz
+source="https://www.kernel.org/pub/linux/utils/util-linux/v$_v/util-linux-$pkgver.tar.xz
 	ttydefaults.h
 	"
 subpackages="$pkgname-doc $pkgname-dev $pkgname-bash-completion:bashcomp:noarch
 	libuuid libblkid libmount libsmartcols libfdisk sfdisk cfdisk
 	findmnt:_findmnt mcookie blkid setpriv"
 if [ -z "$BOOTSTRAP" ]; then
-	makedepends_host="$makedepends_host ncurses-dev python2-dev"
-	subpackages="$subpackages py-libmount:_py"
+	makedepends_host="$makedepends_host python3-dev"
+	subpackages="$subpackages py3-libmount:_py3"
 else
 	_bootstrap_config="--without-python"
 fi
 makedepends="$makedepends_build $makedepends_host"
 replaces="e2fsprogs util-linux-ng"
 
-builddir="$srcdir/$pkgname-$pkgver"
 prepare() {
 	default_prepare
 
-	cd "$builddir"
 	cp "$srcdir"/ttydefaults.h include/
 	libtoolize --force && aclocal -I m4 && autoconf \
 		&& automake --add-missing
 }
 
 build() {
-	cd "$builddir"
-
 	# login utils are provided by shadow (with PAM) or busybox (no PAM) --nenolod
 	./configure \
 		--build=$CBUILD \
@@ -61,6 +57,7 @@ build() {
 		--disable-last \
 		--disable-sulogin \
 		--disable-su \
+		--with-python=3 \
 		$_bootstrap_config
 	make
 }
@@ -71,6 +68,7 @@ package() {
 }
 
 dev() {
+	depends_dev="$depends_dev util-linux=$pkgver-r$pkgrel"
 	default_dev
 	replaces="e2fsprogs-dev util-linux-ng-dev"
 }
@@ -164,11 +162,11 @@ _findmnt() {
 	mv "$pkgdir"/bin/findmnt "$subpkgdir"/bin
 }
 
-_py() {
-	pkgdesc="python bindings to libmount"
+_py3() {
+	pkgdesc="python3 bindings to libmount"
 	mkdir -p "$subpkgdir"/usr/lib
 	mv "$pkgdir"/usr/lib/python* "$subpkgdir"/usr/lib/
 }
 
-sha512sums="5eb419607c5a2634117a604d425d6413763d1e48910acabc7e19d574a4c3fb0ceb34a68671a8e4fe396a4c6d611932082f77cd669d009e218bf64095da0d5689  util-linux-2.33.tar.xz
+sha512sums="6e27e08bfc02378970f015decfea5a52d6c342c4c8f4ac48dd07d248485eb797e506d91d290dbbca344c3e5cfe1fc150db80a23d510367427232f5abeabe591a  util-linux-2.35.1.tar.xz
 876bb9041eca1b2cca1e9aac898f282db576f7860aba690a95c0ac629d7c5b2cdeccba504dda87ff55c2a10b67165985ce16ca41a0694a267507e1e0cafd46d9  ttydefaults.h"

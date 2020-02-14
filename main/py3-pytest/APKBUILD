@@ -1,0 +1,36 @@
+# Contributor: Fabian Affolter <fabian@affolter-engineering.ch>
+# Maintainer: Fabian Affolter <fabian@affolter-engineering.ch>
+pkgname=py3-pytest
+pkgver=5.3.5
+pkgrel=0
+pkgdesc="A python test library"
+url="https://docs.pytest.org/en/latest/"
+arch="noarch"
+license="MIT"
+depends="py3-atomicwrites py3-py py3-six py3-attrs py3-more-itertools py3-pluggy py3-wcwidth
+	py3-setuptools py3-packaging"
+source="https://files.pythonhosted.org/packages/source/p/pytest/pytest-$pkgver.tar.gz"
+builddir="$srcdir/pytest-$pkgver"
+
+replaces="pytest" # Backwards compatibility
+provides="pytest=$pkgver-r$pkgrel" # Backwards compatibility
+
+build() {
+	python3 setup.py build
+}
+
+check() {
+	python3 setup.py check
+}
+
+package() {
+	mkdir -p "$pkgdir"/usr/bin
+
+	local name; for name in py.test pytest; do
+		ln -s $name-3 "$pkgdir"/usr/bin/$name
+	done
+
+	python3 setup.py install --prefix=/usr --root="$pkgdir"
+}
+
+sha512sums="14877d67aef83d498c8a2917b9633bda317948fa889100e6d1a00547a71f0bfb32d8a01506e97bab6372bfbae17a03aa21bdad8d81072a163a5c9c042498a3b3  pytest-5.3.5.tar.gz"

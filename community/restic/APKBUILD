@@ -1,16 +1,14 @@
 # Contributor: Sören Tempel <soeren+alpine@soeren-tempel.net>
 # Maintainer: Sören Tempel <soeren+alpine@soeren-tempel.net>
 pkgname=restic
-pkgver=0.9.4
+pkgver=0.9.6
 pkgrel=0
 pkgdesc="Fast, secure, efficient backup program"
 url="https://restic.net/"
 arch="all"
 license="BSD-2-Clause"
-depends=""
 makedepends="go"
-options="!checkroot"
-install=""
+options="net !checkroot"
 subpackages="$pkgname-doc
 	$pkgname-zsh-completion:zshcomp:noarch
 	$pkgname-bash-completion:bashcomp:noarch"
@@ -64,4 +62,9 @@ zshcomp() {
 		"$subpkgdir"/usr/share/zsh/site-functions/_$pkgname
 }
 
-sha512sums="8e75a1da6ee9a364c2bf53ce8f9b014549e7065eae349dc6baf68b0e8a8e9736f83c0495b822aac87480751f448bd42da34c440290b5f0967aea7becda5c448b  restic-0.9.4.tar.gz"
+cleanup_srcdir() {
+	go clean -modcache
+	default_cleanup_srcdir
+}
+
+sha512sums="f6f7797dc17644e8f0217d81f7194e8e6416f6e740bad0eb11bcf83ab72d1729025e59fd1b81eb9d57bdd60e98b3324026ddb2325c654eb1b51f8f30ed247089  restic-0.9.6.tar.gz"

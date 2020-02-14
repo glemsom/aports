@@ -1,7 +1,7 @@
 # Contributor: Carlo Landmeter <clandmeter@gmail.com>
 # Maintainer: Francesco Colista <fcolista@alpinelinux.org>
 pkgname=leptonica
-pkgver=1.76.0
+pkgver=1.79.0
 pkgrel=0
 pkgdesc="Software that is broadly useful for image processing and image analysis applications"
 url="http://www.leptonica.com/"
@@ -9,11 +9,9 @@ arch="all"
 license="custom"
 makedepends="libjpeg-turbo-dev tiff-dev libpng-dev zlib-dev giflib-dev libwebp-dev"
 subpackages="$pkgname-dev"
-source="https://github.com/DanBloomberg/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.gz"
-builddir="$srcdir"/$pkgname-$pkgver
+source="https://github.com/DanBloomberg/leptonica/releases/download/$pkgver/leptonica-$pkgver.tar.gz"
 
 build() {
-	cd "$builddir"
 	./configure \
 		--build=$CBUILD \
 		--host=$CHOST \
@@ -26,8 +24,8 @@ build() {
 }
 
 package() {
-	cd "$builddir"
 	make DESTDIR="$pkgdir" install
+	rm -f "$pkgdir"/usr/lib/*.a "$pkgdir"/usr/lib/*.la
 }
 
-sha512sums="83c77bebbf739cecab997ee08f7c9abf3ca884019c559b8f77c292ea2676c464cbf9b6812d7f12aefceef86c19d04bb3bc85119de298647a641b984dcdf3b111  leptonica-1.76.0.tar.gz"
+sha512sums="4d0830683757004bb47752a17985d80c6758b97c0fd6ec64d23bbf43c9c68b04bee751831574afa4c25f5d5030c0c9f7fc22d9fc8ef932aa990401344f588ba5  leptonica-1.79.0.tar.gz"

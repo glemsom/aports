@@ -1,34 +1,23 @@
 # Contributor: Stuart Cardall <developer@it-offshore.co.uk>
 # Maintainer: Stuart Cardall <developer@it-offshore.co.uk>
 pkgname=entr
-pkgver=4.1
+pkgver=4.4
 pkgrel=0
 pkgdesc="Event Notify Test Runner: Run arbitrary commands when files change"
 url="http://entrproject.org"
 arch="all"
-license="ISC BSD"
+license="ISC"
 subpackages="$pkgname-doc"
 makedepends="vim mercurial file util-linux"
 checkdepends="bash tmux"
-source="http://entrproject.org/code/$pkgname-$pkgver.tar.gz
-	"
-builddir="$srcdir/eradman-$pkgname"
-
-unpack() {
-	default_unpack
-
-	# Top-level directory inside the tar archive contains SHA of a commit...
-	mv "$srcdir"/eradman-$pkgname-* "$builddir"
-}
+source="http://entrproject.org/code/entr-$pkgver.tar.gz"
 
 build() {
-	cd "$builddir"
 	./configure
 	make
 }
 
 check() {
-	cd "$builddir"
 	make test
 
 	# FIXME: The tmux invocation in the functional tests blocks the builders
@@ -36,8 +25,7 @@ check() {
 }
 
 package() {
-	cd "$builddir"
 	PREFIX="$pkgdir/usr" make install
 }
 
-sha512sums="0a80aa9caa97f2603e43957b716bf5b5746cea8bfb2f2cc884aab8c97a34341d6223035fbb5d4bf86234ea1c9314c077cec9d59ba442a2730fcbd7151425a459  entr-4.1.tar.gz"
+sha512sums="355bc19cfee9a9b5a460b136d8db014a1d129b6e4c95d905c1c4557cf7d845a076d260798ae8b84221563c049a9bd6d81974f00eea681abaf2eac2f2f5e6d087  entr-4.4.tar.gz"

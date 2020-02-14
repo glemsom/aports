@@ -1,15 +1,15 @@
-# Maintainer:
+# Maintainer: Kevin Daudt <kdaudt@alpinelinux.org>
 pkgname=direnv
-pkgver=2.15.2
+pkgver=2.21.2
 pkgrel=0
 pkgdesc="Environment variable switcher for the shell"
-url="http://direnv.net"
+url="https://direnv.net"
 arch="all"
 license="MIT"
 checkdepends="bash"
 makedepends="go"
 subpackages="$pkgname-doc"
-source="$pkgname-$pkgver.tar.gz::https://github.com/direnv/$pkgname/archive/v$pkgver.tar.gz"
+source="$pkgname-$pkgver.tar.gz::https://github.com/direnv/direnv/archive/v$pkgver.tar.gz"
 builddir="$srcdir/src/github.com/direnv/$pkgname"
 
 prepare() {
@@ -20,18 +20,17 @@ prepare() {
 }
 
 build() {
-	cd "$builddir"
 	make GOPATH="$srcdir"
 }
 
 check() {
-	cd "$builddir"
-	make test GOPATH="$srcdir"
+	# Also has tests for tcsh and elvish, this manual call is done instead of
+	# tests to avoid unwanted tests like 'shellcheck' and 'go-fmt'
+	GOPATH="$srcdir" make test-go test-bash
 }
 
 package() {
-	cd "$builddir"
 	make DESTDIR="$pkgdir/usr" install
 }
 
-sha512sums="f973ce55844fce97ad5a93832d53a8a0f4544080022f869c1a83dc3cf07ee86c1ea1a1cb31ddc20c4f5d205825e70405539bf866889c0aaafc7baf75b98d2fbe  direnv-2.15.2.tar.gz"
+sha512sums="a63b0bfa24041c8fb3bead52bce1917b02d61e09e48a3698c1358dbd3b40d7e6c66bdc26597b69805476a7deeb2a81672ee0b25732b25982d0dd0426c102e83e  direnv-2.21.2.tar.gz"

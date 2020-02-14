@@ -1,20 +1,18 @@
 # Contributor: Christophe BERAUD-DUFOUR <christophe.berauddufour@gmail.com>
 # Maintainer: Christophe BERAUD-DUFOUR <christophe.berauddufour@gmail.com>
 pkgname=yubico-piv-tool
-pkgver=1.6.2
+pkgver=2.0.0
 pkgrel=0
 pkgdesc="PIV Tools for yubikey"
 url="https://developers.yubico.com/yubico-piv-tool"
 arch="all"
-license="BSD"
+license="BSD-2-Clause"
 makedepends="openssl-dev pcsc-lite-dev"
 checkdepends="check-dev bash"
 subpackages="$pkgname-dev $pkgname-doc"
-source="https://developers.yubico.com/$pkgname/Releases/$pkgname-$pkgver.tar.gz"
-builddir="$srcdir/$pkgname-$pkgver"
+source="https://developers.yubico.com/yubico-piv-tool/Releases/yubico-piv-tool-$pkgver.tar.gz"
 
 build() {
-	cd "$builddir"
 	./configure \
 		--build=$CBUILD \
 		--host=$CHOST \
@@ -26,13 +24,11 @@ build() {
 }
 
 check() {
-	cd "$builddir"
 	make check
 }
 
 package() {
-	cd "$builddir"
 	make DESTDIR="$pkgdir" install
 }
 
-sha512sums="43df64a3741cc18818f9cba9f2263cc479005184c21a5200d4f59b5469c6768d2190f8de964d30c4343edb5c0bbdf3c29ea650b8503053728a6e498e302da9a0  yubico-piv-tool-1.6.2.tar.gz"
+sha512sums="6aefdb84b11b41bc46bb6a5cdf0332a8288db1fbe5eb63c3deb0a6881616d2ae3ad48bd79fa40ce0d96ff076e2ee1b0b81054e7737984ec1db7bd0e48db85f3a  yubico-piv-tool-2.0.0.tar.gz"

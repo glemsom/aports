@@ -1,0 +1,41 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=plymouth-kcm
+pkgver=5.18.0
+pkgrel=0
+arch="all !armhf" # armhf blocked by extra-cmake-modules
+url="https://cgit.kde.org/plymouth-kcm.git"
+pkgdesc="KCM to manage the Plymouth (Boot) theme"
+license="GPL-2.0-or-later"
+depends="plymouth"
+makedepends="extra-cmake-modules qt5-qtbase-dev karchive-dev knewstuff-dev kio-dev kdeclarative-dev ki18n-dev kconfig-dev kconfigwidgets-dev plymouth-dev kcmutils"
+source="https://download.kde.org/stable/plasma/$pkgver/plymouth-kcm-$pkgver.tar.xz"
+subpackages="$pkgname-lang"
+options="!check" # No tests
+
+prepare() {
+	default_prepare
+
+	mkdir "$builddir"/build
+}
+
+build() {
+	cd "$builddir"/build
+	cmake "$builddir" \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	cd "$builddir"/build
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest
+}
+
+package() {
+	cd "$builddir"/build
+	DESTDIR="$pkgdir" make install
+}
+
+sha512sums="72ca5760794b1d20480d8ccd1780d219aecae29508363be63e7058c6857833d74217fb535c0b382ecb37ad74933a16ea5a39c24d270aad1f220f2b868aaebe36  plymouth-kcm-5.18.0.tar.xz"

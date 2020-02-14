@@ -1,0 +1,43 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=kcalendarcore
+pkgver=5.67.0
+pkgrel=0
+pkgdesc="The KDE calendar access library"
+arch="all !armhf" # armhf blocked by extra-cmake-modules
+url="https://community.kde.org/Frameworks"
+license="LGPL-2.0-or-later"
+depends_dev="qt5-qtbase-dev libical-dev"
+makedepends="$depends_dev extra-cmake-modules doxygen qt5-qttools-dev"
+source="https://download.kde.org/stable/frameworks/${pkgver%.*}/kcalendarcore-$pkgver.tar.xz"
+subpackages="$pkgname-dev $pkgname-doc"
+
+replaces="kcalcore"
+
+prepare() {
+	default_prepare
+
+	mkdir "$builddir"/build
+}
+
+build() {
+	cd "$builddir"/build
+	cmake "$builddir" \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DBUILD_QCH=ON
+	make
+}
+
+check() {
+	cd "$builddir"/build
+	# testrecurtodo, testreadrecurrenceid, testicaltimezones, testmemorycalendar and testtimesininterval are broken
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest -E "test(recurtodo|readrecurrenceid|icaltimezones|memorycalendar|timesininterval)"
+}
+
+package() {
+	cd "$builddir"/build
+	DESTDIR="$pkgdir" make install
+}
+sha512sums="6c5b10f80b3e2895719617d3de463fbe671ae7dd84640616a13d7c04e45d53792c5629862fe784c949bf04b0e6cf5c93a7bb87651afa4c22d488cfdbd3462f46  kcalendarcore-5.67.0.tar.xz"

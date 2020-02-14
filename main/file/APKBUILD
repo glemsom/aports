@@ -1,18 +1,30 @@
 # Contributor: Valery Kartel <valery.kartel@gmail.com>
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 pkgname=file
-pkgver=5.35
+pkgver=5.38
 pkgrel=0
 pkgdesc="File type identification utility"
-url="http://www.darwinsys.com/file"
+url="https://www.darwinsys.com/file"
 arch="all"
 license="BSD-2-Clause"
+makedepends="autoconf libtool automake"
 subpackages="$pkgname-dev $pkgname-doc libmagic"
-source="ftp://ftp.astron.com/pub/file/$pkgname-$pkgver.tar.gz"
-builddir="$srcdir/$pkgname-$pkgver"
+source="$pkgname-$pkgver.tar.gz::https://github.com/file/file/archive/FILE${pkgver/./_}.tar.gz
+	"
+builddir="$srcdir/$pkgname-FILE${pkgver/./_}"
+
+# secfixes:
+#   5.37-r1:
+#     - CVE-2019-18218
+#   5.36-r0:
+#     - CVE-2019-1543
+#     - CVE-2019-8904
+#     - CVE-2019-8905
+#     - CVE-2019-8906
+#     - CVE-2019-8907
 
 build() {
-	cd "$builddir"
+	SH_LIBTOOL='/usr/share/build-1/libtool' autoreconf -f -i
 	./configure \
 		--build=$CBUILD \
 		--host=$CHOST \
@@ -22,12 +34,10 @@ build() {
 }
 
 check() {
-	cd "$builddir"
 	make check
 }
 
 package() {
-	cd "$builddir"
 	make DESTDIR="$pkgdir" install
 }
 
@@ -37,4 +47,4 @@ libmagic() {
 	mv "$pkgdir"/usr/lib "$pkgdir"/usr/share "$subpkgdir"/usr
 }
 
-sha512sums="cbecc52e9209be8bc090752d0672efa181625d4e1e688e63edd1f5657b29bad69364a477fb4ed85d1fa413b8002c8578c86153d2acaaecce78446c0ca6ea9e38  file-5.35.tar.gz"
+sha512sums="b8920b0b886600b50ef83d949028972e99830d5ac2e9545a5ff7177e5f4c3db20bfc00884d6b6961e4707a920f0290c59ae89439a02cd8cc2a8673284c4100c4  file-5.38.tar.gz"

@@ -1,0 +1,29 @@
+# Contributor: Leonardo Arena <rnalrd@alpinelinux.org>
+# Maintainer: Kevin Daudt <kdaudt@alpinelinux.org>
+pkgname=py3-pycryptodome
+pkgver=3.9.6
+pkgrel=0
+pkgdesc="Self-contained cryptographic library"
+url="https://www.pycryptodome.org"
+arch="all"
+license="BSD-2-Clause Unlicense"
+makedepends="python3-dev py3-setuptools"
+source="$pkgname-$pkgver.tar.gz::https://github.com/Legrandin/pycryptodome/archive/v$pkgver.tar.gz"
+builddir="$srcdir"/pycryptodome-$pkgver
+
+replaces="py-pycryptodome py3-crypto" # Backwards compatibility
+provides="py-pycryptodome=$pkgver-r$pkgrel py3-crypto=$pkgrel-r$pkgrel" # Backwards compatibility
+
+build() {
+	python3 setup.py --quiet build
+}
+
+check() {
+	python3 setup.py test
+}
+
+package() {
+	python3 setup.py --quiet install --prefix=/usr --root="$pkgdir"
+}
+
+sha512sums="136ea2c77d8109f47ce67dff0629d60be6711ccfb21a5ee1bf36c8b521e6789103d6213e9f1c8bc85013b27137f1cfbb82f5f9a11c066739c2637234673ee865  py3-pycryptodome-3.9.6.tar.gz"

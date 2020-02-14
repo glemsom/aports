@@ -1,16 +1,18 @@
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 # Contributor: Thomas Boerger <thomas@webhippie.de>
 pkgname=libsass
-pkgver=3.5.5
-pkgrel=0
+pkgver=3.6.3
+pkgrel=1
 pkgdesc="C/C++ implementation of a Sass compiler"
-url="http://libsass.org"
+options="!check" # No tests are run when make check is run
+url="https://sass-lang.com/libsass"
 arch="all"
 license="MIT"
-depends=""
 makedepends="autoconf automake libtool"
 subpackages="$pkgname-dev"
-source="$pkgname-$pkgver.tar.gz::https://github.com/sass/$pkgname/archive/$pkgver.tar.gz"
+source="$pkgname-$pkgver.tar.gz::https://github.com/sass/libsass/archive/$pkgver.tar.gz
+	fix-pkgconfig-version.patch
+	"
 
 prepare() {
 	default_prepare
@@ -18,7 +20,6 @@ prepare() {
 }
 
 build() {
-	cd "$builddir"
 	./configure \
 		--build=$CBUILD \
 		--host=$CHOST \
@@ -28,10 +29,9 @@ build() {
 }
 
 package() {
-	cd "$builddir"
-
 	make install DESTDIR="$pkgdir"
 	rm -f "$pkgdir"/usr/lib/*.la
 }
 
-sha512sums="dcb73a5080c00023b60a19ea037ba5af481253a7b47492bd7114bf45ab78ed931c7b207fa8f12ed200a39760553d72ae92dbe4eb80b826b59a6201fb34008fe5  libsass-3.5.5.tar.gz"
+sha512sums="e290f2045784ba1cf84e87e5bd33129b5452fec1d25da657b084b3561ec76df195a75595248a493dbd85c6a1215ed600332477945922309c021d9e416ebb29ee  libsass-3.6.3.tar.gz
+c5dc711ea64a5dea2505b467ba3a6fa34064ec1e83be29e445f6b47aa8f32ffd7f861800bae213cfef60c5bb1c89f303cf3e1edf818369e222a6d2edc458c721  fix-pkgconfig-version.patch"

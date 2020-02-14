@@ -1,0 +1,31 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=blinken
+pkgver=19.12.2
+pkgrel=0
+arch="all !armhf"
+url="https://edu.kde.org/blinken/"
+pkgdesc="Memory Enhancement Game"
+license="GPL-2.0-or-later AND GFDL-1.2-only"
+makedepends="extra-cmake-modules qt5-qtbase-dev qt5-qtsvg-dev ki18n-dev kxmlgui-dev kguiaddons-dev kdoctools-dev kdbusaddons-dev kcrash-dev phonon-dev"
+source="https://download.kde.org/stable/release-service/$pkgver/src/blinken-$pkgver.tar.xz"
+subpackages="$pkgname-doc $pkgname-lang"
+options="!check" # No tests
+
+build() {
+	cmake \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest
+}
+
+package() {
+	DESTDIR="$pkgdir" make install
+}
+
+sha512sums="609f44a0eb705c9d1f46e64bc4beb1ff760137dd0e4ad821108040824c064f763af7c03332e6ad86bc64fd568b3d478116cfc63f230d7ecd3f81aa37b504ab2e  blinken-19.12.2.tar.xz"

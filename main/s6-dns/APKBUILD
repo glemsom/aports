@@ -1,7 +1,7 @@
 # Maintainer: Laurent Bercot <ska-devel@skarnet.org>
 # Contributor: John Regan <john@jrjrtech.com>
 pkgname=s6-dns
-pkgver=2.3.0.1
+pkgver=2.3.1.1
 pkgrel=0
 pkgdesc="skarnet.org's DNS client libraries and command-line DNS client utilities"
 url="http://skarnet.org/software/$pkgname/"
@@ -10,9 +10,8 @@ license="ISC"
 depends="skalibs"
 options="!check"
 makedepends="skalibs-dev"
-subpackages="$pkgname-dev $pkgname-doc"
-source="http://skarnet.org/software/$pkgname/$pkgname-$pkgver.tar.gz"
-builddir="$srcdir/"$pkgname-$pkgver
+subpackages="$pkgname-static $pkgname-dev $pkgname-doc"
+source="http://skarnet.org/software/s6-dns/s6-dns-$pkgver.tar.gz"
 
 build() {
 	cd "$builddir"
@@ -21,7 +20,8 @@ build() {
 		--enable-static \
 		--disable-allstatic \
 		--prefix=/usr \
-		--libexecdir="/usr/lib/$package" \
+		--libdir=/usr/lib \
+		--libexecdir="/usr/lib/$pkgname" \
 		--with-dynlib=/lib
 	make
 }
@@ -37,4 +37,9 @@ doc() {
 	cp -a "$builddir/doc" "$subpkgdir/usr/share/doc/$pkgname"
 }
 
-sha512sums="69ae32f9b4ff22a5d38e3a2c950357d8c8032a649c1d81e4a4e5f474ae5c1bb1072555baa1a34f955293aa0f66a93f51f2cc8efd8aa56704b906e0b0979f8157  s6-dns-2.3.0.1.tar.gz"
+static() {
+	default_static
+	rmdir -p "$pkgdir"/usr/lib/"$pkgname" || :
+}
+
+sha512sums="e69ee16cb16139d344255adc4bb92bd73003464925bbd2df893e3b922add155308b547274a66e3f20a5d3c0310c8fadc877b656753299ff9a269b4e25c26f7a9  s6-dns-2.3.1.1.tar.gz"

@@ -1,0 +1,32 @@
+# Contributor: Leo <thinkabit.ukim@gmail.com>
+# Maintainer: Leo <thinkabit.ukim@gmail.com>
+pkgname=libluv
+_release=1
+pkgver=1.34.1.$_release
+pkgrel=0
+pkgdesc="Bare libuv bindings for lua"
+options="!check" # No testsuite
+url="https://github.com/luvit/luv"
+arch="all !s390x"
+license="Apache-2.0"
+makedepends="cmake luajit-dev libuv-dev ninja"
+subpackages="$pkgname-dev"
+source="https://github.com/luvit/luv/releases/download/${pkgver%.*}-$_release/luv-${pkgver%.*}-$_release.tar.gz"
+builddir="$srcdir/luv-${pkgver%.*}-$_release"
+
+build() {
+	cmake -B build -G Ninja \
+		-DWITH_SHARED_LIBUV=ON \
+		-DLUA_BUILD_TYPE=System \
+		-DBUILD_MODULE=OFF \
+		-DBUILD_SHARED_LIBS=ON \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		.
+	ninja -C build
+}
+
+package() {
+	DESTDIR="$pkgdir" ninja -C build install
+}
+
+sha512sums="8c5f317659ca9e1b7fc2eb42da9b309b0786716d21f64f03888c1a7a4ae7fe3edbeb8e2ce6cc82b8a640dfd47e26dabe9114e47619006070b9050837ca308e13  luv-1.34.1-1.tar.gz"

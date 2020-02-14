@@ -1,0 +1,31 @@
+# Contributor: Alexander Sack <asac@pantacor.com>
+# Maintainer: Alexander Sack <asac@pantacor.com>
+pkgname="tpm2-tools"
+pkgver="4.1.1"
+pkgrel=0
+pkgdesc="TPM2 Tools"
+url="https://github.com/tpm2-software/tpm2-tools/"
+arch="all"
+license="BSD-2-Clause"
+makedepends="tpm2-tss-dev tpm2-tss-rc tpm2-tss-tctildr
+	openssl-dev curl-dev"
+subpackages="$pkgname-doc"
+_sourcever="${pkgver/_/-}"
+source="https://github.com/tpm2-software/tpm2-tools/releases/download/$_sourcever/tpm2-tools-$_sourcever.tar.gz"
+builddir="$srcdir/$pkgname-$_sourcever"
+options="!check"
+
+
+build() {
+	./configure \
+		--build=$CBUILD \
+		--host=$CHOST \
+		--prefix=/usr
+	make
+}
+
+package() {
+	make DESTDIR="$pkgdir" install
+}
+
+sha512sums="25952cf947f0acd16b1a8dbd3ac8573bce85ff970a7e24c290c4f9cd29418e77a3e48ac82c932fbd250887a9303ab301ff92db594c2fffaba47b873382444d26  tpm2-tools-4.1.1.tar.gz"

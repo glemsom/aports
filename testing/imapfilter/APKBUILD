@@ -1,7 +1,7 @@
 # Contributor: Andrew Hills <ahills@ednos.net>
 # Maintainer: Andrew Hills <ahills@ednos.net>
 pkgname=imapfilter
-pkgver=2.6.12
+pkgver=2.6.16
 pkgrel=0
 pkgdesc="Lua-based filtering for IMAP mailboxes"
 url="https://github.com/lefcha/imapfilter"
@@ -9,11 +9,8 @@ arch="all"
 license="MIT"
 makedepends="$depends_dev lua-dev openssl-dev pcre-dev libc-dev"
 subpackages="$pkgname-doc"
-source="$pkgname-$pkgver.tar.gz::https://github.com/lefcha/$pkgname/archive/v${pkgver}.tar.gz
-	"
+source="$pkgname-$pkgver.tar.gz::https://github.com/lefcha/imapfilter/archive/v$pkgver.tar.gz"
 
-
-builddir="$srcdir"/$pkgname-$pkgver
 build() {
 	cd "$_builddir"
 	make PREFIX=/usr all
@@ -27,4 +24,4 @@ package() {
 		DESTDIR="$pkgdir" \
 		install
 }
-sha512sums="1425041c288ac46833af6119fd0169cf783a1fec61bf07dfad6f732ec74834ec3beb4e81c3b19f7436310324d9a4369c4ec61aa3a83eef203d7897ea0fc26528  imapfilter-2.6.12.tar.gz"
+sha512sums="0500931143e593eb69357ef6a6a40be971abadd22d7e807685b88927da8db9a928470f5cad460252b95ccd42efcfd39b5c4001a8796fa79cbd35018405a7be19  imapfilter-2.6.16.tar.gz"

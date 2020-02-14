@@ -1,22 +1,20 @@
-# Contributor: William Pitcock <nenolod@dereferenced.org>
-# Maintainer: William Pitcock <nenolod@dereferenced.org>
+# Contributor:
+# Maintainer:
 pkgname=talloc
-pkgver=2.1.14
+pkgver=2.3.1
 pkgrel=0
 pkgdesc="Memory pool management library"
 url="https://talloc.samba.org"
 arch="all"
 license="LGPL-3.0-or-later"
 replaces="samba-common"
-makedepends="docbook-xsl libxslt python2-dev python3-dev"
-subpackages="$pkgname-dev py2-$pkgname:_py2 py3-$pkgname:_py3 $pkgname-doc"
-source="https://samba.org/ftp/$pkgname/$pkgname-$pkgver.tar.gz
+makedepends="docbook-xsl libxslt python3-dev"
+subpackages="$pkgname-static $pkgname-dev py3-$pkgname:_py3 $pkgname-doc"
+source="https://samba.org/ftp/talloc/talloc-$pkgver.tar.gz
 	always-libs.patch
 	"
-builddir="$srcdir/$pkgname-$pkgver"
 
 build() {
-	cd "$builddir"
 	./configure \
 		--build=$CBUILD \
 		--host=$CHOST \
@@ -29,29 +27,20 @@ build() {
 		--builtin-libraries=replace \
 		--disable-rpath \
 		--disable-rpath-install \
-		--without-gettext \
-		--extra-python=/usr/bin/python3
+		--without-gettext
 	make
+
+	# talloc's Waf setup doesn't build static libraries, so we do it manually
+	ar qf libtalloc.a bin/default/talloc.c*.o
 }
 
 check() {
-	cd "$builddir"
 	make check
 }
 
 package() {
-	cd "$builddir"
 	make DESTDIR="$pkgdir" install
-}
-
-_py2() {
-	pkgdesc="Python 2 binding for libtalloc"
-	replaces="py-talloc"  # for backward compatibility
-	provides="py-talloc=$pkgver-r$pkgrel"  # for backward compatibility
-
-	mkdir -p "$subpkgdir"/usr/lib
-	mv "$pkgdir"/usr/lib/libpytalloc-util.so.* \
-		"$pkgdir"/usr/lib/python2* "$subpkgdir"/usr/lib/
+	install -Dm644 libtalloc.a "$pkgdir"/usr/lib/libtalloc.a
 }
 
 _py3() {
@@ -62,5 +51,5 @@ _py3() {
 		"$pkgdir"/usr/lib/python3* "$subpkgdir"/usr/lib/
 }
 
-sha512sums="1fcc70bf283a4d9fb61faf1c57f80a9c158efbe996452740db9755e879ad72ee7bff6f6c9bed358e085c5c7f97c78800bb903161143af2202952b702141cc130  talloc-2.1.14.tar.gz
-fa818d6291f6291d193b475af993de4fd34e6133ccacb55203f5c96973c51b2e932523f5f2a8cd38a4959e80d8378841b3b5efd5411b7828a240102b492c16e7  always-libs.patch"
+sha512sums="064fc39a9aaace6e0209f3251c8ff198d8a318b4cf4198006ff9892ca6e15e7d817b2fda43e0444fbbf04d2c3e70d06523dff5d57cbb796d27317ef4759e062e  talloc-2.3.1.tar.gz
+66d06f735fe591f3a888ced25c4c5a0068402001736ce52443d0670d42bf7144c7f69ff9c6299ecf4d9001f23c68403953c4bdc7325f4d094d304e4215ff90b1  always-libs.patch"

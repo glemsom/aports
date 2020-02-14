@@ -1,16 +1,13 @@
-# Contributor: William Pitcock <nenolod@dereferenced.org>
-# Maintainer: Natanael Copa <ncopa@alpinelinux.org>
+# Contributor: Natanael Copa <ncopa@alpinelinux.org>
+# Contributor: Sören Tempel <soeren+alpine@soeren-tempel.net>
+# Maintainer: Rasmus Thomsen <oss@cogitri.dev>
 pkgname=firefox
-pkgver=62.0.3
-_pkgver=$pkgver
-_xulver=$pkgver
-pkgrel=1
+pkgver=73.0
+pkgrel=0
 pkgdesc="Firefox web browser"
 url="https://www.firefox.com/"
-# limited by rust and cargo
-arch="x86_64"
-license="GPL LGPL MPL"
-depends=""
+arch="all !s390x !armhf" # limited by rust and cargo, build failure on armhf due to wasm
+license="GPL-3.0-only AND LGPL-2.1-only AND LGPL-3.0-only AND MPL-2.0"
 makedepends="
 	alsa-lib-dev
 	autoconf2.13
@@ -18,14 +15,14 @@ makedepends="
 	bsd-compat-headers
 	bzip2-dev
 	cargo
+	cbindgen
 	clang-dev
 	dbus-glib-dev
 	ffmpeg-dev
-	gconf-dev
 	gtk+2.0-dev
 	gtk+3.0-dev
 	hunspell-dev
-	icu-dev
+	icu-dev>=64.2
 	libevent-dev
 	libidl-dev
 	libjpeg-turbo-dev
@@ -34,16 +31,16 @@ makedepends="
 	libtheora-dev
 	libtool
 	libvorbis-dev
-	libvpx-dev
 	libxt-dev
 	libxcomposite-dev
-	llvm5-dev
+	llvm-dev
 	mesa-dev
+	nasm
+	nodejs
 	nspr-dev
-	nss-dev
+	nss-dev>=3.44.1
 	nss-static
-	paxmark
-	python3-dev
+	python2
 	sqlite-dev
 	sed
 	startup-notification-dev
@@ -52,45 +49,80 @@ makedepends="
 	zip
 	"
 
-install=""
 source="https://ftp.mozilla.org/pub/firefox/releases/$pkgver/source/firefox-$pkgver.source.tar.xz
 	stab.h
 
 	fix-fortify-system-wrappers.patch
-	fix-fortify-inline.patch
 	fix-seccomp-bpf.patch
 	fix-toolkit.patch
 	fix-tools.patch
 	mallinfo.patch
 
-	fix-arm-atomics-grsec.patch
-	fix-arm-version-detect.patch
-	mozilla-build-arm.patch
 	disable-moz-stackwalk.patch
 	fix-rust-target.patch
-	fix-bug-1261392.patch
-	rust-unitialized-field.patch
 	fix-webrtc-glibcisms.patch
+	rust_audio-thread-priority.patch
+	fd6847c9416f9eebde636e21d794d25d1be8791d.patch
+	allow-custom-rust-vendor.patch
+	b3d8b08265b800165d684281d19ac845a8ff9a66.patch
 
+	x86_64-alpine-linux-musl.json
 	firefox.desktop
 	firefox-safe.desktop"
 
-builddir="${srcdir}/firefox-$pkgver"
 _mozappdir=/usr/lib/firefox
 
 # help our shared-object scanner to find the libs
 ldpath="$_mozappdir"
 
+# secfixes:
+#   71.0.1-r0:
+#     - CVE-2019-17016
+#     - CVE-2019-17017
+#     - CVE-2019-17020
+#     - CVE-2019-17022
+#     - CVE-2019-17023
+#     - CVE-2019-17024
+#     - CVE-2019-17025
+#     - CVE-2019-17026
+#   70.0-r0:
+#     - CVE-2018-6156
+#     - CVE-2019-15903
+#     - CVE-2019-11757
+#     - CVE-2019-11759
+#     - CVE-2019-11760
+#     - CVE-2019-11761
+#     - CVE-2019-11762
+#     - CVE-2019-11763
+#     - CVE-2019-11764
+#     - CVE-2019-11765
+#     - CVE-2019-17000
+#     - CVE-2019-17001
+#     - CVE-2019-17002
+#   68.0.2-r0:
+#     - CVE-2019-11733
+
+# we need this because cargo verifies checksums of all files in vendor
+# crates when it builds and gives us no way to override or update the
+# file sanely... so just clear out the file list
+_clear_vendor_checksums() {
+	sed -i 's/\("files":{\)[^}]*/\1/' third_party/rust/$1/.cargo-checksum.json
+}
+
 prepare() {
 	default_prepare
-
 	cp "$srcdir"/stab.h toolkit/crashreporter/google-breakpad/src/
-	# https://bugzilla.mozilla.org/show_bug.cgi?id=1341234
-	mkdir -p "$builddir"/objdir
-	echo "ac_add_options BINDGEN_CFLAGS='-I/usr/include/nspr -I/usr/include/pixman-1'" >>objdir/.mozconfig
+
+	# Firefox needs to know how our custom triplet on x86_64 behaves.
+	mkdir rust_targets
+	cp "$srcdir"/x86_64-alpine-linux-musl.json rust_targets/.
+
+	_clear_vendor_checksums audio_thread_priority
+	_clear_vendor_checksums target-lexicon
 }
 
 build() {
+	mkdir -p "$builddir"/objdir
 	cd "$builddir"/objdir
 
 	export SHELL=/bin/sh
@@ -99,15 +131,59 @@ build() {
 	export USE_SHORT_LIBNAME=1
 	# gcc 6
 	export CXXFLAGS="-fno-delete-null-pointer-checks -fno-schedule-insns2"
+	# Find our triplet JSON
+	export RUST_TARGET_PATH="$builddir/rust_targets"
 
 	# set rpath so linker finds the libs
-	export LDFLAGS="$LDFLAGS -Wl,-rpath,${_mozappdir}"
+	export LDFLAGS="$LDFLAGS -Wl,-rpath,$_mozappdir"
+
+	case "$CARCH" in
+		x86)
+			# disable-elf-hack: exists only on arm, x86, x86_64
+			_arch_config="--disable-elf-hack"
+			export RUST_TARGET="i686-unknown-linux-musl"
+			;;
+		x86_64)
+			# disable-elf-hack: exists only on arm, x86, x86_64
+			_arch_config="--disable-elf-hack"
+			export RUST_TARGET="$CTARGET"
+			;;
+		aarch64)
+			export RUST_TARGET="aarch64-unknown-linux-musl"
+			;;
+		armv7)
+			# disable-elf-hack: exists only on arm, x86, x86_64
+			_arch_config="--disable-elf-hack"
+			export RUST_TARGET="armv7-unknown-linux-musleabihf"
+			;;
+		armhf)
+			# disable-elf-hack: exists only on arm, x86, x86_64
+			_arch_config="--disable-elf-hack"
+			export RUST_TARGET="arm-unknown-linux-musleabihf"
+			;;
+		ppc64le)
+			export RUST_TARGET="powerpc64le-unknown-linux-musl"
+			;;
+	esac
+
+	# FF doesn't have SIMD available on these arches.
+	case "$CARCH" in
+		armhf|armv7)
+			_rust_simd="--disable-rust-simd"
+			_low_mem_flags="--disable-debug-symbols --disable-debug"
+			export RUSTFLAGS="$RUSTFLAGS -C debuginfo=0"
+		;;
+		x86)
+			_low_mem_flags="--disable-debug-symbols --disable-debug"
+			export RUSTFLAGS="$RUSTFLAGS -C debuginfo=0"
+		;;
+		*) _rust_simd="--enable-rust-simd" ;;
+	esac
 
 	../configure \
 		--prefix=/usr \
-		\
+		$_arch_config \
 		--disable-crashreporter \
-		--disable-elf-hack \
 		--disable-gold \
 		--disable-install-strip \
 		--disable-jemalloc \
@@ -116,22 +192,20 @@ build() {
 		--disable-strip \
 		--disable-tests \
 		--disable-updater \
-		\
 		--enable-alsa \
-		--enable-default-toolkit=cairo-gtk3 \
+		--enable-default-toolkit=cairo-gtk3-wayland \
 		--enable-official-branding \
-		--enable-optimize="$CFLAGS" \
-		--enable-pie \
+		--enable-optimize="$CFLAGS -O2" \
 		--enable-startup-notification \
 		--enable-system-ffi \
 		--enable-system-sqlite \
 		--enable-ffmpeg \
-		\
+		$_rust_simd \
+		$_low_mem_flags \
+		--enable-hardening \
 		--with-system-bz2 \
 		--with-system-icu \
-		--with-system-jpeg \
 		--with-system-libevent \
-		--with-system-libvpx \
 		--with-system-nspr \
 		--with-system-nss \
 		--with-system-pixman \
@@ -139,66 +213,39 @@ build() {
 		--with-system-zlib \
 		--with-clang-path=/usr/bin/clang \
 		--with-libclang-path=/usr/lib
+		# FIXME: fix build with --with-system-libvpx and libvpx 1.8.0
+		# https://bugzilla.mozilla.org/show_bug.cgi?id=1525393
 	make
-
-	# paxmark outside fakeroot
-	paxmark -msp dist/bin/xpcshell
-
 }
 
 package() {
 	cd "$builddir"/objdir
 
-	# only used for startupcache creation.
-	local paxflags="-msp"
-	paxmark "$paxflags" dist/bin/xpcshell
-
 	make install \
 		DESTDIR="$pkgdir" \
 		MOZ_MAKE_FLAGS="$MAKEOPTS"
 
-	install -m755 -d ${pkgdir}/usr/share/applications
-	install -m755 -d ${pkgdir}/usr/share/pixmaps
+	install -m755 -d "$pkgdir"/usr/share/applications
+	install -m755 -d "$pkgdir"/usr/share/pixmaps
 
-	local png
-	for png in ../browser/branding/official/default*.png; do
+	local _png
+	for _png in ../browser/branding/official/default*.png; do
 		local i=${_png%.png}
 		i=${i##*/default}
-		install -D -m644 "$png" "$pkgdir"/usr/share/icons/hicolor/${i}x${i}/apps/firefox.png
+		install -D -m644 "$_png" "$pkgdir"/usr/share/icons/hicolor/"$i"x"$i"/apps/firefox.png
 	done
 
 	install -m644 "$builddir"/browser/branding/official/default48.png \
-		${pkgdir}/usr/share/pixmaps/firefox.png
-	install -m644 ${srcdir}/firefox.desktop ${pkgdir}/usr/share/applications/firefox.desktop
-	install -m644 ${srcdir}/firefox-safe.desktop ${pkgdir}/usr/share/applications/firefox-safe.desktop
-
-	# firefox currently does not work with mprotect. disable it for now
-	local paxflags="-mp"
-	[ "$CARCH" = "x86" ] && paxflags="-msp"
-
-	paxmark "$paxflags" "$pkgdir"/$_mozappdir/firefox
-	paxmark "$paxflags" "$pkgdir"/$_mozappdir/plugin-container
-
-	# xulrunner stub launcher has changed to using a symlink overlay...
-	# go figure
-	ln -sf /usr/lib/xulrunner-${_xulver} ${pkgdir}/$_mozappdir/xulrunner
-
-	# launcher as symlink is broken from firefox-7.0
-	rm "$pkgdir"/usr/bin/firefox
-	libgl=$(scanelf -qF '#F%S' /usr/lib/libGL.so)
-	cat > "$pkgdir"/usr/bin/firefox << __EOF__
-#!/bin/sh
-
-exec $_mozappdir/firefox "\$@"
-__EOF__
-	chmod 755 "$pkgdir"/usr/bin/firefox
+		"$pkgdir"/usr/share/pixmaps/firefox.png
+	install -m644 "$srcdir"/firefox.desktop "$pkgdir"/usr/share/applications/firefox.desktop
+	install -m644 "$srcdir"/firefox-safe.desktop "$pkgdir"/usr/share/applications/firefox-safe.desktop
 
 	# install our vendor prefs
 	install -d "$pkgdir"/$_mozappdir/browser/defaults/preferences
 
 	cat >> "$pkgdir"/$_mozappdir/browser/defaults/preferences/firefox-branding.js <<- EOF
 	// Use LANG environment variable to choose locale
-	pref("intl.locale.matchOS", true);
+	pref("intl.locale.requested", "");
 
 	// Disable default browser checking.
 	pref("browser.shell.checkDefaultBrowser", false);
@@ -207,28 +254,22 @@ __EOF__
 	pref("extensions.autoDisableScopes", 11);
 	pref("extensions.shownSelectionUI", true);
 	EOF
-
-	# remove copied, huge, libraries
-	rm -f "$pkgdir"/${_mozappdirdev}/sdk/lib/libmozjs.so
-	rm -f "$pkgdir"/${_mozappdirdev}/sdk/lib/libmozalloc.so
-	rm -f "$pkgdir"/${_mozappdirdev}/sdk/lib/libxul.so
 }
 
-sha512sums="487bb7791284367158c79cf7918fecf3d598627a6416e679aeb5d22626089aeffe07762fa2389819ba881c90ece1c5a83cf2d85b2def15b8d5ba0ed1c498b527  firefox-62.0.3.source.tar.xz
+sha512sums="e10a8b48ae532d855ff50761cbdf2a6d94b2bad58a5e18d040db43d3424cbb068772f4d91c0aadd6c40b13e3d020e0e712955a1a12b41fda6333197fc34aa19a  firefox-73.0.source.tar.xz
 0b3f1e4b9fdc868e4738b5c81fd6c6128ce8885b260affcb9a65ff9d164d7232626ce1291aaea70132b3e3124f5e13fef4d39326b8e7173e362a823722a85127  stab.h
 2f4f15974d52de4bb273b62a332d13620945d284bbc6fe6bd0a1f58ff7388443bc1d3bf9c82cc31a8527aad92b0cd3a1bc41d0af5e1800e0dcbd7033e58ffd71  fix-fortify-system-wrappers.patch
-09bc32cf9ee81b9cc6bb58ddbc66e6cc5c344badff8de3435cde5848e5a451e0172153231db85c2385ff05b5d9c20760cb18e4138dfc99060a9e960de2befbd5  fix-fortify-inline.patch
-2f713a270f7d1588ec4a0b9c21e5a0d20823954e6a64293ee1a391f80d38af6c0a80b3d35c3ada59b605f6032fb2af3040cd8ca7f424b0e620cc53fd12674fd9  fix-seccomp-bpf.patch
-a2925045154f4fd34e5fc056656f4f9da100341529e5d4104d249154db0c7863384083f421ce6e47e0f20566a8b20787fa35444c7933c03cd03f96f06dcd4532  fix-toolkit.patch
-b46cb90d4fdd1a925a61e2c6c545489cd542f5d82980c529361c02042eed31d5c26972b5e237c1a020f87ffcfd12736d1f4f6e33eaa83ae156d523c808c718cb  fix-tools.patch
-bdcd1b402d2ec94957ba5d08cbad7b1a7f59c251c311be9095208491a05abb05a956c79f27908e1f26b54a3679387b2f33a51e945b650671ad85c0a2d59a5a29  mallinfo.patch
-ed0d344c66fc8e1cc83a11e9858b32c42e841cbeedd9eb9438811e9fcc3593dc824a8336d00058d55836cedc970aeadd6a82c6dcd7bc0fb746e564d8b478cc6c  fix-arm-atomics-grsec.patch
-015e1ff6dbf920033982b5df95d869a0b7bf56c6964e45e50649ddf46d1ce09563458e45240c3ecb92808662b1300b67507f7af272ba184835d91068a9e7d5b0  fix-arm-version-detect.patch
-e61664bc93eadce5016a06a4d0684b34a05074f1815e88ef2613380d7b369c6fd305fb34f83b5eb18b9e3138273ea8ddcfdcb1084fdcaa922a1e5b30146a3b18  mozilla-build-arm.patch
-4797d2d89ac63a57abb826b8ea9f751314ce66946194033deb9d78c2ff377b88106fd2c7bc5034dc13ad03dd5085b1893c3ccae1a9e63fde35655bb0921f7188  disable-moz-stackwalk.patch
-42cc44fda4b05259b38f055d6f51461746aa89a474cedc5e92fb9d20879da0d12b1b515b273a549e7302cda9c7eddde20d5fdba09853e5c658784ad6d0b20078  fix-rust-target.patch
-a50b412edf9573a0bd04a43578b1c927967a616b73a5995eefb15bfa78fd2bd14e36ec05315a0703f6370ecd524e6bcb012e7285beb1245e9add9b8553acb79e  fix-bug-1261392.patch
-01b48a708cc6bc6e3cd7cc7b16f5137ec344566ac891d699b65e322bc992726072fa14a54cef1a7775799fcbbcf90a6c170107c8524caba3bc311b42d93b7581  rust-unitialized-field.patch
-75b97d59e81e5f1debe6a459b535da704d5a2ac4a57c446d16058fd18db81e22317fcc3ec11b89f569f4de87e8e80ced027c0e72e7f1dd16f6fd0feb6b263919  fix-webrtc-glibcisms.patch
+84b84d2d7dbc16002510bf856796ad345ac38ef6d3254670230189bba7c2d4781714d231236d5a3d70129a4597b430c3171644b01ad0f5a5bb13b55d407337a4  fix-seccomp-bpf.patch
+2c65ea7280e6e89826ebad563ee25203a99ff0b4ba8fc60ec261ada6c69874d649c6ac92fcecc6307a6e5a00de27d7956acf944d556ddfadec0411be16f4e0b8  fix-toolkit.patch
+4d55f41d15be7457ad630f8f07e4fc0314c2f75720010b4bbe6a2a7f3228210a1e069949e11795efbe2e784b0762e79fdfe5b8ec38e8a64cb8d9cf3b57dd5af1  fix-tools.patch
+a4a3e062661bda64d502d426c480ac9645345860118de9df9ffe6e0597738c70c11e5cdef2d4fd12c5e2ee30a09310159230524655a419a4f7e4eeeb0f3c06b0  mallinfo.patch
+454ea3263cabce099accbdc47aaf83be26a19f8b5a4568c01a7ef0384601cf8315efd86cd917f9c8bf419c2c845db89a905f3ff9a8eb0c8e41042e93aa96a85c  disable-moz-stackwalk.patch
+089c97e6011e86a9b9d9e7b0c8ba3af0519d1ce4e2b1e9ab7719762d6968388bfa47dad3bf23a6d41c3d66fdcc6c15e2c926e3ff9500bfd4fbf1b53e6d19dc57  fix-rust-target.patch
+d35cacb9ede80e6bfbef0709823e536dddfb1c02d776275b0b7adb5969e9927d8c6117df96873569c3f3db0a18ee5db24f8086a9311a05077892be43a3dd8d79  fix-webrtc-glibcisms.patch
+18098bae18ce9ead6bca0d93d28e634495fa08a4c0707057f72a9e34205a64a0ce5ab98a4cfc2d492412725b14447eb9553b2976d9620c3d71eba2135c6ba211  rust_audio-thread-priority.patch
+60845dcb034b2c4459c30f7d5f25c8176cf42df794e2cc0e86c3e2abb6541c24b962f3a16ca70a288d4d6f377b68d00b2904b22463108559612053d835d9bff1  fd6847c9416f9eebde636e21d794d25d1be8791d.patch
+8487a7f1936d493f0429ebbf579469471542fccce3a842803ade3fa76200b0e831a176aff9c8072da17932d01923cfc050611041e3e9e429b25995b9a07bd3cf  allow-custom-rust-vendor.patch
+81647de16c8d2959068c36d08244a7a067bedf04e18d04da9201aae884ea15948cae1760b6985b4bd9c13e90b03b2ccc89bb10105712382bc728f070e4f780bb  b3d8b08265b800165d684281d19ac845a8ff9a66.patch
+0dfa633abf3f411c90a030c46ee7f8fdde6fdd9f3a0c493599a58633e09b183d6c04590fc1984256e514c1da4f72f43dde3f5dbceef888b08262952b4f894919  x86_64-alpine-linux-musl.json
 f3b7c3e804ce04731012a46cb9e9a6b0769e3772aef9c0a4a8c7520b030fdf6cd703d5e9ff49275f14b7d738fe82a0a4fde3bc3219dff7225d5db0e274987454  firefox.desktop
 5dcb6288d0444a8a471d669bbaf61cdb1433663eff38b72ee5e980843f5fc07d0d60c91627a2c1159215d0ad77ae3f115dcc5fdfe87e64ca704b641aceaa44ed  firefox-safe.desktop"

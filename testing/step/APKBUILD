@@ -1,0 +1,30 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=step
+pkgver=19.12.2
+pkgrel=0
+arch="all !armhf"
+url="https://edu.kde.org/step/"
+pkgdesc="Interactive Physics Simulator"
+license="GPL-2.0-or-later AND GFDL-1.2-only"
+makedepends="extra-cmake-modules qt5-qtbase-dev qt5-qtsvg-dev qt5-qttools-dev kcrash-dev khtml-dev kconfig-dev kiconthemes-dev knewstuff-dev kplotting-dev kdoctools-dev eigen-dev shared-mime-info"
+source="https://download.kde.org/stable/release-service/$pkgver/src/step-$pkgver.tar.xz"
+subpackages="$pkgname-doc $pkgname-lang"
+
+build() {
+	cmake \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest
+}
+
+package() {
+	DESTDIR="$pkgdir" make install
+}
+
+sha512sums="81378ea5850369c3cb6c72d8830cfef2669cbdbba4753cbdad9410ad0667a7711685d0042fe9acc47895ff441ad70dba460767c4b6f027e539b3c9a0a8c1c707  step-19.12.2.tar.xz"

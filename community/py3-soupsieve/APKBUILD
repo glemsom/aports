@@ -1,0 +1,24 @@
+# Contributor: Leo <thinkabit.ukim@gmail.com>
+# Maintainer: Leo <thinkabit.ukim@gmail.com>
+pkgname=py3-soupsieve
+pkgver=1.9.5
+pkgrel=1
+pkgdesc="A modern CSS selector implementation for Beautiful Soup"
+options="!check" # Circular dependency on py3-beautifulsoup4
+url="https://github.com/facelessuser/soupsieve"
+arch="noarch"
+license="MIT"
+depends="python3"
+makedepends="py3-setuptools"
+source="$pkgname-$pkgver.tar.gz::https://github.com/facelessuser/soupsieve/archive/$pkgver.tar.gz"
+builddir="$srcdir/soupsieve-$pkgver"
+
+build() {
+	python3 setup.py build
+}
+
+package() {
+	python3 setup.py install --prefix=/usr --root="$pkgdir"
+}
+
+sha512sums="38cf37c7080ec6054291a076eb4b152bbf5267b9fed25f933a340345cd7807f14f4a5300707090fd233382e96841f6a33305876cf02740c96dd6aa9d2af06868  py3-soupsieve-1.9.5.tar.gz"

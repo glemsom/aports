@@ -1,0 +1,40 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=systemsettings
+pkgver=5.18.0
+pkgrel=0
+pkgdesc="Plasma system manager for hardware, software, and workspaces"
+arch="all !armhf" # armhf blocked by qt5-qtdeclarative
+url="https://www.kde.org/workspaces/plasmadesktop/"
+license="GPL-2.0-or-later"
+depends="kirigami2"
+depends_dev="qt5-qtbase-dev qt5-qtdeclarative-dev kcrash-dev kitemviews-dev kcmutils-dev ki18n-dev kio-dev kservice-dev kiconthemes-dev kwidgetsaddons-dev kwindowsystem-dev kxmlgui-dev kdbusaddons-dev kconfig-dev kdoctools-dev kpackage-dev kdeclarative-dev kactivities-dev kactivities-stats-dev kirigami2-dev plasma-workspace-dev khtml-dev"
+makedepends="$depends_dev extra-cmake-modules"
+source="https://download.kde.org/stable/plasma/$pkgver/systemsettings-$pkgver.tar.xz"
+subpackages="$pkgname-dev $pkgname-doc $pkgname-lang"
+
+prepare() {
+	default_prepare
+
+	mkdir "$builddir"/build
+}
+
+build() {
+	cd "$builddir"/build
+	cmake "$builddir" \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	cd "$builddir"/build
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest
+}
+
+package() {
+	cd "$builddir"/build
+	DESTDIR="$pkgdir" make install
+}
+sha512sums="9447a0140ed3fd8eafca2a6d44e378247ed8a78a2f92f80a6467073d45bc7feac43e039d73493a568760f38d42d5c7bd67b5805ac5b2732a7a2b4348ac0f331f  systemsettings-5.18.0.tar.xz"

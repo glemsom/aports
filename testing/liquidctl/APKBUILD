@@ -1,0 +1,25 @@
+# Contributor: Leo <thinkabit.ukim@gmail.com>
+# Maintainer: Leo <thinkabit.ukim@gmail.com>
+pkgname=liquidctl
+pkgver=1.1.0
+pkgrel=0
+pkgdesc="Liquid Cooler Control"
+url="https://github.com/jonasmalacofilho/liquidctl"
+arch="noarch"
+license="GPL-3.0-or-later"
+depends="python3 py3-setuptools py3-docopt py3-usb py3-hidapi"
+source="$pkgname-$pkgver.tar.gz::https://github.com/jonasmalacofilho/liquidctl/archive/v$pkgver.tar.gz"
+
+build() {
+	python3 setup.py build
+}
+
+check() {
+	python3 setup.py test
+}
+
+package() {
+	python3 setup.py install --prefix=/usr --root="$pkgdir"
+}
+
+sha512sums="ea09d2bd53d130098b8ded57629dc44769cca2383a866f347c7237a21d8e2d3e6c501859fe57951eefd4f0161e2cb83c58582ba29b5d3b6dc3ef77585002866e  liquidctl-1.1.0.tar.gz"

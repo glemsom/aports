@@ -1,23 +1,20 @@
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 pkgname=iproute2
-pkgver=4.19.0
+pkgver=5.5.0
 pkgrel=0
 pkgdesc="IP Routing Utilities"
 url="https://www.linuxfoundation.org/collaborate/workgroups/networking/iproute2"
 arch="all"
 license="GPL-2.0-or-later"
-depends=""
 install="$pkgname.post-install"
-makedepends="bison flex bash iptables-dev libelf-dev"
+makedepends="bison flex bash iptables-dev elfutils-dev"
 subpackages="$pkgname-doc $pkgname-bash-completion:bashcomp:noarch"
 source="https://kernel.org/pub/linux/utils/net/iproute2/iproute2-$pkgver.tar.xz
-	fix-install-errors.patch"
-builddir="$srcdir"/$pkgname-$pkgver
+	fix-install-errors.patch
+	musl-fixes.patch"
 
 prepare() {
 	default_prepare
-	cd "$builddir"
-
 	sed -i '/^TARGETS=/s: arpd : :' misc/Makefile
 	sed -i 's:/usr/local:/usr:' tc/m_ipt.c include/iptables.h
 	sed -i -e 's:=/share:=/usr/share:' \
@@ -25,7 +22,6 @@ prepare() {
 }
 
 build() {
-	cd "$builddir"
 	./configure \
 		--build=$CBUILD \
 		--host=$CHOST \
@@ -33,11 +29,10 @@ build() {
 		--sysconfdir=/etc \
 		--mandir=/usr/share/man \
 		--localstatedir=/var
-	make CCOPTS="-D_GNU_SOURCE $CFLAGS" LIBDIR=/lib
+	make CCOPTS="-D_GNU_SOURCE $CFLAGS"
 }
 
 package() {
-	cd "$builddir"
 	make -j1 DESTDIR="$pkgdir" install
 }
 
@@ -53,5 +48,6 @@ bashcomp() {
 	rmdir -p "$pkgdir"/usr/share 2>/dev/null || true
 }
 
-sha512sums="47c750da2247705b1b1d1621f58987333e54370d0fff2f24106194022de793ff35dfd67fd1be127ce019008705702092d31dac49abf930a7c0dc5c7e7c0665b8  iproute2-4.19.0.tar.xz
-24fc2a901650e11f80bcaa82c839e70c21aafdf3c5b8a357d932d066a0b98ae2ec8379fc17a0a16a1b5b4fa5edc131179c10fc02e55d6101701df5a09966912c  fix-install-errors.patch"
+sha512sums="a59fb6d620206aa17a4ff7d4510b99322e39b6cf34a00953a7d4cd4d62ca85de16d2e28e33cafa7b026edd4f63c81f3f337954aafe963b964ca0cd2d5c54ac78  iproute2-5.5.0.tar.xz
+24fc2a901650e11f80bcaa82c839e70c21aafdf3c5b8a357d932d066a0b98ae2ec8379fc17a0a16a1b5b4fa5edc131179c10fc02e55d6101701df5a09966912c  fix-install-errors.patch
+2e3558caddf814da8c4d78c74eddb7a659d6f94b93de5396bdd995e2333e3cd656f9c936ac7a5a86d0477abc27a92550582575ab4ed19fc2ec0d9b6699cd612c  musl-fixes.patch"

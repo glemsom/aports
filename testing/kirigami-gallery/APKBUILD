@@ -1,0 +1,40 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=kirigami-gallery
+pkgver=19.12.2
+pkgrel=0
+arch="all !armhf" # armhf blocked by kirigami2 -> qt5-qtdeclarative
+url="https://kde.org/applications/development/org.kde.kirigami2.gallery"
+pkgdesc="Gallery application built using Kirigami"
+license="LGPL-2.0-or-later"
+depends="kirigami2"
+makedepends="extra-cmake-modules qt5-qtbase-dev qt5-qtquickcontrols2-dev qt5-qtsvg-dev qt5-qttools-dev"
+source="https://download.kde.org/stable/release-service/$pkgver/src/kirigami-gallery-$pkgver.tar.xz"
+subpackages="$pkgname-lang"
+
+prepare() {
+	default_prepare
+
+	mkdir "$builddir"/build
+}
+
+build() {
+	cd "$builddir"/build
+	cmake "$builddir" \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	cd "$builddir"/build
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest
+}
+
+package() {
+	cd "$builddir"/build
+	DESTDIR="$pkgdir" make install
+}
+
+sha512sums="81161ae2d5cf3e8def7aee715709509c93c50469120deec8f42d5f1b3a2f923d91156fa9fa3536f603fb0f7dc41456f4fe51ba8233b4fb26c5d933a191001710  kirigami-gallery-19.12.2.tar.xz"

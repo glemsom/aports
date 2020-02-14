@@ -1,35 +1,31 @@
 # Maintainer: Leonardo Arena <rnalrd@alpinelinux.org>
 pkgname=perl-specio
 _pkgreal="Specio"
-pkgver=0.42
+pkgver=0.45
 pkgrel=0
 pkgdesc="Specio perl module"
-url="http://search.cpan.org/dist/Specio/"
+url="https://metacpan.org/release/Specio"
 arch="noarch"
-license="GPL or Artistic-2.0"
+license="Artistic-2.0"
 depends="perl-test-needs perl-devel-stacktrace perl-eval-closure perl-mro-compat
 	perl-role-tiny perl-test-fatal perl-module-runtime perl-sub-quote"
 makedepends="perl-dev"
-install=""
 subpackages="$pkgname-doc"
-source="http://search.cpan.org/CPAN/authors/id/D/DR/DROLSKY/$_pkgreal-$pkgver.tar.gz"
+source="https://cpan.metacpan.org/authors/id/D/DR/DROLSKY/Specio-$pkgver.tar.gz"
 builddir="$srcdir"/$_pkgreal-$pkgver
 
 build() {
-	cd "$builddir"
 	PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
 	make
 }
 
 check() {
-	cd "$builddir"
 	make test
 }
 
 package() {
-	cd "$builddir"
-	make DESTDIR="$pkgdir" install || return 1
+	make DESTDIR="$pkgdir" install
 	find "$pkgdir" \( -name perllocal.pod -o -name .packlist \) -delete
 }
 
-sha512sums="7a9ff3e96cf3957d7857cd5f6af5efd9e35fc4c888fcd8177041e34a2388f54269e7a3da84ec60961fb61307beb882ebf54e19ae4346876e06197b1ff57891a0  Specio-0.42.tar.gz"
+sha512sums="28c32b155ddd1537e2ed2e634b667c4010903a4c68e4684f07f4bb74414eeaf5f5ef05f4ed898c830751abfacc51280b00970250db1b2e1219acc23e834994d7  Specio-0.45.tar.gz"

@@ -1,7 +1,7 @@
 # Contributor: dai9ah <dai9ah@protonmail.com>
 # Maintainer: dai9ah <dai9ah@protonmail.com>
 pkgname=ddgr
-pkgver=1.4
+pkgver=1.7
 pkgrel=0
 pkgdesc="DuckDuckGo from the terminal"
 url="https://github.com/jarun/ddgr"
@@ -13,16 +13,10 @@ subpackages="$pkgname-doc
 	$pkgname-fish-completion:fishcomp:noarch
 	$pkgname-zsh-completion:zshcomp:noarch
 	"
-source="$pkgname-$pkgver.tar.gz::https://github.com/jarun/$pkgname/archive/v$pkgver.tar.gz"
-builddir="$srcdir/$pkgname-$pkgver"
-
-check() {
-	cd "$builddir"
-	./ddgr --help > /dev/null
-}
+source="$pkgname-$pkgver.tar.gz::https://github.com/jarun/ddgr/archive/v$pkgver.tar.gz"
+options="!check" # no test suite
 
 package() {
-	cd "$builddir"
 	make DESTDIR="$pkgdir" PREFIX=/usr install
 }
 
@@ -54,4 +48,4 @@ zshcomp() {
 
 }
 
-sha512sums="ef51a1a8634cc2417cf036cea1748fcfe0572861e3e0ea9625f7ce4b47c3d0e966a670e26912ab5aee2946d29fa8d4ac5e5bd7249719845f9107dcf02de710ed  ddgr-1.4.tar.gz"
+sha512sums="9b07d045baeee6bbaa0a8213d90860f432687f9a0fbc5e424d9df3422897eb12c2c4d1ac210daa41cbb5fd5113148f01e20f276822157d42058872ab4fc70dae  ddgr-1.7.tar.gz"

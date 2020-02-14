@@ -3,44 +3,38 @@
 # Maintainer: Francesco Colista <fcolista@alpinelinux.org>
 pkgname=perl-sys-virt
 _pkgreal=Sys-Virt
-pkgver=3.4.0
+pkgver=6.0.0
 pkgrel=0
 pkgdesc="Perl module for Sys-Virt"
-url="http://search.cpan.org/dist/Sys-Virt/"
+url="https://metacpan.org/release/Sys-Virt"
 arch="all"
-license="GPL PerlArtistic"
-cpandepends=""
-cpanmakedepends="perl-xml-xpath perl-test-pod-coverage perl-test-pod perl-cpan-changes"
-depends="$cpandepends"
-makedepends="perl-dev libvirt-dev yajl-dev $cpanmakedepends"
+license="GPL-1.0-or-later OR Artistic-1.0-Perl"
+cpanmakedepends="perl-xml-xpath perl-test-pod-coverage
+	perl-test-pod perl-cpan-changes perl-module-build"
+depends="perl"
+makedepends="$cpanmakedepends perl-dev libvirt yajl-dev libvirt-dev"
 subpackages="$pkgname-doc"
-source="http://search.cpan.org/CPAN/authors/id/D/DA/DANBERR/$_pkgreal-$pkgver.tar.gz
-	perl-5.26.patch
-	"
-builddir="$srcdir/$_pkgreal-$pkgver"
+source="https://cpan.metacpan.org/authors/id/D/DA/DANBERR/Sys-Virt-v$pkgver.tar.gz"
+builddir="$srcdir/$_pkgreal-v$pkgver"
 
 prepare() {
-	default_prepare || return 1
-
-	cd "$builddir"
-	if [ -e Build.PL ]; then
-		perl Build.PL installdirs=vendor || return 1
-	else
-		PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor || return 1
-	fi
+	default_prepare
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	perl Build.PL --installdirs=vendor
 }
 
 build() {
-	cd "$builddir"
 	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
-	make && make test
+	./Build
+}
+
+check() {
+	./Build test
 }
 
 package() {
-	cd "$builddir"
-	make DESTDIR="$pkgdir" install || return 1
+	./Build install --destdir="$pkgdir"
 	find "$pkgdir" \( -name perllocal.pod -o -name .packlist \) -delete
 }
 
-sha512sums="9ca5cd23942acdb435cc1d56315d0cbeee41720d42d5dc9bcc6ee46c5bbf33323d12baa5d7ae110620b29da7464d3086f858b0af65e8fc8f632d1620974f02c5  Sys-Virt-3.4.0.tar.gz
-2e2d07f3df0bbd16d8a63ced60df7f52142f642d9ac9390e83f117298498ff9a6a8464c075f0f94b58d843f8776be7130292a990c7662c99acf613349f721cd3  perl-5.26.patch"
+sha512sums="9bdc5fe70ea87fbd59541e041e8e22ef20a4c26b5805884e27f49ff375af25ce9918a0164cc96138e70cca77fa1957493003c0dc6bb34ec1cac46f936e25f984  Sys-Virt-v6.0.0.tar.gz"

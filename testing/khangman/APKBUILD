@@ -1,0 +1,31 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=khangman
+pkgver=19.12.2
+pkgrel=0
+arch="all !armhf" # armhf blocked by qt5-qtdeclarative
+url="http://edu.kde.org/khangman"
+pkgdesc="Hangman game"
+license="GPL-2.0-or-later"
+makedepends="extra-cmake-modules qt5-qtbase-dev qt5-qtdeclarative-dev qt5-qtsvg-dev ki18n-dev kcrash-dev kcompletion-dev kconfig-dev kcoreaddons-dev kconfigwidgets-dev kdeclarative-dev kdoctools-dev knewstuff-dev knotifications-dev kxmlgui-dev kio-dev libkeduvocdocument-dev"
+source="https://download.kde.org/stable/release-service/$pkgver/src/khangman-$pkgver.tar.xz"
+subpackages="$pkgname-doc $pkgname-lang"
+options="!check" # No tests
+
+build() {
+	cmake \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest
+}
+
+package() {
+	DESTDIR="$pkgdir" make install
+}
+
+sha512sums="9c884cadd9cd0a7393c3be98ab8dc44d85690fcf65041ebbe81c0d87dc1e5aa11f965ee283da260400a1122adb6e1740366a5235d0c38276a8222790c4d10d3c  khangman-19.12.2.tar.xz"

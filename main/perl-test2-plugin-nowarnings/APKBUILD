@@ -1,16 +1,17 @@
 # Maintainer: Leonardo Arena <rnalrd@alpinelinux.org>
 pkgname=perl-test2-plugin-nowarnings
 _pkgreal="Test2-Plugin-NoWarnings"
-pkgver=0.06
-pkgrel=0
+pkgver=0.08
+pkgrel=1
 pkgdesc="Test2::Plugin::NoWarnings perl module"
-url="http://search.cpan.org/dist/Test2-Plugin-NoWarnings"
+url="https://metacpan.org/release/Test2-Plugin-NoWarnings"
 arch="noarch"
-license="GPL or Artistic-2.0"
+license="Artistic-2.0"
 depends="perl-ipc-run3 perl-test2-suite perl-test-simple"
 makedepends="perl-dev"
+checkdepends="perl-capture-tiny"
 subpackages="$pkgname-doc"
-source="http://search.cpan.org/CPAN/authors/id/D/DR/DROLSKY/$_pkgreal-$pkgver.tar.gz"
+source="https://cpan.metacpan.org/authors/id/D/DR/DROLSKY/$_pkgreal-$pkgver.tar.gz"
 
 builddir="$srcdir/$_pkgreal-$pkgver"
 
@@ -31,4 +32,4 @@ package() {
 	find "$pkgdir" \( -name perllocal.pod -o -name .packlist \) -delete
 }
 
-sha512sums="aed9a3769085028adffd0aa7cbbe2d7d8b89b5f4768e47ae4155dcc1f4aa8fd47319ae7c87ddbc1ed08ca99e1d703eebb74977e88696ea4dcc1104a53332ade2  Test2-Plugin-NoWarnings-0.06.tar.gz"
+sha512sums="cf641f77b8466bbaf9d9fc166526853f64c9c66e4b1c415af521e81df76760aa3bde0634827d19c9e760c2b763c86e3923af0df83a4e2ddb4c28b8ebbc64eb63  Test2-Plugin-NoWarnings-0.08.tar.gz"

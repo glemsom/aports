@@ -1,39 +1,36 @@
 # Maintainer: Francesco Colista <fcolista@alpinelinux.org>
 pkgname=qt5-qtquickcontrols
 _pkgname=${pkgname/qt5-//}-everywhere-src
-pkgver=5.12.0
+pkgver=5.12.5
 _ver=${pkgver/_/-}
 _ver=${_ver/beta0/beta}
 _ver=${_ver/rc0/rc}
-_V=${_ver/rc/RC}
-pkgrel=0
+_v=${_ver/rc/RC}
+pkgrel=2
 pkgdesc="Qt5 - module with set of QtQuick controls"
-url="http://qt-project.org/"
-arch="all"
-license="BSD and (LGPL-2.0 with exceptions or GPL-3.0 with exceptions) and GFDL"
+url="https://www.qt.io/developers/"
+arch="all !armhf" # armhf blocked by qt5-qtdeclarative
+license="LGPL-2.1-only AND LGPL-3.0-only AND GPL-3.0-only AND Qt-GPL-exception-1.0"
 makedepends="qt5-qtbase-dev qt5-qtdeclarative-dev"
 
 case $pkgver in
 *_beta*|*_rc*) _rel=development_releases;;
 *) _rel=official_releases;;
 esac
-source="http://download.qt-project.org/$_rel/qt/${pkgver%.*}/$_ver/submodules/$_pkgname-$_V.tar.xz"
+source="https://download.qt.io/$_rel/qt/${pkgver%.*}/$_ver/submodules/qtquickcontrols-everywhere-src-$_v.tar.xz"
 
-builddir="$srcdir"/$_pkgname-${_V%-*}
+builddir="$srcdir/$_pkgname-${_v%-*}"
 
 build() {
-	cd "$builddir"
 	qmake-qt5 && make
 }
 
 check() {
-	cd "$builddir"
 	make check
 }
 
 package() {
-	cd "$builddir"
 	make install INSTALL_ROOT="$pkgdir"
 }
 
-sha512sums="a2052398c281e81f8a61afe49f262d4feeb4da2593dbec0cc9971e7de6b169b17c1cf2ee7c213b3d5939cc322d4d715a1ce318b031fd4b8a783fac7bae3e37f9  qtquickcontrols-everywhere-src-5.12.0.tar.xz"
+sha512sums="4539a6ce1ee20f71f6bf48271bc3fe1125bd21899cf36142d1c3d41a68ba56211f27d6e4403c69e86bd4698c7c7c79bc60f2a78ef1b19c5eab5b8690d1a01037  qtquickcontrols-everywhere-src-5.12.5.tar.xz"

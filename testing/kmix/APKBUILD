@@ -1,0 +1,31 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=kmix
+pkgver=19.12.2
+pkgrel=0
+arch="all !armhf"
+url="https://kde.org/applications/multimedia/org.kde.kmix"
+pkgdesc="A sound channel mixer and volume control"
+license="GPL-2.0-or-later AND LGPL-2.0-or-later AND GFDL-1.2-only"
+makedepends="extra-cmake-modules qt5-qtbase-dev kcompletion-dev kconfig-dev kconfigwidgets-dev kcrash-dev kdbusaddons-dev kdoctools-dev kglobalaccel-dev ki18n-dev kiconthemes-dev knotifications-dev plasma-framework-dev solid-dev kwidgetsaddons-dev kwindowsystem-dev kxmlgui-dev alsa-lib-dev pulseaudio-dev libcanberra-dev"
+source="https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz"
+subpackages="$pkgname-doc $pkgname-lang"
+options="!check" # No tests
+
+build() {
+	cmake \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest
+}
+
+package() {
+	DESTDIR="$pkgdir" make install
+}
+
+sha512sums="948e4881b56a8fc0b707940607f67c401b2644189acfe653b8ac35a8d035eff4a79b8c0890248785062a7696aa785b347cab37ae6882b64f993f242adabd8bf7  kmix-19.12.2.tar.xz"

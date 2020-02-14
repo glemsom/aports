@@ -1,0 +1,39 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=sddm-kcm
+pkgver=5.18.0
+pkgrel=0
+pkgdesc="Config module for SDDM"
+arch="all !armhf" # armhf blocked by qt5-qtdeclarative
+url="https://www.kde.org"
+license="GPL-2.0-or-later AND (GPL-2.0-only OR GPL-3.0-only) AND LGPL-2.1-or-later AND GPL-2.0-only"
+depends="sddm systemsettings"
+makedepends="extra-cmake-modules qt5-qtbase-dev qt5-qtx11extras-dev qt5-qtdeclarative-dev kcoreaddons-dev ki18n-dev kxmlgui-dev kauth-dev kconfigwidgets-dev kio-dev karchive-dev knewstuff-dev xcb-util-image-dev libxcursor-dev"
+source="https://download.kde.org/stable/plasma/$pkgver/sddm-kcm-$pkgver.tar.xz"
+subpackages="$pkgname-lang"
+
+prepare() {
+	default_prepare
+
+	mkdir "$builddir"/build
+}
+
+build() {
+	cd "$builddir"/build
+	cmake "$builddir" \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	cd "$builddir"/build
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest
+}
+
+package() {
+	cd "$builddir"/build
+	DESTDIR="$pkgdir" make install
+}
+sha512sums="d32987a07e809c063915d044ebec88324766829458792ff2ba9dd25a036c4e409a310639d22630b7e987efe97ee823a3239d102b362fe958bdb5df02f0eb2343  sddm-kcm-5.18.0.tar.xz"

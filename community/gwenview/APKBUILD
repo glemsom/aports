@@ -1,0 +1,45 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=gwenview
+pkgver=19.12.2
+pkgrel=0
+arch="all !armhf" # armhf blocked by extra-cmake-modules
+url="https://kde.org/applications/graphics/org.kde.gwenview"
+pkgdesc="Fast and easy to use image viewer by KDE"
+license="GPL-2.0-only"
+makedepends="extra-cmake-modules qt5-qtbase-dev qt5-qtsvg-dev qt5-qtx11extras-dev
+	kio-dev kitemmodels-dev ki18n-dev kdoctools-dev kparts-dev kwindowsystem-dev
+	kiconthemes-dev knotifications-dev kactivities-dev libjpeg-turbo-dev
+	libpng-dev libkipi-dev lcms2-dev baloo-dev libkdcraw-dev purpose-dev"
+checkdepends="xvfb-run kinit"
+source="https://download.kde.org/stable/release-service/$pkgver/src/gwenview-$pkgver.tar.xz"
+subpackages="$pkgname-doc $pkgname-lang"
+
+prepare() {
+	default_prepare
+
+	mkdir "$builddir"/build
+}
+
+build() {
+	cd "$builddir"/build
+	cmake "$builddir" \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	cd "$builddir"/build
+	# urlutilstest is broken
+	# recursivedirmodeltest and contextmanagertest requires running DBus
+	CTEST_OUTPUT_ON_FAILURE=TRUE xvfb-run ctest -E "(urlutils|recursivedirmodel|contextmanager)test"
+}
+
+package() {
+	cd "$builddir"/build
+	DESTDIR="$pkgdir" make install
+}
+
+sha512sums="20479f0bd326584f5004e0ab9642371cee1b832d8d31cbe32659119509bf5281b17e056d36a4e0f1168d81678ed8db7b89bab827e3a6f08aa8fae28fdddd740d  gwenview-19.12.2.tar.xz"

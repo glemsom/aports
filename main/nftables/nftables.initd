@@ -3,19 +3,20 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-extra_commands="list panic save"
+extra_commands="checkconfig list panic save"
 extra_started_commands="reload"
 
 description="Manage nftable based firewall."
+description_checkconfig="Check validity of rulesets on disk without applying changes."
 description_save="Save current nftables rulesets to disk."
 description_list="Displays the current nftables ruleset."
 description_panic="Immediately drop all packets on all interfaces."
 description_reload="Clear current rulesets and load rulesets from the saved ruleset files."
 
 # Uppercase variables are there for backward compatibility.
-: ${rules_file:=${NFTABLES_SAVE:="/etc/firewall.nft"}}
+: ${rules_file:=${NFTABLES_SAVE:="/etc/nftables.nft"}}
 : ${save_options:=${SAVE_OPTIONS:="-n"}}
-: ${save_on_stop:=${SAVE_ON_STOP:="yes"}}
+: ${save_on_stop:=${SAVE_ON_STOP:="no"}}
 : ${enable_forwarding:="no"}
 
 depend() {
@@ -103,11 +104,10 @@ stop() {
 
 checkconfig() {
 	if [ ! -f "$rules_file" ]; then
-		eerror "Not starting nftables. First create some rules then run:"
-		eerror "  rc-service nftables save"
+		eerror "Rules files $rules_file does not exist!"
 		return 1
 	fi
-	return 0
+	nft -c -f "$rules_file"
 }
 
 checkkernel() {

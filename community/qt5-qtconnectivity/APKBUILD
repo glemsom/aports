@@ -2,16 +2,16 @@
 # Maintainer: Francesco Colista <fcolista@alpinelinux.org>
 pkgname=qt5-qtconnectivity
 _pkgname=${pkgname/qt5-//}-everywhere-src
-pkgver=5.12.0
+pkgver=5.12.5
 _ver=${pkgver/_/-}
 _ver=${_ver/beta0/beta}
 _ver=${_ver/rc0/rc}
 _V=${_ver/rc/RC}
-pkgrel=0
+pkgrel=1
 pkgdesc="QT5 Connectivity Compontents"
-url="http://qt-project.org/"
+url="https://www.qt.io/developers/"
 arch="all"
-license="LGPL-2.0 with exceptions or GPL-3.0 with exceptions"
+license="(LGPL-2.0-or-later OR GPL-3.0-only OR GPL-2.0-or-later) AND Qt-GPL-exception-1.0"
 options="!check" #upstream does not provide check
 makedepends="qt5-qtbase-dev"
 subpackages="$pkgname-dev"
@@ -20,7 +20,7 @@ case $pkgver in
 *_beta*|*_rc*) _rel=development_releases;;
 *) _rel=official_releases;;
 esac
-source="http://download.qt-project.org/$_rel/qt/${pkgver%.*}/$_ver/submodules/$_pkgname-$_V.tar.xz"
+source="https://download.qt.io/$_rel/qt/${pkgver%.*}/$_ver/submodules/$_pkgname-$_V.tar.xz"
 
 builddir="$srcdir"/$_pkgname-${_V%-*}
 
@@ -40,4 +40,4 @@ package() {
 	cd "$builddir"/build
 	make INSTALL_ROOT="$pkgdir" install
 }
-sha512sums="7e6b98cbfc1fcf5545b3f0be513a34f5ba67cc284e3101ebfbbc178b1bccf8cf77ccd7f03dab5fc2fa46aaa61faf7f1adb3f47e98d0c19ea248189f44f030faf  qtconnectivity-everywhere-src-5.12.0.tar.xz"
+sha512sums="96cdb27aa0e439094e3f1de0c7a680973c3ce2c65bbbff38affe25a3708c9e4e3c1c6a403d698303f77a5f261b44ac657e01a769b62a1565e0a8c64c8ac80bd5  qtconnectivity-everywhere-src-5.12.5.tar.xz"

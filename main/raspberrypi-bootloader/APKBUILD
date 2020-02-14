@@ -1,8 +1,8 @@
 # Contributor: Marian Buschsieweke <marian.buschsieweke@ovgu.de>
 # Maintainer: Timo Teräs <timo.teras@iki.fi>
 pkgname=raspberrypi-bootloader
-pkgver=1.20181112
-pkgrel=0
+pkgver=1.20190925
+pkgrel=1
 pkgdesc="Bootloader files for the Raspberry Pi"
 url=https://github.com/raspberrypi/firmware
 arch="armhf armv7 aarch64"
@@ -17,7 +17,7 @@ subpackages="$pkgname-experimental $pkgname-debug $pkgname-cutdown $pkgname-doc"
 builddir="${srcdir}/firmware-${pkgver}"
 
 package() {
-	local fw; for fw in bootcode.bin fixup.dat start.elf; do
+	local fw; for fw in bootcode.bin fixup.dat fixup4.dat start.elf start4.elf; do
 		install -D "$builddir"/boot/$fw \
 			"$pkgdir"/boot/$fw
 	done
@@ -27,7 +27,7 @@ package() {
 
 experimental() {
 	pkgdesc="Experimental firmware with additional codecs"
-	local fw; for fw in start_x.elf fixup_x.dat; do
+	local fw; for fw in start_x.elf start4x.elf fixup_x.dat fixup4x.dat; do
 		install -D "$builddir"/boot/$fw \
 				"$subpkgdir"/boot/$fw
 	done
@@ -35,7 +35,7 @@ experimental() {
 
 debug() {
 	pkgdesc="Debug firmware"
-    local fw; for fw in start_db.elf fixup_db.dat; do
+    local fw; for fw in start_db.elf start4db.elf fixup_db.dat fixup4db.dat; do
 		install -D "$builddir"/boot/$fw \
 			"$subpkgdir"/boot/$fw
 	done
@@ -43,10 +43,10 @@ debug() {
 
 cutdown() {
 	pkgdesc="Cut-down firmware for lower memory settings"
-	local fw; for fw in start_cd.elf fixup_cd.dat; do
+	local fw; for fw in start_cd.elf start4cd.elf fixup_cd.dat fixup4cd.dat; do
 		install -D "$builddir"/boot/$fw \
 			"$subpkgdir"/boot/$fw
 	done
 }
 
-sha512sums="ce3e7c8bc04568924e101a31569092d12d428048f6d81fe7e2fe59f89a7310f8ca60a00608b31f6fd2dc76cd30a386a4e4641274acbf3b3ea0cf944c40c11f54  raspberrypi-bootloader-1.20181112.tar.gz"
+sha512sums="4b7b29cc6c2a33d7a37987c492034d9afbb2220364c50cf265e0adf8e5f393c2275dcffaa77c89b3f43b2e98d199741b67590cb60ff8beae8ef677852f63b4a0  raspberrypi-bootloader-1.20190925.tar.gz"

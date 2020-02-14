@@ -1,7 +1,7 @@
 # Contributor: Natanael Copa <ncopa@alpinelinux.org>
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 pkgname=thunar-volman
-pkgver=0.9.1
+pkgver=0.9.5
 pkgrel=0
 pkgdesc="Thunar extension for volumes management"
 url="https://goodies.xfce.org/projects/thunar-plugins/thunar-volman"
@@ -9,13 +9,18 @@ arch="all"
 license="GPL-2.0-or-later"
 options="!check" # no test suite
 depends="thunar"
-makedepends="thunar-dev exo-dev libgudev-dev libxfce4ui-dev libnotify-dev"
+makedepends="thunar-dev exo-dev libgudev-dev libxfce4ui-dev libnotify-dev
+	automake autoconf libtool xfce4-dev-tools"
 subpackages="$pkgname-lang"
-source="https://archive.xfce.org/src/apps/thunar-volman/${pkgver%.*}/thunar-volman-$pkgver.tar.bz2"
-builddir="$srcdir/$pkgname-$pkgver"
+source="$pkgname-$pkgver.tar.gz::https://github.com/xfce-mirror/thunar-volman/archive/thunar-volman-$pkgver.tar.gz"
+builddir="$srcdir/thunar-volman-thunar-volman-$pkgver"
+
+prepare() {
+	default_prepare
+	./autogen.sh
+}
 
 build() {
-	cd "$builddir"
 	./configure \
 		--build=$CBUILD \
 		--host=$CHOST \
@@ -27,8 +32,7 @@ build() {
 }
 
 package() {
-	cd "$builddir"
 	make DESTDIR="$pkgdir" install
 }
 
-sha512sums="73d9884dc667e4f8554d2b06f7116bbe25fa4e113300f0cd32bc2229c22001cc709333d5ac5618f7d5c8a35e58fb7a61e48ecafa634c7e239e9af329dc4149bc  thunar-volman-0.9.1.tar.bz2"
+sha512sums="18fbc2a29c1527a42a7a961c6c3f0315d772954d0e16b943ca64f0361fc08b2e17fff44e13a7ca74f7e4e40f87a3edd5c22cf4edd5791533fb61f72cb186c3f0  thunar-volman-0.9.5.tar.gz"

@@ -1,0 +1,40 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=karchive
+pkgver=5.67.0
+pkgrel=0
+pkgdesc="Qt 5 addon providing access to numerous types of archives"
+arch="all !armhf" # qtdeclarative
+url="https://community.kde.org/Frameworks"
+license="LGPL-2.0-only AND LGPL-2.1-or-later"
+depends_dev="bzip2-dev xz-dev"
+makedepends="$depends_dev extra-cmake-modules doxygen graphviz qt5-qttools-dev"
+source="https://download.kde.org/stable/frameworks/${pkgver%.*}/karchive-$pkgver.tar.xz"
+subpackages="$pkgname-dev $pkgname-doc"
+
+prepare() {
+	default_prepare
+
+	mkdir "$builddir"/build
+}
+
+build() {
+	cd "$builddir"/build
+	cmake "$builddir" \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DBUILD_QCH=ON
+	make
+}
+
+check() {
+	cd "$builddir"/build
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest
+}
+
+package() {
+	cd "$builddir"/build
+	DESTDIR="$pkgdir" make install
+}
+sha512sums="e8a7695bebc8e9ab9596e10ad0ca9393942e4d3b198929481e59ededde7651859e8944586ddd00036e37c15a8501e5b067eff31562fb2384ab1c3ff6eb27d28e  karchive-5.67.0.tar.xz"

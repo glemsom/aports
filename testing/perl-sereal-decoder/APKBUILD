@@ -3,46 +3,39 @@
 # Maintainer: Timo Teräs <timo.teras@iki.fi>
 pkgname=perl-sereal-decoder
 _pkgreal=Sereal-Decoder
-pkgver=3.015
+pkgver=4.011
 pkgrel=0
 pkgdesc="Fast, compact, powerful binary deserialization"
-url="http://search.cpan.org/dist/Sereal-Decoder/"
+url="https://metacpan.org/release/Sereal-Decoder"
 arch="all"
-license="GPL PerlArtistic"
-cpandepends=""
-cpanmakedepends=""
-cpancheckdepends="perl-test-longstring perl-test-warn"
-depends="$cpandepends"
-makedepends="perl-dev $cpanmakedepends"
-checkdepends="$cpancheckdepends"
+license="GPL-1.0-or-later OR Artistic-1.0-Perl"
+depends="perl"
+makedepends="perl-dev zstd-dev"
+checkdepends="perl-test-longstring perl-test-warn"
 subpackages="$pkgname-doc"
-source="http://search.cpan.org/CPAN/authors/id/Y/YV/YVES/$_pkgreal-$pkgver.tar.gz"
+source="https://cpan.metacpan.org/authors/id/Y/YV/YVES/Sereal-Decoder-$pkgver.tar.gz"
 builddir="$srcdir/$_pkgreal-$pkgver"
 
 prepare() {
-	default_prepare || return 1
+	default_prepare
 
-	cd "$builddir"
 	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
 	PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
 }
 
 build() {
-	cd "$builddir"
 	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
 	make
 }
 
 package() {
-	cd "$builddir"
-	make DESTDIR="$pkgdir" install || return 1
+	make DESTDIR="$pkgdir" install
 	find "$pkgdir" \( -name perllocal.pod -o -name .packlist \) -delete
 }
 
 check() {
-	cd "$builddir"
 	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
 	make test
 }
 
-sha512sums="65582a86ff40d02e350bfe759cfda12c3a541c012c55c2a9bfee6cc6df5facbe8088188cb7306685d4b9ab549e8900a7bd599b207325fec7d30d90de3b68c79e  Sereal-Decoder-3.015.tar.gz"
+sha512sums="f80f07ae3c506be17b66b84bc65809c15d43a2039958ade2e0fed5bf8b0bef76728d62fd0d614cb84b4f079262d6f176899538e4abbba2c2499e52cad90e9207  Sereal-Decoder-4.011.tar.gz"

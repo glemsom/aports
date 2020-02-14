@@ -3,7 +3,7 @@
 # Maintainer: Francesco Colista <fcolista@alpinelinux.org>
 pkgname=copyq
 _pkgname=CopyQ
-pkgver=3.5.0
+pkgver=3.10.0
 pkgrel=0
 pkgdesc="Clipboard manager with searchable and editable history"
 url="https://github.com/hluk/CopyQ"
@@ -13,7 +13,7 @@ makedepends="cmake libxfixes-dev libxtst-dev qt5-qtscript-dev
 	qt5-qtsvg-dev qt5-qttools-dev qt5-qtx11extras-dev"
 options="!check" # upstream does not provide check
 subpackages="$pkgname-doc"
-source="$pkgname-$pkgver.tar.gz::https://github.com/hluk/${_pkgname}/archive/v${pkgver}.tar.gz"
+source="$pkgname-$pkgver.tar.gz::https://github.com/hluk/$_pkgname/archive/v$pkgver.tar.gz"
 builddir="$srcdir/$_pkgname-$pkgver"
 
 prepare() {
@@ -32,7 +32,7 @@ build() {
 
 package() {
 	cd "$builddir"/build
-	make DESTDIR="${pkgdir}" install
+	make DESTDIR="$pkgdir" install
 }
 
-sha512sums="9e662c8f80a59d58fbc8c51990682bfe61582ebdeba240e49996aab618b0a118422b0f2023952ef8cdf8e00f50ec4d7c67bd874abacf564226fb096dcc6d944d  copyq-3.5.0.tar.gz"
+sha512sums="6cae338a144d7f92850ce88c991ed99222613c57540ced49dab719e43af884bbd9d15e6e8f074c6af94b0ac2ecd1b355eff8b83ec99f688c0f93fa19f253d653  copyq-3.10.0.tar.gz"

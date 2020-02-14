@@ -1,0 +1,32 @@
+# Contributor: Leo <thinkabit.ukim@gmail.com>
+# Maintainer: Leo <thinkabit.ukim@gmail.com>
+pkgname=b3sum
+pkgver=0.2.0
+pkgrel=0
+pkgdesc="Command line implementation of the BLAKE3 hash function"
+url="https://blake3.io"
+arch="all !s390x !armhf" # armhf: 'vaddq_u32': target specific option mismatch
+license="CC0-1.0 OR Apache-2.0"
+makedepends="cargo"
+source="b3sum-$pkgver.tar.gz::https://crates.io/api/v1/crates/b3sum/$pkgver/download"
+
+case "$CARCH" in
+	arm*) _features="c_neon rayon" ;;
+	x86_64) _features="c rayon" ;;
+	*) _features="rayon" ;;
+esac
+
+build() {
+	cargo build --release --locked --no-default-features --features="$_features"
+}
+
+check() {
+	cargo test --release --locked --no-default-features --features="$_features"
+}
+
+package() {
+	cargo install --path . --root="$pkgdir/usr" --no-default-features --features "$_features"
+	rm "$pkgdir"/usr/.crates.toml
+}
+
+sha512sums="7a934ff09f252578df90cdad74ca35e348d14c8b6c6389c1ea11e96c40a360c714979a30bbc8367e233b963c41848e63d1eaa18ccf7e6621ac9c7574449428db  b3sum-0.2.0.tar.gz"

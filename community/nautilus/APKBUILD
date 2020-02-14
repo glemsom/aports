@@ -1,0 +1,42 @@
+# Contributor: Rasmus Thomsen <oss@cogitri.dev>
+# Maintainer: Rasmus Thomsen <oss@cogitri.dev>
+#
+# secfixes:
+#   3.32.1:
+#     - CVE-2019-11461
+
+pkgname=nautilus
+pkgver=3.34.2
+pkgrel=0
+pkgdesc="GNOME file manager"
+url="https://wiki.gnome.org/Apps/Nautilus"
+arch="all !s390x"
+license="GPL-2.0-or-later"
+depends="tracker-miners gsettings-desktop-schemas"
+depends_dev="gnome-desktop-dev gnome-autoar-dev"
+makedepends="$depends_dev itstool libxml2-dev libxml2-utils docbook-xsl
+	docbook-xml libxslt intltool libexif-dev jpeg-dev tiff-dev librsvg-dev
+	libseccomp-dev tracker-dev gst-plugins-base-dev meson gexiv2-dev"
+checkdepends="desktop-file-utils appstream-glib"
+subpackages="$pkgname-dev $pkgname-lang"
+source="https://download.gnome.org/sources/nautilus/${pkgver%.*}/nautilus-$pkgver.tar.xz"
+
+build() {
+	meson \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		-Dtests=headless \
+		. output
+	ninja -C output
+}
+
+check() {
+	ninja -C output test
+}
+
+package() {
+	DESTDIR="$pkgdir" ninja -C output install
+}
+
+sha512sums="1a4e24fea3201f68b0316b95425bbc90078baa1ae7dccef2d2e48beda4007ecf2986254cde243d310c548e47a4693d84d1255654199649ce08429a99fb3a3a51  nautilus-3.34.2.tar.xz"

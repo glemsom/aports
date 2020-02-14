@@ -6,7 +6,7 @@ extra_started_commands="reload"
 
 depend() {
 	need net
-	after firewall
+	after firewall entropy
 	use logger
 	provide dns
 }
@@ -82,3 +82,10 @@ stop() {
 	eend $?
 }
 
+reload() {
+	checkconfig
+
+	ebegin "Reloading $name"
+	rndc reload
+	eend $?
+}

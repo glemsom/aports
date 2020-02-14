@@ -1,0 +1,50 @@
+# Contributor: Konstantin Kulikov <k.kulikov2@gmail.com>
+# Maintainer: Konstantin Kulikov <k.kulikov2@gmail.com>
+pkgname=grafana
+pkgver=6.6.1
+pkgrel=0
+_commit=21bf8b71bc # git rev-parse --short HEAD
+_stamp=1580982790 # git --no-pager show -s --format=%ct
+pkgdesc="Open source, feature rich metrics dashboard and graph editor"
+url="https://grafana.com"
+arch="all"
+license="Apache-2.0"
+makedepends="go"
+install="$pkgname.pre-install"
+subpackages="$pkgname-openrc"
+source="$pkgname-$pkgver.tar.gz::https://github.com/grafana/grafana/archive/v$pkgver.tar.gz
+	$pkgname-$pkgver-bin.tar.gz::https://dl.grafana.com/oss/release/grafana-$pkgver.linux-amd64.tar.gz
+	$pkgname.initd $pkgname.confd"
+
+export GOPATH=${GOPATH:-$srcdir/go}
+export GOCACHE=${GOCACHE:-$srcdir/go-build}
+export GOTMPDIR=${GOTMPDIR:-$srcdir}
+
+# secfixes:
+#   6.3.4-r0:
+#   - CVE-2019-15043
+
+build() {
+	local ldflags="-X main.version=$pkgver -X main.commit=$_commit -X main.buildstamp=$_stamp"
+	go build -ldflags "$ldflags" -mod=vendor -v github.com/grafana/grafana/pkg/cmd/grafana-server
+	go build -ldflags "$ldflags" -mod=vendor -v github.com/grafana/grafana/pkg/cmd/grafana-cli
+}
+
+check() {
+	go test -mod=vendor ./...
+}
+
+package() {
+	install -Dm755 "$srcdir/$pkgname.initd" "$pkgdir/etc/init.d/$pkgname"
+	install -Dm644 "$srcdir/$pkgname.confd" "$pkgdir/etc/conf.d/$pkgname"
+	install -Dm755 "$builddir/$pkgname-server" "$pkgdir/usr/sbin/$pkgname-server"
+	install -Dm755 "$builddir/$pkgname-cli" "$pkgdir/usr/bin/$pkgname-cli"
+	install -Dm644 "$builddir/conf/sample.ini" "$pkgdir/etc/grafana.ini"
+	install -dm755 "$pkgdir/usr/share/grafana"
+	cp -r "$builddir/conf" "$builddir/public" "$pkgdir/usr/share/$pkgname/"
+}
+
+sha512sums="24da98ddec631d6e596ca8fde874cdc2b834a0eacdbca7ae70b6e3511170d3b2dc63eb3a388d1f11c3cff22659b5e71daccff66f23e74c1c26f9cb5e936cfdb2  grafana-6.6.1.tar.gz
+ad2e744b8ebbc4a118cb28a13f78be29d33fe20cb901f431ba1b81cc5b77af5022efd74d393fd8096a4b63dce226a8621c0b0ef53e133921609687e3e2dde7b8  grafana-6.6.1-bin.tar.gz
+b0a781e1b1e33741a97e231c761b1200239c6f1235ffbe82311fe883387eb23bef262ad68256ebd6cf87d74298041b53b947ea7a493cfa5aa814b2a1c5181e13  grafana.initd
+c2d9896ae9a9425f759a47aeab42b7c43b63328e82670d50185de8c08cda7b8df264c8b105c5c3138b90dd46e86598b16826457eb3b2979a899b3a508cbe4e8c  grafana.confd"

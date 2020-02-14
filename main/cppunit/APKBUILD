@@ -1,18 +1,15 @@
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 pkgname=cppunit
-pkgver=1.14.0
+pkgver=1.15.1
 pkgrel=0
 pkgdesc="C++ unit testing framework"
 url="http://www.freedesktop.org/wiki/Software/cppunit/"
 arch="all"
 license="LGPL-2.0-or-later"
 subpackages="$pkgname-dev $pkgname-doc"
-source="https://dev-www.libreoffice.org/src/$pkgname-$pkgver.tar.gz"
-
-builddir="$srcdir/$pkgname-$pkgver"
+source="https://dev-www.libreoffice.org/src/cppunit-$pkgver.tar.gz"
 
 build() {
-	cd "$builddir"
 	LIBS="-ldl" ./configure \
 		--build=$CBUILD \
 		--host=$CHOST \
@@ -25,13 +22,11 @@ build() {
 }
 
 check() {
-	cd "$builddir"
 	make check
 }
 
 package() {
-	cd "$builddir"
 	make DESTDIR="$pkgdir" install
 }
 
-sha512sums="4ea1da423c6f7ab37e4144689f593396829ce74d43872d6b10709c1ad5fbda4ee945842f7e9803592520ef81ac713e95a3fe130295bf048cd32a605d1959882e  cppunit-1.14.0.tar.gz"
+sha512sums="0feb47faec451357bb4c4e287efa17bb60fd3ad966d5350e9f25b414aaab79e94921024b0c0497672f8d3eeb22a599213d2d71d9e1d28b243b3e37f3a9a43691  cppunit-1.15.1.tar.gz"

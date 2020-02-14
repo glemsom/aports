@@ -1,18 +1,18 @@
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 pkgname=libtool
 pkgver=2.4.6
-pkgrel=5
+pkgrel=7
 pkgdesc="A generic library support script"
 arch="all"
 license="LGPL-2.0+"
 url="https://www.gnu.org/software/libtool"
-source="ftp://ftp.gnu.org/pub/gnu/libtool/${pkgname}-${pkgver}.tar.gz
+source="https://ftp.gnu.org/gnu/libtool/${pkgname}-${pkgver}.tar.gz
 	libtool-fix-cross-compile.patch
 	"
 depends="bash libltdl"
 makedepends="m4 help2man"
 checkdepends="gawk autoconf automake gzip"
-subpackages="libltdl $pkgname-doc"
+subpackages="libltdl-static libltdl $pkgname-doc"
 
 # 1 test presently fails on Alpine (need to investigate):
 #  69: shlibpath_overrides_runpath                     FAILED (shlibpath.at:68)
@@ -25,8 +25,7 @@ build() {
 	./configure \
 		--build=$CBUILD \
 		--host=$CHOST \
-		--prefix=/usr \
-		--disable-static
+		--prefix=/usr
 	make
 }
 

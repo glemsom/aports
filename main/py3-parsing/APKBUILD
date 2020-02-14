@@ -1,0 +1,27 @@
+# Contributor: Natanael Copa <ncopa@alpinelinux.org>
+# Maintainer: Natanael Copa <ncopa@alpinelinux.org>
+pkgname=py3-parsing
+_pkgname=pyparsing
+pkgver=2.4.6
+pkgrel=0
+pkgdesc="An object-oriented approach to text processing"
+url="http://pyparsing.wikispaces.com/"
+arch="noarch"
+license="MIT"
+depends="python3"
+makedepends="py3-setuptools"
+source="https://files.pythonhosted.org/packages/source/${_pkgname:0:1}/$_pkgname/$_pkgname-$pkgver.tar.gz"
+builddir="$srcdir"/$_pkgname-$pkgver
+
+replaces="py-parsing" # Backwards compatibility
+provides="py-parsing=$pkgver-r$pkgrel" # Backwards compatibility
+
+build() {
+	python3 setup.py build
+}
+
+package() {
+	python3 setup.py install --prefix=/usr --root="$pkgdir"
+}
+
+sha512sums="6c8e7e2ecd633d26eb6a0547fe805b5c5ce459d4ed7ec7a5db1431b563125fdbce0b76dc05a6ff220f26e906d21e70691a008dfed06642a52e962bbbf1d21cd4  pyparsing-2.4.6.tar.gz"

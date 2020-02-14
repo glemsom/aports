@@ -1,0 +1,39 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=kcodecs
+pkgver=5.67.0
+pkgrel=0
+pkgdesc="Provide a collection of methods to manipulate strings using various encodings"
+arch="all !armhf" # armhf blocked by extra-cmake-modules
+url="https://community.kde.org/Frameworks"
+license="LGPL-2.1-only AND LGPL-2.1-or-later"
+makedepends="extra-cmake-modules qt5-qttools-dev gperf doxygen"
+source="https://download.kde.org/stable/frameworks/${pkgver%.*}/kcodecs-$pkgver.tar.xz"
+subpackages="$pkgname-dev $pkgname-doc $pkgname-lang"
+
+prepare() {
+	default_prepare
+
+	mkdir "$builddir"/build
+}
+
+build() {
+	cd "$builddir"/build
+	cmake "$builddir" \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DBUILD_QCH=ON
+	make
+}
+
+check() {
+	cd "$builddir"/build
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest
+}
+
+package() {
+	cd "$builddir"/build
+	DESTDIR="$pkgdir" make install
+}
+sha512sums="aa5eca38cd3e155e28241c79ce1acf2e1267b539c286331fa137ef3b0e41d1f3748366736e44426c2c825eca76939abeaabe1ddf7c7158bfd3f6596f99d19ebe  kcodecs-5.67.0.tar.xz"

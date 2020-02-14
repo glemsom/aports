@@ -2,7 +2,7 @@
 # Maintainer: Jakub Jirutka <jakub@jirutka.cz>
 pkgname=ruby-ox
 _gemname=${pkgname#ruby-}
-pkgver=2.10.0
+pkgver=2.13.2
 pkgrel=0
 pkgdesc="A fast XML parser and object serializer for Ruby"
 url="https://github.com/ohler55/ox"
@@ -16,8 +16,6 @@ source="$pkgname-$pkgver.tar.gz::https://github.com/ohler55/$_gemname/archive/v$
 builddir="$srcdir/$_gemname-$pkgver"
 
 build() {
-	cd "$builddir"
-
 	gem build $_gemname.gemspec
 	gem install --local \
 		--install-dir dist \
@@ -35,8 +33,6 @@ build() {
 }
 
 check() {
-	cd "$builddir"
-
 	./test/tests.rb
 
 	./test/sax/sax_test.rb > sax_test.log || {
@@ -57,5 +53,5 @@ package() {
 	rm -r ext/ lib/*.so || true
 }
 
-sha512sums="0fc7809f86528c745cc6719fd92bb51fe7c895c62b2cd27c02f2b596c19078f04aacfee90e489bede0ecd47876e36280e6852509f6d34f9b4a6292441745763a  ruby-ox-2.10.0.tar.gz
+sha512sums="bc7d8d14c9e3a45529d8a4a32c01d7f51523f814407d437a7dfed0184fad16a9edf4a2b2317c28039613f8f0e0d367b42b4eb8fc00b01287b0154d520e37ce48  ruby-ox-2.13.2.tar.gz
 c65e16d1611c64dc640c11f00f2e6ef8c70e3efa68fe479f0d7b5d54a96241fedfb7d0775c9371c7deef0b9dce1de63dbb75cb2e6c5756c7dd066164549da0ed  gemspec.patch"

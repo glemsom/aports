@@ -1,0 +1,26 @@
+# Contributor: Carlo Landmeter <clandmeter@gmail.com>
+# Maintainer: Carlo Landmeter <clandmeter@gmail.com>
+pkgname=numix-icon-theme
+pkgver=19.09.20
+pkgrel=0
+pkgdesc="Official icon theme from the Numix project"
+url="https://numixproject.github.io/"
+arch="noarch"
+license="GPL-3.0-only"
+subpackages="$pkgname-light"
+source="$pkgname-$pkgver.tar.gz::https://github.com/numixproject/numix-icon-theme/archive/$pkgver/numix-icon-theme-$pkgver.tar.gz"
+options="!check" # No code so no tests
+
+package() {
+	mkdir -p "$pkgdir"/usr/share/icons
+	mv "$builddir"/Numix "$pkgdir"/usr/share/icons/
+}
+
+light() {
+	pkgdesc="$pkgdesc (Light version)"
+
+	mkdir -p "$subpkgdir"/usr/share/icons
+	mv "$builddir"/Numix-Light "$subpkgdir"/usr/share/icons/
+}
+
+sha512sums="33887291c6322c3a78162c86e8d81b882c5483d00bd14ebd1238eb5aec800e8d2f8e5a01c24d96491dd569495242ea196995a130ec5a8957e10e9068ae252d1b  numix-icon-theme-19.09.20.tar.gz"

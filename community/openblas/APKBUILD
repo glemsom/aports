@@ -3,15 +3,15 @@
 # Maintainer: Isaac Dunham <ibid.ag@gmail.com>
 pkgname=openblas
 _pkgname=OpenBLAS
-pkgver=0.3.3
-pkgrel=2
+pkgver=0.3.8
+pkgrel=0
 pkgdesc="A fast BSD-licensed BLAS based on gotoBLAS2, with LAPACK"
 url="http://www.openblas.net"
 arch="all"
 license="BSD-3-Clause"
 depends_dev="gfortran"
 makedepends="$depends_dev perl linux-headers"
-subpackages="$pkgname-dev $pkgname-doc"
+subpackages="$pkgname-static $pkgname-dev $pkgname-doc"
 source="$pkgname-$pkgver.tar.gz::https://github.com/xianyi/$_pkgname/archive/v$pkgver.tar.gz"
 builddir="$srcdir/$_pkgname-$pkgver"
 
@@ -28,7 +28,8 @@ fi
 # NO_AFFINITY: don't expect to work on musl, also breaks R and not
 #              recommended for Julia
 _flags="USE_OPENMP=0
-	NO_LAPACK=0
+	NO_LAPACK=1
+	NO_LAPACKE=1
 	MAJOR_VERSION=3
 	NO_AFFINITY=1"
 case "$CARCH" in
@@ -40,7 +41,7 @@ esac
 # DYNAMIC_ARCH is supported on x86* only, see https://github.com/xianyi/OpenBLAS/issues/709
 [ "${CARCH%%_64*}" = "x86" ] && _flags="$_flags DYNAMIC_ARCH=1" || _flags="$_flags DYNAMIC_ARCH=0"
 case "$CARCH" in
-x86*) _flags="$_flags TARGET=core2";;
+x86*) _flags="$_flags TARGET=CORE2";;
 armhf) _flags="$_flags TARGET=ARMV7";;
 aarch64) _flags="$_flags TARGET=ARMV8";;
 ppc64le) _flags="$_flags TARGET=POWER8";;
@@ -75,7 +76,6 @@ build() {
 }
 
 check() {
-	cd "$builddir"
 	CFLAGS= make $_flags CFLAGS="$CFLAGS" tests
 }
 
@@ -84,8 +84,6 @@ package() {
 		make -C "$_builddir64" $_flags64 \
 			PREFIX="$pkgdir/usr" install
 	fi
-
-	cd "$builddir"
 
 	make $_flags PREFIX="$pkgdir/usr" install
 
@@ -98,6 +96,8 @@ package() {
 
 	install -Dm 0644 LICENSE \
 		"$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+
+	rm -f "$pkgdir"/usr/include/cblas.h "$pkgdir"/usr/include/lapacke*
 }
 
 ilp64() {
@@ -107,4 +107,4 @@ ilp64() {
 	mv "$pkgdir"/usr/lib/libopenblas64_* "$subpkgdir"/usr/lib/
 }
 
-sha512sums="1c72dbe2b85675f564e777a807d0a8f2ab836abee8223b15ac4eb001c6ca06eeb2db7fa83a66d3f9e8420202b5afca6b6b1acb920e52abb3cec27b6f4629e618  openblas-0.3.3.tar.gz"
+sha512sums="d557a332b1f905399d97dd5392ca10ca4eed47d669cae4abea374ed7c2e6c1ab29a4415df1224e940b9041e1545fa5ede2bdfb266986230436014795e7d3289d  openblas-0.3.8.tar.gz"

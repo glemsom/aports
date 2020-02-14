@@ -1,0 +1,47 @@
+# Contributor: Rasmus Thomsen <oss@cogitri.dev>
+# Maintainer: Rasmus Thomsen <oss@cogitri.dev>
+pkgname=folks
+pkgver=0.13.2
+pkgrel=0
+pkgdesc="GObject Library to aggregate people into metacontacts"
+url="https://wiki.gnome.org/Projects/Folks"
+arch="all"
+license="LGPL-2.1-or-later"
+makedepends="
+	evolution-data-server-dev
+	gobject-introspection-dev
+	libgee-dev
+	meson
+	py3-setuptools
+	telepathy-glib-dev
+	tracker-dev
+	vala
+	python3
+	py3-dbusmock
+	gtk-doc
+	readline-dev"
+options="!check" # Can only be run against installed instance
+subpackages="$pkgname-dev $pkgname-doc $pkgname-lang"
+source="https://download.gnome.org/sources/folks/${pkgver%.*}/folks-$pkgver.tar.xz"
+
+build() {
+	meson \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--localstatedir=/var \
+		--buildtype=debugoptimized \
+		-Ddocs=true \
+		. output
+	ninja -C output
+}
+
+check() {
+	ninja -C output test
+}
+
+package() {
+	DESTDIR="$pkgdir" ninja -C output install
+}
+
+sha512sums="a6d5febd492a482fe7923668a694864eb0203a9841b810bb7d5d69e491f3721505f9c717de38b4a9a44604b6a3373d5a482cd254959ed95ab23b55775022d707  folks-0.13.2.tar.xz"

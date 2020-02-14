@@ -1,40 +1,36 @@
 # Contributor: Alan Lacerda <alacerda@alpinelinux.org>
 # Maintainer: Alan Lacerda <alacerda@alpinelinux.org>
 pkgname=eom
-pkgver=1.21.2
+pkgver=1.22.2
 pkgrel=0
 pkgdesc="A simple graphics viewer for the MATE"
 url="https://github.com/mate-desktop/eom"
-arch="all"
+arch="all !s390x"
 license="GPL-2.0"
 depends="mate-icon-theme libxml2-utils"
 makedepends="glib-dev gtk+3.0-dev itstool mate-desktop-dev
-	libexif-dev lcms2-dev dconf-dev dbus-dev librsvg-dev 
-	libxslt-dev libpeas-dev dbus-glib-dev"
+	libexif-dev lcms2-dev dconf-dev dbus-dev librsvg-dev
+	libxslt-dev libpeas-dev dbus-glib-dev intltool"
 subpackages="$pkgname-dev $pkgname-doc $pkgname-lang"
-source="https://pub.mate-desktop.org/releases/${pkgver%.*}/$pkgname-$pkgver.tar.xz"
-builddir="$srcdir/$pkgname-$pkgver"
+source="https://pub.mate-desktop.org/releases/${pkgver%.*}/eom-$pkgver.tar.xz"
 
 build() {
-	cd "$builddir"
 	./configure \
 		--build=$CBUILD \
 		--host=$CHOST \
 		--sysconfdir=/etc \
-		--enable-static=no \
+		--disable-static \
 		--disable-schemas-compile \
 		--prefix=/usr
 	make
 }
 
 check() {
-	cd "$builddir"
 	make check
 }
 
 package() {
-	cd "$builddir"
-	make DESTDIR="${pkgdir}" install
+	make DESTDIR="$pkgdir" install
 }
 
-sha512sums="8efe95a01d7cabc59c1bb03279df321aa79b806c546b658f2ae4a1e62ebcc55817660b8f6634dbcf82c3e862dd7d848d1529964ed1e30e8eb557aa8239160fa0  eom-1.21.2.tar.xz"
+sha512sums="1045c6bb98056ad707b0acf509c12e0400c21238482bf801abc6b69252f2ffe9687f7fda8b7e09c6338bc80794b104cbb42c1ea89ff1f169c45fdc1fcbdbeabe  eom-1.22.2.tar.xz"

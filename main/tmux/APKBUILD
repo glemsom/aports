@@ -1,15 +1,14 @@
 # Contributor: Natanael Copa <ncopa@alpinelinux.org>
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 pkgname=tmux
-pkgver=2.8
+pkgver=3.0a
 pkgrel=0
 pkgdesc="Tool to control multiple terminals from a single terminal"
 url="https://tmux.github.io"
 arch="all"
-license="BSD ISC"
+license="ISC"
 depends="ncurses-terminfo"
 makedepends="autoconf automake bsd-compat-headers libevent-dev ncurses-dev"
-install=
 subpackages="$pkgname-doc"
 source="https://github.com/tmux/tmux/releases/download/$pkgver/$pkgname-$pkgver.tar.gz"
 
@@ -38,9 +37,9 @@ package() {
 
 	install -D -m644 example_tmux.conf \
 		"$pkgdir"/usr/share/doc/$pkgname/examples/$pkgname.conf
-	local file; for file in CHANGES README TODO; do
+	local file; for file in CHANGES README; do
 		install -m644 "$file" "$pkgdir"/usr/share/doc/$pkgname/
 	done
 }
 
-sha512sums="e382aec122a10624953432b3c869b21d69390bc2e7d459440a46950802e39503eafb398178f8085191261925e4f0872bb99b19e0403e7beb56d3ceecc4c86b09  tmux-2.8.tar.gz"
+sha512sums="f326ee9c0e5e9a46ce9c99c76407b8cf35feea5f898c3c937fd8c5e488ff9a809272de19226d9d10f864e11051dcf633327820b7f8d86d85962da61174bbfb0b  tmux-3.0a.tar.gz"

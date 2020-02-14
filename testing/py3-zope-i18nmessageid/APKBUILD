@@ -1,0 +1,29 @@
+# Contributor: Leo <thinkabit.ukim@gmail.com>
+# Maintainer:
+pkgname=py3-zope-i18nmessageid
+_pkgname=zope.i18nmessageid
+pkgver=5.0.0
+pkgrel=0
+pkgdesc="Message Identifiers for internationalization"
+url="https://github.com/zopefoundation/zope.i18nmessageid"
+arch="all"
+license="ZPL-2.1"
+depends="py3-setuptools py3-six"
+makedepends="python3-dev"
+checkdepends="py3-nose py3-coverage"
+source="https://files.pythonhosted.org/packages/source/${_pkgname:0:1}/$_pkgname/$_pkgname-$pkgver.tar.gz"
+builddir="$srcdir/$_pkgname-$pkgver"
+
+build() {
+	python3 setup.py build
+}
+
+check() {
+	python3 setup.py test
+}
+
+package() {
+	python3 setup.py install --prefix=/usr --root="$pkgdir"
+}
+
+sha512sums="76cf129e266f649ab379d1abea143b34e42f0ce66fdfcbebd1dbbca639a55c11a9d41687a7bb4dd04359fa1465e235035849786d142bafaa68d783c1f7aee2d6  zope.i18nmessageid-5.0.0.tar.gz"

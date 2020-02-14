@@ -1,32 +1,43 @@
-# Maintainer: Natanael Copa <ncopa@alpinelinux.org>
+# Contributor: Natanael Copa <ncopa@alpinelinux.org>
+# Maintainer: Rasmus Thomsen <oss@cogitri.dev>
 pkgname=dconf
-pkgver=0.26.0
-pkgrel=1
+pkgver=0.34.0
+pkgrel=2
 pkgdesc="A low-level configuration system."
-url="http://live.gnome.org/dconf"
+url="https://wiki.gnome.org/Projects/dconf"
 arch="all"
-license="LGPL-2.1"
-depends=""
-makedepends="glib-dev dbus-dev docbook-xsl vala"
-subpackages="$pkgname-dev $pkgname-doc"
-source="https://download.gnome.org/sources/dconf/${pkgver%.*}/dconf-$pkgver.tar.xz"
+license="LGPL-2.1-or-later"
+makedepends="glib-dev dbus-dev docbook-xsl vala gtk+3.0-dev libxml2-dev meson
+	py3-setuptools bash-completion"
+checkdepends="dbus"
+subpackages="$pkgname-dev $pkgname-doc $pkgname-bash-completion:bashcomp:noarch"
+source="https://download.gnome.org/sources/dconf/${pkgver%.*}/dconf-$pkgver.tar.xz
+	build-Update-use-of-link_whole-for-meson-0.52.patch"
 
-#	0001-Avoid-posix_fallocate-so-it-works-on-uClibc.patch
-builddir="$srcdir"/$pkgname-$pkgver
-
-build () {
-	cd "$builddir"
-	./configure \
-		--build=$CBUILD \
-		--host=$CHOST \
+build() {
+	meson \
 		--prefix=/usr \
-		--libexecdir=/usr/lib/dconf
-	make V=1
+		--localstatedir=/var \
+		--buildtype=debugoptimized \
+		. output
+	ninja -C output
+}
+
+check() {
+	meson test -C output -t 100
 }
 
 package() {
-	cd "$builddir"
-	make DESTDIR="$pkgdir" install
+	DESTDIR="$pkgdir" ninja -C output install
 }
 
-sha512sums="ea225397a486815c90a113c064d943f113490dfc754e4acba049b033115aa3a6a3849a5cdc133663de09811cde41c963041bc244cfd9ed32d65399889e415d1e  dconf-0.26.0.tar.xz"
+bashcomp() {
+	pkgdesc="Bash completions for $pkgname"
+	install_if="$pkgname-$pkgver-r$pkgrel bash-completion"
+
+	mkdir -p "$subpkgdir"/usr/share
+	mv "$pkgdir"/usr/share/bash-completion "$subpkgdir"/usr/share
+}
+
+sha512sums="8b28373f31fe36ba3f21f56fca84563681c3648ff595709880cd9ac49fc6b130ac375fb89fd585f1dd62b5a2f728127292ea57d18feca1147b709a93e8c4c743  dconf-0.34.0.tar.xz
+1f0e2e77cc8410704590586ee3f6f2cde9e82dc25a6a43ff3a2accaa43b8f26c49bcd0d080ed44d73b56308829a7bf2dc2d7c67f5029a064d7dee9dac061bc83  build-Update-use-of-link_whole-for-meson-0.52.patch"

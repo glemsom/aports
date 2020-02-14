@@ -1,0 +1,46 @@
+# Contributor: Henrik Riomar <henrik.riomar@gmail.com>
+# Maintainer: Drew DeVault <sir@cmpwn.com>
+pkgname=wlroots
+pkgver=0.10.0
+pkgrel=0
+pkgdesc="A modular Wayland compositor library"
+url="https://github.com/swaywm/wlroots"
+arch="all"
+license="MIT"
+options="!check" # contains no test suite
+makedepends="
+	elogind-dev
+	eudev-dev
+	libcap-dev
+	libinput-dev
+	libxcb-dev
+	libxkbcommon-dev
+	mesa-dev
+	meson
+	ninja
+	pixman-dev
+	wayland-dev
+	wayland-protocols
+	xcb-util-image-dev
+	xcb-util-wm-dev
+	xkeyboard-config
+	"
+subpackages="$pkgname-dev"
+source="$pkgname-$pkgver.tar.gz::https://github.com/swaywm/$pkgname/archive/$pkgver.tar.gz"
+
+build() {
+	meson \
+		--prefix /usr \
+		--libdir /usr/lib \
+		-Dlogind=enabled \
+		-Dlogind-provider=elogind \
+		-Dexamples=false \
+		. build
+	ninja -C build
+}
+
+package() {
+	DESTDIR="$pkgdir" ninja -C build install
+}
+
+sha512sums="0e8e0c37f1afb1d99f0ecb3c2282992ffd06381aaa396c7234ead9f3ff2d5c599e766b677680ebaecf68e792054c3e42657d24f32d08bc8bcf35f9eb4bdaa876  wlroots-0.10.0.tar.gz"

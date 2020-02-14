@@ -2,7 +2,7 @@
 # Maintainer: Nathan Johnson <nathan@nathanjohnson.info>
 pkgname=php7-pecl-couchbase
 _pkgreal=couchbase
-pkgver=2.6.0
+pkgver=2.6.2
 pkgrel=0
 pkgdesc="PHP extension for Couchbase - PECL"
 url="https://pecl.php.net/package/couchbase"
@@ -11,27 +11,27 @@ license="Apache-2.0"
 depends="php7-common php7-json php7-pecl-igbinary"
 makedepends="php7-dev autoconf libcouchbase-dev re2c zlib-dev"
 source="$pkgname-$pkgver.tgz::https://pecl.php.net/get/$_pkgreal-$pkgver.tgz"
-options="!check" # require couchbase and phpunit
 builddir="$srcdir/$_pkgreal-$pkgver"
 provides="php7-couchbase=$pkgver-r$pkgrel" # for backward compatibility
 replaces="php7-couchbase" # for backward compatibility
 
 build() {
-	cd "$builddir"
-
 	phpize7
 	./configure --prefix=/usr --with-php-config=php-config7
 	make
 }
 
-package() {
-	local confdir="$pkgdir/etc/php7/conf.d"
-	cd "$builddir"
+check() {
+	# require couchbase and phpunit
+	php7 -d extension="$builddir"/modules/$_pkgreal.so --ri $_pkgreal
+}
 
+package() {
 	make INSTALL_ROOT="$pkgdir" install
 
+	local confdir="$pkgdir/etc/php7/conf.d"
 	mkdir -p "$confdir"
 	echo "extension=$_pkgreal.so" > "$confdir"/$_pkgreal.ini
 }
 
-sha512sums="88803d996635441f2761f6aa4a4afc49764c6c71e6677684ef62e8dcb69c9390b1f9af0e16f0b8af297c337fa78f10106c8fbfe33e9cc078f260f749d6d30d4a  php7-pecl-couchbase-2.6.0.tgz"
+sha512sums="bd134c08e3b136d5fdc67734c7e2b1ae3e5f659721eade7ee41ecebc3aa66b8976d8f2d59158702da27344e93fbc0e96b3f5297694887920deeffa6168777d84  php7-pecl-couchbase-2.6.2.tgz"

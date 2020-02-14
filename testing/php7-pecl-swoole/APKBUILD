@@ -1,20 +1,22 @@
 # Maintainer: Andy Postnikov <apostnikov@gmail.com>
 pkgname=php7-pecl-swoole
 _pkgreal=swoole
-pkgver=4.2.12
+pkgver=4.4.15
 pkgrel=0
 pkgdesc="Event-driven asynchronous and concurrent networking engine with high performance for PHP."
 url="https://pecl.php.net/package/swoole"
-arch="x86_64" # https://github.com/swoole/swoole-src/issues/2181
+arch="all"
 license="Apache-2.0"
 depends="php7-openssl php7-sockets"
-makedepends="php7-dev autoconf re2c openssl-dev nghttp2-dev"
+makedepends="php7-dev autoconf re2c openssl-dev nghttp2-dev libucontext-dev"
 source="https://pecl.php.net/get/$_pkgreal-$pkgver.tgz"
 builddir="$srcdir"/$_pkgreal-$pkgver
 subpackages="$pkgname-dev"
 
 build() {
-	cd "$builddir"
+	case "$CARCH" in
+		ppc64le|s390x|x86) export LDFLAGS="$LDFLAGS -lucontext" ;;
+	esac
 	phpize7
 	./configure --prefix=/usr \
 		--with-php-config=php-config7 \
@@ -25,16 +27,14 @@ build() {
 }
 
 check() {
-	cd "$builddir"
 	# needs extra services to test all suite
 	php7 -d extension="$builddir"/modules/swoole.so --ri swoole
 }
 
 package() {
-	cd "$builddir"
 	make INSTALL_ROOT="$pkgdir"/ install
 	install -d "$pkgdir"/etc/php7/conf.d
 	echo "extension=$_pkgreal.so" > "$pkgdir"/etc/php7/conf.d/50_$_pkgreal.ini
 }
 
-sha512sums="99d535ae3a132f8d26c9e7cbc58b35ad37203555859f7823096b853d17f2af43725a69b36e55ca46ada89de719882fbd40cbcec5e55b7b31b512f9e2447ca60f  swoole-4.2.12.tgz"
+sha512sums="5ad797b38a20cfa17b0aa1fc5ab4f6446b84debb38babc05630e07833895401c778f1c6cf9eb32d7204b02c0e170ba6e613f356a054baa29ac511c19ce59620f  swoole-4.4.15.tgz"

@@ -3,6 +3,8 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
+description="Save/Restore Sound Card State"
+
 alsastatedir=/var/lib/alsa
 alsascrdir=/etc/alsa.d
 alsahomedir=/var/run/alsasound
@@ -39,7 +41,7 @@ restore() {
 	for ossfile in "${alsastatedir}"/oss/card*_pcm* ; do
 		[ -e "${ossfile}" ] || continue
 		# We use cat because I'm not sure if cp works properly on /proc
-		local procfile=${ossfile##${alsastatedir}/oss}
+		local procfile="${ossfile##${alsastatedir}/oss}"
 		procfile="$(echo "${procfile}" | sed -e 's,_,/,g')"
 		if [ -e /proc/asound/"${procfile}"/oss ] ; then
 		    cat "${ossfile}" > /proc/asound/"${procfile}"/oss
@@ -63,7 +65,7 @@ save() {
 
 	for ossfile in /proc/asound/card*/pcm*/oss; do
 		[ -e "${ossfile}" ] || continue
-		local device=${ossfile##/proc/asound/} ; device=${device%%/oss}
+		local device="${ossfile##/proc/asound/}" ; device="${device%%/oss}"
 		device="$(echo "${device}" | sed -e 's,/,_,g')"
 		mkdir -p "${alsastatedir}/oss/"
 		cp "${ossfile}" "${alsastatedir}/oss/${device}"

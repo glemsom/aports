@@ -1,0 +1,32 @@
+# Contributor: Galen Abell <galen@galenabell.com>
+# Maintainer: Galen Abell <galen@galenabell.com>
+pkgname=wob
+pkgver=0.6
+pkgrel=1
+pkgdesc="A lightweight overlay volume/backlight/progress/anything bar for Wayland."
+url="https://github.com/francma/wob"
+arch="all"
+license="ISC"
+makedepends="meson git wayland-protocols wayland-dev scdoc"
+subpackages="$pkgname-doc"
+source="$pkgname-$pkgver.tar.gz::https://github.com/francma/wob/archive/$pkgver.tar.gz"
+
+build() {
+	meson \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--localstatedir=/var \
+		--buildtype=debugoptimized \
+		build-release
+	ninja -C build-release
+}
+
+check() {
+	ninja -C build-release test
+}
+
+package() {
+	DESTDIR="$pkgdir" ninja -C build-release install
+}
+sha512sums="3bcfb926a6785fabddb6b8bedfc508633039b95b8fe39e8664ef9be49e2189d495b0373c1ed364a418e29b982761ffd6f3f73c778003c7895318175bf9d5fcc3  wob-0.6.tar.gz"

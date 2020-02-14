@@ -1,8 +1,8 @@
 # Contributor: Timo Teräs <timo.teras@iki.fi>
 # Maintainer: Timo Teräs <timo.teras@iki.fi>
 pkgname=libcdr
-pkgver=0.1.4
-pkgrel=3
+pkgver=0.1.6
+pkgrel=0
 pkgdesc="Import filter and tools for Corel DRAW files"
 url="https://wiki.documentfoundation.org/DLP/Libraries/libcdr"
 arch="all"
@@ -10,17 +10,9 @@ license="MPL-2.0"
 depends_dev="boost-dev"
 makedepends="$depends_dev doxygen icu-dev lcms2-dev zlib-dev librevenge-dev"
 subpackages="$pkgname-dev $pkgname-doc $pkgname-tools"
-source="https://dev-www.libreoffice.org/src/$pkgname/$pkgname-$pkgver.tar.xz"
-
-builddir="$srcdir/$pkgname-$pkgver"
-
-prepare() {
-	default_prepare
-	update_config_sub
-}
+source="https://dev-www.libreoffice.org/src/libcdr/libcdr-$pkgver.tar.xz"
 
 build() {
-	cd "$builddir"
 	./configure \
 		--build=$CBUILD \
 		--host=$CHOST \
@@ -33,12 +25,10 @@ build() {
 }
 
 check() {
-	cd "$builddir"
 	make check
 }
 
 package() {
-	cd "$builddir"
 	make DESTDIR="$pkgdir" install
 }
 
@@ -47,4 +37,4 @@ tools() {
 	mv "$pkgdir"/usr/bin "$subpkgdir"/usr
 }
 
-sha512sums="769b0319b5a904ce9f727b7076f82cd915ecd8c9e5e2456416e3e6739c6403bbd4108787ab124d36efb1b47d5c9e37c48b0e12d096eb440ae8f9979ec06048a6  libcdr-0.1.4.tar.xz"
+sha512sums="629d55da71c7333f41f60a32e2880deffcf80088096af1bbc8c572b80ef21d851102fdebce56f77245ed60822ca98e02c0867b192abef496a2313fde54a97bb6  libcdr-0.1.6.tar.xz"

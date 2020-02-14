@@ -1,20 +1,18 @@
 # Contributor: Alan Lacerda <alacerda@alpinelinux.org>
 # Maintainer: Alan Lacerda <alacerda@alpinelinux.org>
 pkgname=mate-utils
-pkgver=1.21.0
+pkgver=1.24.0
 pkgrel=0
 pkgdesc="Utilities for the MATE Desktop"
 url="https://github.com/mate-desktop/mate-utils"
-arch="all"
-license="GPL-2.0"
-makedepends="intltool glib-dev gtk+3.0-dev mate-panel-dev
-	libgtop-dev libcanberra-dev itstool libsm-dev libxml2-utils"
+arch="all !s390x" # Limited by mate-panel
+license="GPL-2.0-or-later"
+makedepends="intltool glib-dev gtk+3.0-dev mate-panel-dev udisks2-dev
+	libgtop-dev libcanberra-dev inkscape itstool libsm-dev libxml2-utils"
 subpackages="$pkgname-dev $pkgname-doc $pkgname-lang"
-source="https://pub.mate-desktop.org/releases/${pkgver%.*}/$pkgname-$pkgver.tar.xz"
-builddir="$srcdir/$pkgname-$pkgver"
+source="https://pub.mate-desktop.org/releases/${pkgver%.*}/mate-utils-$pkgver.tar.xz"
 
 build() {
-	cd "$builddir"
 	./configure \
 		--build=$CBUILD \
 		--host=$CHOST \
@@ -25,13 +23,11 @@ build() {
 }
 
 check() {
-	cd "$builddir"
 	make check
 }
 
 package() {
-	cd "$builddir"
-	make DESTDIR="${pkgdir}" install
+	make DESTDIR="$pkgdir" install
 }
 
-sha512sums="53cddb451802c8ae510f97f7214488d15620ec96e207d5a34d73a7710f44f7c738bb1cc48e24cf72743b530fd72c700fdbd8ecf14f4bce71d688d35691e02c4b  mate-utils-1.21.0.tar.xz"
+sha512sums="d8945c85936a55d22f3ed94c9858ba84cadf552a63cdd2d9eec9120111ad71526ac88772f8e4b7a6a460b691574534e52706fba35a0395b1d894b27eece9e92c  mate-utils-1.24.0.tar.xz"

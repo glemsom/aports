@@ -1,50 +1,32 @@
 # Contributor: Carlo Landmeter <clandmeter@gmail.com>
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 pkgname=libva-intel-driver
-pkgver=2.2.0
+pkgver=2.4.0
 pkgrel=0
 pkgdesc="VA-API implementation for Intel GMA chipsets and Intel HD Graphics"
 url="https://freedesktop.org/wiki/Software/vaapi"
 arch="x86 x86_64"
 license="MIT"
-depends=""
-makedepends="libdrm-dev libva-dev autoconf automake libtool"
-install=""
-subpackages=""
+makedepends="libdrm-dev libva-dev wayland-dev meson"
 install_if="libva xf86-video-intel"
-source="${pkgname}-${pkgver}.tar.bz2::https://github.com/01org/intel-vaapi-driver/releases/download/${pkgver}/intel-vaapi-driver-${pkgver}.tar.bz2"
+source="$pkgname-$pkgver.tar.gz::https://github.com/intel/intel-vaapi-driver/archive/$pkgver.pre1.tar.gz"
 
-builddir="$srcdir"/intel-vaapi-driver-$pkgver
-prepare() {
-	cd "$builddir"
-	default_prepare
-	# we need to regen the configure script which will unconditionally
-	# depend on wayland scanner otherwise
-	libtoolize --force && aclocal -I m4 && autoconf \
-		&& automake --add-missing
-}
+builddir="$srcdir"/intel-vaapi-driver-$pkgver.pre1
 
 build() {
-	cd "$builddir"
-	./configure \
-		--build=$CBUILD \
-		--host=$CHOST \
+	meson builddir \
 		--prefix=/usr \
-		--enable-x11 \
-		--disable-wayland \
-		--disable-static \
-		--enable-shared
-	make
+		-Dwith_wayland=yes \
+		-Dwith_x11=yes
+	ninja -C builddir
 }
 
 check() {
-	cd "$builddir"
-	make check
+	ninja -C builddir test
 }
 
 package() {
-	cd "$builddir"
-	make DESTDIR="$pkgdir" install
+	DESTDIR="$pkgdir" ninja -C builddir install
 }
 
-sha512sums="7f269a513e827a2a291bf513c860de0341daf487697b47d4515fcdf78a1b51d0ab5e491bdc1a1babaa888ecc3dcfb1c7ae16624eee41b2d3609c8d1d24d0e12f  libva-intel-driver-2.2.0.tar.bz2"
+sha512sums="de4840a0e999defbccf4965b02fb0787b777795e5134894a4f30f67ec11fd1c99b765cd4a79802972671d38b3d20b443e76f75d34c03112a8fcb9b345a8640b5  libva-intel-driver-2.4.0.tar.gz"

@@ -1,24 +1,24 @@
 # Contributor: Valery Kartel <valery.kartel@gmail.com>
 # Contributor: Matt Smith <mcs@darkregion.net>
 # Contributor: Leonardo Arena <rnalrd@alpinelinux.org>
+# Contributor: Iggy Jackson <iggy@theiggy.com>
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 pkgname=nsd
-pkgver=4.1.26
+pkgver=4.2.4
 pkgrel=0
 pkgdesc="Authoritative only, high performance and simple DNS server"
 url="https://www.nlnetlabs.nl/projects/nsd"
 arch="all"
 license="BSD-3-Clause"
-depends=""
 makedepends="openssl-dev libevent-dev"
 install="$pkgname.pre-install $pkgname.pre-upgrade"
-subpackages="$pkgname-doc $pkgname-dbg"
+subpackages="$pkgname-doc $pkgname-dbg $pkgname-openrc"
 pkgusers="nsd"
 pkggroups="nsd"
-source="https://www.nlnetlabs.nl/downloads/nsd/$pkgname-$pkgver.tar.gz
+source="https://www.nlnetlabs.nl/downloads/nsd/nsd-$pkgver.tar.gz
 	nsd.initd
+	config.patch
 	"
-builddir="$srcdir/$pkgname-$pkgver"
 
 build() {
 	cd "$builddir"
@@ -28,7 +28,7 @@ build() {
 		--sbindir=/usr/sbin \
 		--mandir=/usr/share/man \
 		--with-user=nsd \
-		--with-pidfile=/var/run/nsd/nsd.pid \
+		--with-pidfile=/run/nsd/nsd.pid \
 		--with-xfrdir=/var/db/nsd
 	make
 }
@@ -44,9 +44,10 @@ package() {
 	cp -a "$builddir"/doc/* "$builddir"/contrib \
 		"$pkgdir"/usr/share/doc/$pkgname/
 
-	chown nsd.nsd "$pkgdir"/var/db/nsd
-	rm -fr "$pkgdir"/var/run
+	install -d -m 755 -o nsd -g nsd "$pkgdir"/var/db/nsd
+	rm -fr "$pkgdir"/run
 }
 
-sha512sums="49c07ad79e4e056bd519dad157a44d5cc55cd9a28723fd910159dc761d4ba56ef86cb7bf289dc5d1b363a49b999232bb7ec1afa737ca5c2659c4c9893e93494b  nsd-4.1.26.tar.gz
-0425f606bf102175adab6d198aeb692872576f9c0bfce11b9d9e4145595b4902e5ef3fe2c3ae5d832308f43282618494b8dd27eb76658e79df85cc7798008722  nsd.initd"
+sha512sums="5d4f546a2a4484b182c65d3337d44596e935bca074c0eda2947b9d128a56db08a00240c6ec9ce22bc9a436e009c00c3283c4a5cbd1163ca4a429eaa92ec54208  nsd-4.2.4.tar.gz
+bc2b27d98b99db067c7c4b152ee40ae81b8ee66989f873ca0c21f57333c3734bb342866f68d5837f10bb56cb598fafc794095c02b8bc97ef6dace450cae526a6  nsd.initd
+4c107bba33785a031f29c2d078419c8f0858c94a2488e192a6e76085e7135755352446d350ad4561b02beb767fecd488ac710fc1d2ba9e19a9c42f484331bd3c  config.patch"

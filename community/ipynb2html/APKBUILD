@@ -1,0 +1,39 @@
+# Contributor: Jakub Jirutka <jakub@jirutka.cz>
+# Maintainer: Jakub Jirutka <jakub@jirutka.cz>
+pkgname=ipynb2html
+pkgver=0.1.0
+pkgrel=0
+pkgdesc="Convert Jupyter Notebook to static HTML"
+url="https://github.com/jirutka/ipynb2html"
+arch="noarch"
+license="MIT BSD-3-Clause"
+depends="nodejs"
+makedepends="yarn"
+subpackages="$pkgname-dbg"
+source="https://github.com/jirutka/$pkgname/releases/download/v$pkgver/ipynb2html-v$pkgver-src.tar.gz"
+builddir="$srcdir/$pkgname-v$pkgver-src"
+
+build() {
+	yarn build --force
+	yarn workspace ipynb2html-cli bundle
+}
+
+check() {
+	./packages/ipynb2html-cli/dist/ipynb2html --version
+}
+
+package() {
+	cd "$builddir"/packages/ipynb2html-cli/dist
+
+	install -D -m 755 ipynb2html "$pkgdir"/usr/bin/ipynb2html
+}
+
+dbg() {
+	pkgdesc="$pkgdesc (source map)"
+	depends="$pkgname=$pkgver-r$pkgrel"
+
+	cd "$builddir"/packages/ipynb2html-cli/dist
+	install -D -m 644 ipynb2html.map "$subpkgdir"/usr/bin/ipynb2html.map
+}
+
+sha512sums="0a1441f3a2b02abb4c0d08fbed0a6e3c74327e3b076793ecf724066493f1815f99d62ba1941c3aba6bd11b459ad12c06cd09b2dace43b6269ea8999c5774970e  ipynb2html-v0.1.0-src.tar.gz"

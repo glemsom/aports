@@ -1,0 +1,38 @@
+# Contributor: Rasmus Thomsen <oss@cogitri.dev>
+# Maintainer: Rasmus Thomsen <oss@cogitri.dev>
+pkgname=gnome-boxes
+pkgver=3.34.3
+pkgrel=0
+pkgdesc="Virtualization made simple"
+url="https://wiki.gnome.org/Apps/Boxes"
+# https://build.alpinelinux.org/buildlogs/build-edge-ppc64le/testing/gnome-boxes/gnome-boxes-3.34.0-r0.log
+arch="all !ppc64le"
+license="GPL-2.0-only"
+depends="libvirt-daemon"
+makedepends="meson vala libarchive-dev glib-dev gtk+3.0-dev gtk-vnc-dev
+	libosinfo-dev libsecret-dev libsoup-dev libusb-dev libvirt-glib-dev
+	libxml2-dev spice-gtk-dev tracker-dev vte3-dev webkit2gtk-dev
+	libgudev-dev freerdp-dev itstool"
+subpackages="$pkgname-lang"
+source="https://download.gnome.org/sources/gnome-boxes/${pkgver%.*}/gnome-boxes-$pkgver.tar.xz"
+
+build() {
+	meson \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--localstatedir=/var \
+		--buildtype=debugoptimized \
+		. output
+	ninja -C output
+}
+
+check() {
+	ninja -C output test
+}
+
+package() {
+	DESTDIR="$pkgdir" ninja -C output install
+}
+
+sha512sums="4d369cb74b407005c2645635657727948ce1dd5f9f05757921cddddaba42c90823b8c1f83eb4924167a71f394153699e9bba4c84dd9cafe8c366b794dc6486d8  gnome-boxes-3.34.3.tar.xz"

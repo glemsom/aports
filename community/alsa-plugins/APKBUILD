@@ -1,11 +1,12 @@
+# Contributor: Leo <thinkabit.ukim@gmail.com>
 # Contributor: Taner Tas <taner76@gmail.com>
 # Maintainer: Taner Tas <taner76@gmail.com>
 pkgname=alsa-plugins
-pkgver=1.1.8
+pkgver=1.2.1
 pkgrel=0
 pkgdesc="Advanced Linux Sound Architecture (ALSA) plugins"
-url="http://www.alsa-project.org"
-arch="all !s390x"
+url="https://www.alsa-project.org"
+arch="all"
 license="GPL-2.0-or-later LGPL-2.1-or-later"
 makedepends="
 	alsa-lib-dev
@@ -24,16 +25,10 @@ subpackages="
 	$pkgname-jack
 	"
 source="
-	ftp://ftp.alsa-project.org/pub/plugins/$pkgname-$pkgver.tar.bz2
+	ftp://ftp.alsa-project.org/pub/plugins/alsa-plugins-$pkgver.tar.bz2
 	"
 
-prepare() {
-	default_prepare
-	update_config_sub
-}
-
 build() {
-	cd "$builddir"
 	./configure \
 		--build=$CBUILD \
 		--host=$CHOST \
@@ -44,8 +39,7 @@ build() {
 	make
 }
 
-check(){
-	cd "$builddir"
+check() {
 	make check
 }
 
@@ -68,6 +62,8 @@ pulse() {
 	pkgdesc="Pulseaudio support plugins for alsa-only applications"
 	_mv_lib *pulse.so
 	_mv_conf *pulseaudio*
+	mv "$subpkgdir"/etc/alsa/conf.d/99-pulseaudio-default.conf.example \
+		"$subpkgdir"/etc/alsa/conf.d/99-pulseaudio-default.conf
 }
 
 a52() {
@@ -83,7 +79,6 @@ jack() {
 }
 
 package() {
-	cd "$builddir"
 	make DESTDIR="$pkgdir" install
 	find $pkgdir -name *.la -type f -exec rm -f {} \;
 }
@@ -109,4 +104,4 @@ _mv_conf() {
 	done
 }
 
-sha512sums="bb1a4411921ec332f47b43515f6d3b4c03a01568854950b9b5c3f0d8172d9a0c4a5b3652bc64c62eae5ea3aaa5d95fe3d32c0a213fe99adf490a9807bcb58ecd  alsa-plugins-1.1.8.tar.bz2"
+sha512sums="a49ef9290b66855112e301a5fd5a0932f13a50254e164f3340f2b342a36469532ee783beabfe5e95870dbf4cd81ca1e8d0415d94c8c7ee963133fb3c343721de  alsa-plugins-1.2.1.tar.bz2"

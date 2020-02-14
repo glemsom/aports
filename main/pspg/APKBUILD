@@ -1,15 +1,16 @@
 # Contributor: Jakub Jirutka <jakub@jirutka.cz>
 # Maintainer: Jakub Jirutka <jakub@jirutka.cz>
 pkgname=pspg
-pkgver=1.6.3
+pkgver=2.6.6
 pkgrel=0
 pkgdesc="A unix pager optimized for psql"
 url="https://github.com/okbob/pspg"
 arch="all"
 license="BSD-2-Clause"
 makedepends="automake autoconf ncurses-dev readline-dev"
-source="$pkgname-$pkgver.tar.gz::https://github.com/okbob/$pkgname/archive/$pkgver.tar.gz"
-builddir="$srcdir/$pkgname-$pkgver"
+source="$pkgname-$pkgver.tar.gz::https://github.com/okbob/$pkgname/archive/$pkgver.tar.gz
+	fix-musl.patch
+	"
 
 prepare() {
 	default_prepare
@@ -37,4 +38,5 @@ package() {
 	make DESTDIR="$pkgdir" install
 }
 
-sha512sums="25ad3b2120fea45e1b840931770d9964deb678936cc27e45bfa042b3e5b9a9f5fdbe68563a0b59305fdcb076a775053f5d156b52cf1546858fc028d4d55c1c05  pspg-1.6.3.tar.gz"
+sha512sums="963a4bb3e93880c5dd8538b2ba777977585b2e9766a29001f1e5dd8d4692ccc333cf8bdcf0d7ae3f0cf02568e5645d4534cc58dc540d22df5debc5b4e034114c  pspg-2.6.6.tar.gz
+b1538580f0ba1d24f3b66cad611c0ddcc9d5b74e6f7e5a46a74b1271db957b7094d64b0eefbdea51a6e7c9297a5d914ef7e6e759d24da724bc1276bdf1614940  fix-musl.patch"

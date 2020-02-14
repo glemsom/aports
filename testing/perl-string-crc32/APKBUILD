@@ -3,46 +3,38 @@
 # Maintainer: Timo Teräs <timo.teras@iki.fi>
 pkgname=perl-string-crc32
 _pkgreal=String-CRC32
-pkgver=1.6
+pkgver=1.8
 pkgrel=0
-pkgdesc="unknown"
-url="http://search.cpan.org/dist/String-CRC32/"
+pkgdesc="Perl interface for cyclic redundancy check generation"
+url="https://metacpan.org/release/String-CRC32"
 arch="all"
 license="unrestricted"
-cpandepends=""
-cpanmakedepends=""
-cpancheckdepends=""
-depends="$cpandepends"
-makedepends="perl-dev $cpanmakedepends"
-checkdepends="$cpancheckdepends"
+depends="perl"
+makedepends="perl-dev"
 subpackages="$pkgname-doc"
-source="http://search.cpan.org/CPAN/authors/id/L/LE/LEEJO/$_pkgreal-$pkgver.tar.gz"
+source="https://cpan.metacpan.org/authors/id/L/LE/LEEJO/String-CRC32-$pkgver.tar.gz"
 builddir="$srcdir/$_pkgreal-$pkgver"
 
 prepare() {
-	default_prepare || return 1
+	default_prepare
 
-	cd "$builddir"
 	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
 	PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
 }
 
 build() {
-	cd "$builddir"
 	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
 	make
 }
 
 package() {
-	cd "$builddir"
-	make DESTDIR="$pkgdir" install || return 1
+	make DESTDIR="$pkgdir" install
 	find "$pkgdir" \( -name perllocal.pod -o -name .packlist \) -delete
 }
 
 check() {
-	cd "$builddir"
 	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
 	make test
 }
 
-sha512sums="e8915066edca5407de5c42cf6ec6367cfc8662d3c353ee7b9150e372fccbca136946a8e30ec18f4ccba3a08d4864387f3cad01b3b0117e019927b72c9081fe39  String-CRC32-1.6.tar.gz"
+sha512sums="ea8a3150dbe72343bdd81fd7ced0e9fb167c19f5638a1d20fe6f618b64535a86053cf72706b907f2f7fca5904d5ce6a7bfadf8d17136d04aba5a5500c98c032e  String-CRC32-1.8.tar.gz"

@@ -3,40 +3,33 @@
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 pkgname=perl-encode
 _pkgreal=Encode
-pkgver=2.98
-pkgrel=0
+pkgver=3.02
+pkgrel=1
 pkgdesc="character encodings in Perl"
-url="http://search.cpan.org/dist/Encode/"
+url="https://metacpan.org/release/Encode/"
 arch="all"
-license="GPL PerlArtistic"
-cpandepends=""
-cpanmakedepends=""
-depends="$cpandepends"
+license="GPL-1.0-or-later OR Artistic-1.0-Perl"
 depends_dev="$pkgname-utils"
-makedepends="perl-dev $cpanmakedepends"
+makedepends="perl-dev"
 subpackages="$pkgname-doc $pkgname-dev $pkgname-utils::noarch"
-source="http://search.cpan.org/CPAN/authors/id/D/DA/DANKOGAI/$_pkgreal-$pkgver.tar.gz"
+source="https://cpan.metacpan.org/authors/id/D/DA/DANKOGAI/$_pkgreal-$pkgver.tar.gz"
 builddir="$srcdir/$_pkgreal-$pkgver"
 
 prepare() {
-	cd "$builddir"
-	export CFLAGS=`perl -MConfig -E 'say $Config{ccflags}'`
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
 	PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
 }
 
 build() {
-	cd "$builddir"
-	export CFLAGS=`perl -MConfig -E 'say $Config{ccflags}'`
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
 	make
 }
 
 check() {
-        cd "$builddir"
-        make test
+	make test
 }
 
 package() {
-	cd "$builddir"
 	make DESTDIR="$pkgdir" install
 	find "$pkgdir" \( -name perllocal.pod -o -name .packlist \) -delete
 }
@@ -57,7 +50,7 @@ dev() {
 	mv "$pkgdir"/usr/bin/enc2xs "$subpkgdir"/usr/bin
 	local file; for file in $(find "$pkgdir" -name "*.e2x"); do
 		file=${file#$pkgdir/}
-		mkdir -p "$subpkgdir"/${file%/*} || return 1
+		mkdir -p "$subpkgdir"/${file%/*}
 		mv "$pkgdir"/$file "$subpkgdir"/$file
 	done
 }
@@ -67,9 +60,9 @@ doc() {
 	replaces="perl-doc"
 	local file; for file in $(find "$pkgdir" -name "*.pod"); do
 		file=${file#$pkgdir/}
-		mkdir -p "$subpkgdir"/${file%/*} || return 1
+		mkdir -p "$subpkgdir"/${file%/*}
 		mv "$pkgdir"/$file "$subpkgdir"/$file
 	done
 }
 
-sha512sums="ee43ed683bc5d03cbc383a3cb56895a4f1cd366ef47031efd1ea0f10124be9f7f1f8c32eaab92155daf8df552624dc9629a18af5b2eab10f17c66e3a82bacd64  Encode-2.98.tar.gz"
+sha512sums="9a2ccb01f23e9fd27cf3f50ee0dfdfdd2a1b299215d56d7bf77f3adadd85d40a2cbd884c2f4980752e0e365e241252e4672222b239568259ae9701f188d9cb00  Encode-3.02.tar.gz"

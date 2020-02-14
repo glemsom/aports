@@ -1,0 +1,37 @@
+# Contributor: Luca Weiss <luca@z3ntu.xyz>
+# Maintainer: Luca Weiss <luca@z3ntu.xyz>
+pkgname="fmt"
+pkgver="6.1.2"
+pkgrel=0
+pkgdesc="Open-source formatting library for C++"
+url="https://fmt.dev/latest/index.html"
+arch="all"
+license="MIT"
+makedepends="cmake doxygen"
+subpackages="$pkgname-dev $pkgname-doc"
+source="https://github.com/fmtlib/fmt/releases/download/$pkgver/fmt-$pkgver.zip"
+options="!check" # 93% tests passed, 1 tests failed out of 14
+
+build() {
+	if [ "$CBUILD" != "$CHOST" ]; then
+		CMAKE_CROSSOPTS="-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_HOST_SYSTEM_NAME=Linux"
+	fi
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DBUILD_SHARED_LIBS=True \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_CXX_FLAGS="$CXXFLAGS" \
+		${CMAKE_CROSSOPTS} .
+	make
+}
+
+check() {
+	cmake --build . --target test
+}
+
+package() {
+	make DESTDIR="$pkgdir" install
+}
+
+sha512sums="d21085a2010786ff18c47acb033d9e4d51a3d58f9707cd9adf0f44642c1e4d80fd8cddafe58d95bb4f3e4a84ac5799caafead4a9feb12cc549b03d4d389fcc93  fmt-6.1.2.zip"

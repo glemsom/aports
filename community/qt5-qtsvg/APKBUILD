@@ -2,16 +2,16 @@
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 pkgname=qt5-qtsvg
 _pkgname=${pkgname/qt5-//}-everywhere-src
-pkgver=5.12.0
+pkgver=5.12.5
 _ver=${pkgver/_/-}
 _ver=${_ver/beta0/beta}
 _ver=${_ver/rc0/rc}
 _V=${_ver/rc/RC}
-pkgrel=0
+pkgrel=1
 pkgdesc="Qt5 - Support for rendering and displaying SVG"
-url="http://qt-project.org/"
+url="https://www.qt.io/developers/"
 arch="all"
-license="LGPL-2.0 with exceptions or GPL-3.0 with exceptions"
+license="(LGPL-2.0-or-later OR GPL-3.0-only OR GPL-2.0-or-later) AND Qt-GPL-exception-1.0"
 makedepends="qt5-qtbase-dev zlib-dev"
 subpackages="$pkgname-dev"
 
@@ -19,7 +19,7 @@ case $pkgver in
 *_beta*|*_rc*) _rel=development_releases;;
 *) _rel=official_releases;;
 esac
-source="http://download.qt-project.org/$_rel/qt/${pkgver%.*}/$_ver/submodules/$_pkgname-$_V.tar.xz"
+source="https://download.qt.io/$_rel/qt/${pkgver%.*}/$_ver/submodules/$_pkgname-$_V.tar.xz"
 
 builddir="$srcdir"/$_pkgname-${_V%-*}
 
@@ -38,4 +38,4 @@ package() {
 	make install INSTALL_ROOT="$pkgdir"
 }
 
-sha512sums="571e457dce3b62de5f316ab69fa0a9a9fd6a3ace8b05ae525ad5c82e6784b60f3c06f1ce94c3639c861639740b29d996fda6907ce77b60aeae916788313e0a65  qtsvg-everywhere-src-5.12.0.tar.xz"
+sha512sums="3d7f89d106b36c8a0fd04c6e6f0ccde0c50ced7192980ea7d9330ba73d9307559e60ed2b10c28481a419d19aaae6609bde9e1dd74ccedf340dacf0194a60429d  qtsvg-everywhere-src-5.12.5.tar.xz"

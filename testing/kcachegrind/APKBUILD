@@ -1,0 +1,31 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=kcachegrind
+pkgver=19.12.2
+pkgrel=0
+arch="all !armhf"
+url="https://kde.org/applications/development/org.kde.kcachegrind"
+pkgdesc="A profile data visualization tool, used to determine the most time consuming parts in the execution of a program"
+license="GPL-2.0-or-only AND GFDL-1.2-only"
+makedepends="extra-cmake-modules qt5-qtbase-dev qt5-qttools-dev karchive-dev kcoreaddons-dev kdoctools-dev kwidgetsaddons-dev kxmlgui-dev ki18n-dev kconfig-dev kio-dev kdbusaddons-dev"
+source="https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz"
+subpackages="$pkgname-doc $pkgname-lang"
+options="!check" # No tests
+
+build() {
+	cmake \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest
+}
+
+package() {
+	DESTDIR="$pkgdir" make install
+}
+
+sha512sums="eb18804b90fda9b35b770253c9927c0fade71cdb1379afaec40db14f82fb4a905a187406e2f07413fd5a2c31811384f030259dcd6bdef777200216f8e7537d4e  kcachegrind-19.12.2.tar.xz"

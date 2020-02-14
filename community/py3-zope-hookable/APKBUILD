@@ -1,0 +1,33 @@
+# Contributor: Carlo Landmeter <clandmeter@alpinelinux.org>
+# Maintainer: Carlo Landmeter <clandmeter@alpinelinux.org>
+pkgname=py3-zope-hookable
+_pkgname=zope.hookable
+pkgver=5.0.0
+pkgrel=0
+pkgdesc="Represents the core of the Zope hookable Architecture"
+url="https://github.com/zopefoundation/$_pkgname"
+arch="all"
+license="ZPL-2.1"
+depends="py3-setuptools"
+makedepends="python3-dev"
+# checkdepends="py3-zope-testing" # Is in upper repo 'testing'
+source="$_pkgname-$pkgver.tar.gz::https://github.com/zopefoundation/$_pkgname/archive/$pkgver.tar.gz"
+builddir="$srcdir"/$_pkgname-$pkgver
+
+replaces="py-zope-hookable" # Backwards compatibility
+provides="py-zope-hookable=$pkgver-r$pkgrel" # Backwards compatibility
+
+build() {
+	python3 setup.py build
+}
+
+check() {
+	python3 setup.py test
+}
+
+package() {
+	python3 setup.py install --prefix=/usr --root="$pkgdir"
+}
+
+
+sha512sums="6bd874c6c3a158a3a3867c9c6f8b6a7c497ea6e284f40fb7dbd87d52d903e263079c29b3b2622dc2227b9083885a2a6523b1ac9161d24f1ce2f0f2f90b39a254  zope.hookable-5.0.0.tar.gz"

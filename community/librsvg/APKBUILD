@@ -1,0 +1,37 @@
+# Contributor: Rasmus Thomsen <oss@cogitri.dev>
+# Contributor: Natanael Copa <ncopa@alpinelinux.org>
+# Maintainer: Rasmus Thomsen <oss@cogitri.dev>
+pkgname=librsvg
+pkgver=2.46.4
+pkgrel=0
+pkgdesc="SAX-based renderer for SVG files into a GdkPixbuf"
+url="https://wiki.gnome.org/Projects/LibRsvg"
+arch="all !s390x" # rust
+license="LGPL-2.1-or-later"
+options="!check" # Failing
+subpackages="$pkgname-dev $pkgname-doc"
+makedepends="$depends_dev bzip2-dev cairo-dev glib-dev cargo rust vala
+	gobject-introspection-dev gtk+3.0-dev libcroco-dev libgsf-dev"
+source="https://download.gnome.org/sources/librsvg/${pkgver%.*}/librsvg-$pkgver.tar.xz
+	"
+
+build() {
+	./configure \
+		--build=$CBUILD \
+		--host=$CHOST \
+		--prefix=/usr \
+		--libexecdir=/usr/lib/$pkgname \
+		--disable-static \
+		--enable-vala
+	make
+}
+
+check() {
+	make check
+}
+
+package() {
+	make DESTDIR="$pkgdir" install
+}
+
+sha512sums="abb4d9eeef62b778092269446987f3c8205cd260c253d5e70a9e3c562b9b23a64c76562d7bb53eadc9c12cca8a1cb52009f9b9d78695cc6970fe7e14b9ba10a0  librsvg-2.46.4.tar.xz"

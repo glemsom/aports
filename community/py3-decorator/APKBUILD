@@ -1,0 +1,31 @@
+# Contributor: Carlo Landmeter <clandmeter@gmail.com>
+# Maintainer: Francesco Colista <fcolista@alpinelinux.org>
+pkgname=py3-decorator
+_pkgname=decorator
+pkgver=4.4.1
+pkgrel=1
+pkgdesc="Python3 Decorator module"
+options="!check" # No checks on PYPI, github tarball is outdated (4.3.2)
+url="https://github.com/micheles/decorator"
+arch="noarch"
+license="BSD-2-Clause"
+depends="python3"
+makedepends="py3-setuptools"
+source="https://files.pythonhosted.org/packages/source/${_pkgname:0:1}/$_pkgname/$_pkgname-$pkgver.tar.gz"
+builddir="$srcdir/$_pkgname-$pkgver"
+
+replaces="py-decorator" # Backwards compatibility
+provides="py-decorator=$pkgver-r$pkgrel" # Backwards compatibility
+
+build() {
+	python3 setup.py build
+}
+
+check() {
+	python3 setup.py check
+}
+
+package() {
+	python3 setup.py install --prefix=/usr --root="$pkgdir"
+}
+sha512sums="12378702246b212d5fe0153dc97cafdb2afd4779c51fd224385e3c3562e1a1e3439574aa7c37c8521fe5f86a5f0b4d4b3075e0407cc249f8fa4b341e1ebe06e0  decorator-4.4.1.tar.gz"

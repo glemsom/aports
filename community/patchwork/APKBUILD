@@ -1,31 +1,43 @@
 # Con#tributor: Francesco Colista <fcolista@alpinelinux.org>
 # Maintainer: Francesco Colista <fcolista@alpinelinux.org>
 pkgname=patchwork
-pkgver=2.0.1
+pkgver=2.1.5
 pkgrel=0
 pkgdesc="Web-based patch tracking system"
 url="https://github.com/getpatchwork/patchwork"
 arch="noarch"
-license="GPL"
+license="GPL-2.0-or-later"
 options="!check"
-depends="py-django py-django-registration git py-psycopg2"
-subpackages="$pkgname-doc $pkgname-uwsgi-apache2:apache2_wsgi $pkgname-uwsgi-nginx:nginx_wsgi $pkgname-mysql
-	$pkgname-postgresql pwclient:pwclient"
-source="$pkgname-$pkgver.tar.gz::https://github.com/getpatchwork/$pkgname/archive/v$pkgver.tar.gz
+depends="
+	py3-django
+	py3-django-rest-framework
+	py3-django-filter
+	py3-psycopg2
+	py3-sqlparse
+	"
+subpackages="
+	$pkgname-doc
+	$pkgname-uwsgi-apache2:apache2_wsgi
+	$pkgname-uwsgi-nginx:nginx_wsgi
+	$pkgname-mysql
+	$pkgname-postgresql
+	pwclient:pwclient
+	"
+source="patchwork-$pkgver.tar.gz::https://github.com/getpatchwork/patchwork/archive/v$pkgver.tar.gz
+	dependencies-fix.patch
 	0001-support-busybox-readlink.patch
 	0002-remove-uneeded-bashism-from-tools-and-change-path.patch
 	nginx-uwsgi-patchwork-conf.ini
-	nginx-patchwork.conf"
+	nginx-patchwork.conf
+	py-django-rest-framwork-py-django-filter.patch
+	"
 
-builddir="$srcdir"/$pkgname-$pkgver
 
-build() {
-	cd "$builddir"
-	return 0
-}
+# secfixes:
+#   2.0.1-r1:
+#     - CVE-2019-13122
 
 package() {
-	cd "$builddir"
 	mkdir -p "$pkgdir"/usr/share/webapps/$pkgname
 	install -Dm644 COPYING \
 		"$pkgdir"/usr/share/doc/$pkgname/COPYING
@@ -71,13 +83,15 @@ postgresql() {
 
 pwclient() {
 	pkgdesc="command-line client for patchwork"
-	depends="python2"
+	depends="python3"
 	install -Dm775 "$pkgdir"/usr/share/webapps/patchwork/patchwork/bin/pwclient \
 		"$subpkgdir"/usr/bin/pwclient
 }
 
-sha512sums="95dcfcdf19de0a65a77ab4274de82457c969e3a65705da25cbec742e4d6671e51e629d5366d47ee510a1ac622afde3e2637fa4a013fd576a66808be75a7e84b5  patchwork-2.0.1.tar.gz
+sha512sums="4283301859707ea871e4d7b21c687afc4c6d6383b657d456c90fd8cc559489c17210f5f3147b8d0b18dd9f9e2ffcc24948fd6d9204bac0e10ffe0097e4e3f826  patchwork-2.1.5.tar.gz
+1721531735c02d2f3d0241341ffe4620c66771cf99fb9b597156bcc3b19b5cdfd17835d4e79f2fdfef33c1f3bf13444174b3fb0c9363520574918d924dae454c  dependencies-fix.patch
 5facc2c2620b2d614011bcdc06bb481fb1481c79333579e5a7fa5b8bc4f97d1651cc8c4632a5e150b62674d64c00345341229319f1edb2016721868e84146826  0001-support-busybox-readlink.patch
 f6d3590b3ac53797e0ae25fe50ab0935608be5ded44665599cbc91e93558895eddc6a7a717153d81fc194b314d7854686577ef5ecf9e0302b7824ce3b3863f7b  0002-remove-uneeded-bashism-from-tools-and-change-path.patch
 28911a25e00a254237f7214fb681e5e984a2eae331e610be62967d5e246958e0f8d3f84861d8fd17c1190c1df72a25f28ddb33843b3679a3864beb00cb4b4961  nginx-uwsgi-patchwork-conf.ini
-862dd2522236a0b18d2a8d06f1ad91ad0fd0936fa502d95e09556641e67d42e1212821bfd7fb98923e4fe8b8a7369ded8c23831fb496b1e2833d9831c1b23725  nginx-patchwork.conf"
+862dd2522236a0b18d2a8d06f1ad91ad0fd0936fa502d95e09556641e67d42e1212821bfd7fb98923e4fe8b8a7369ded8c23831fb496b1e2833d9831c1b23725  nginx-patchwork.conf
+5f1d5189bde5ba4494aec3e9517583a58791f50632c67b5e17a05cd2b9beaef02b5c12dfbb7d076e8af49c5dffe6fb3f4739897a58a2c7d2915baf19fb26c4fc  py-django-rest-framwork-py-django-filter.patch"

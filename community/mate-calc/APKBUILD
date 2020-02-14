@@ -1,21 +1,19 @@
 # Contributor: Francesco Colista <fcolista@alpinelinux.org>
 # Maintainer: Francesco Colista <fcolista@alpinelinux.org>
 pkgname=mate-calc
-pkgver=1.21.0
-pkgrel=1
+pkgver=1.24.0
+pkgrel=0
 pkgdesc="Calculator for MATE"
 url="https://github.com/mate-desktop/mate-calc"
 arch="all"
 license="GPL-2.0-or-later"
 depends="mate-common"
-makedepends="itstool libtool intltool gtk+3.0-dev 
+makedepends="itstool libtool intltool gtk+3.0-dev
 	libxml2-utils libxml2-dev"
 subpackages="$pkgname-lang $pkgname-doc"
-source="https://pub.mate-desktop.org/releases/${pkgver%.*}/$pkgname-$pkgver.tar.xz"
-builddir="$srcdir/$pkgname-$pkgver"
+source="https://pub.mate-desktop.org/releases/${pkgver%.*}/mate-calc-$pkgver.tar.xz"
 
 build() {
-	cd "$builddir"
 	./configure \
 		--build=$CBUILD \
 		--host=$CHOST \
@@ -25,13 +23,11 @@ build() {
 }
 
 check() {
-	cd "$builddir"
 	make check
 }
 
 package() {
-	cd "$builddir"
-	make DESTDIR="${pkgdir}" install
+	make DESTDIR="$pkgdir" install
 }
 
-sha512sums="ea91f1747332d66fffda93ffd7bca966bc40455f0adcc819033dd032e8e61d16b8e5dff48946288173806d6cb51d2a7b47e7f33125cf5188ba27a9a465ad93eb  mate-calc-1.21.0.tar.xz"
+sha512sums="ebb18f07ded5577bb0987b2027e7b73abc823a567bfa00f9cc9bfaf75de498f150b6b4c2e13486c530a3cbb078f1b798c415b33d668d952e8650799dd05c99eb  mate-calc-1.24.0.tar.xz"

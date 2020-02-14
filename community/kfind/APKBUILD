@@ -1,0 +1,40 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=kfind
+pkgver=19.12.2
+pkgrel=0
+arch="all !armhf" # armhf blocked by extra-cmake-modules
+url="https://www.kde.org/applications/utilities/kfind"
+pkgdesc="Find Files/Folders"
+license="GPL-2.0-or-later AND GFDL-1.2-only"
+makedepends="extra-cmake-modules karchive-dev kcoreaddons-dev kdoctools-dev kfilemetadata-dev ki18n-dev kio-dev ktextwidgets-dev kwidgetsaddons-dev"
+source="https://download.kde.org/stable/release-service/$pkgver/src/kfind-$pkgver.tar.xz"
+subpackages="$pkgname-doc $pkgname-lang"
+options="!check" # No tests
+
+prepare() {
+	default_prepare
+
+	mkdir "$builddir"/build
+}
+
+build() {
+	cd "$builddir"/build
+	cmake "$builddir" \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	cd "$builddir"/build
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest
+}
+
+package() {
+	cd "$builddir"/build
+	DESTDIR="$pkgdir" make install
+}
+
+sha512sums="9f70eafa8e913196df3e04809ce1814fd61be012e73492e2fae2271fd8902321b725c1a60d05ede7229c5b9ac5e737a1fe800986cbdd5e7d6205aec8269c8a49  kfind-19.12.2.tar.xz"

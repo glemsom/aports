@@ -1,0 +1,31 @@
+# Maintainer: Drew DeVault <sir@cmpwn.com>
+pkgname=py3-email-validator
+_pkgname=python-email-validator
+pkgver=1.0.5
+pkgrel=1
+pkgdesc="A robust email syntax and deliverability validation library"
+url=https://github.com/JoshData/python-email-validator
+arch="noarch"
+license="CC0-1.0"
+depends="py3-dnspython py3-idna"
+makedepends="py3-setuptools"
+source="$pkgname-$pkgver.tar.gz::https://github.com/JoshData/$_pkgname/archive/v$pkgver.tar.gz"
+builddir=$srcdir/$_pkgname-$pkgver
+
+replaces="py-email-validator" # Backwards compatibility
+provides="py-email-validator=$pkgver-r$pkgrel" # Backwards compatibility
+
+build() {
+	python3 setup.py build
+}
+
+check() {
+	python3 -c "import email_validator; email_validator.main()" \
+		--tests < test_pass.txt
+}
+
+package() {
+	python3 setup.py install --prefix=/usr --root="$pkgdir"
+}
+
+sha512sums="e9dd0ee8dfc603e40591eb8cd4e58c32331c1b9450feb4ae0ff27e1d655d0abb2c8a46b7d0cb43d7e037964f0c120dbad6bf32a60dfe297fb552058733ffd173  py3-email-validator-1.0.5.tar.gz"

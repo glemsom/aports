@@ -1,37 +1,25 @@
 # Contributor: Francesco Colista <fcolista@alpinelinux.org>
 # Maintainer: Francesco Colista <fcolista@alpinelinux.org>
 pkgname=icinga2
-pkgver=2.10.2
-pkgrel=0
+pkgver=2.11.2
+pkgrel=2
 pkgdesc="An open source host, service and network monitoring program"
 url="http://www.icinga.org"
-arch="all !armhf !armv7"
-license="GPL"
+arch="all !armhf !armv7 !s390x"
+license="GPL-2.0-only"
 depends="monitoring-plugins"
 makedepends="$depends_dev cmake bison flex boost-dev yajl-dev
-	postgresql-dev mariadb-connector-c-dev openssl-dev libedit-dev"
+	postgresql-dev mariadb-connector-c-dev openssl-dev libedit-dev samurai"
 install="$pkgname.pre-install $pkgname.post-install"
 pkgusers="icinga"
 pkggroups="icinga icingacmd"
 subpackages="$pkgname-doc $pkgname-bash-completion:bashcomp:noarch $pkgname-vim::noarch $pkgname-openrc"
-source="$pkgname-$pkgver.tar.gz::https://github.com/Icinga/$pkgname/archive/v$pkgver.tar.gz
+source="$pkgname-$pkgver.tar.gz::https://github.com/Icinga/icinga2/archive/v$pkgver.tar.gz
+	boost.patch
 	$pkgname.initd"
 
-builddir="$srcdir/$pkgname-$pkgver"
-
-prepare() {
-	cd "$builddir"
-	rm -r third-party/yajl
-	mkdir -p build
-	default_prepare
-}
-
-check() {
-	cd "$builddir"
-	make test
-}
-
 build() {
+	mkdir "$builddir"/build
 	cd "$builddir"/build
 	cmake "$srcdir/$pkgname-$pkgver" \
 		-DCMAKE_BUILD_TYPE=None \
@@ -48,13 +36,18 @@ build() {
 		-DICINGA2_USER=icinga \
 		-DICINGA2_GROUP=icingacmd \
 		-DICINGA2_COMMAND_GROUP=icingacmd \
-		-DINSTALL_SYSTEMD_SERVICE_AND_INITSCRIPT=no
-	make
+		-DINSTALL_SYSTEMD_SERVICE_AND_INITSCRIPT=no \
+		-GNinja
+	ninja
+}
+
+check() {
+	ninja -C build test
 }
 
 package() {
 	cd "$builddir"/build
-	make DESTDIR="$pkgdir" install
+	DESTDIR="$pkgdir" ninja install
 	mv "$pkgdir/etc/icinga2/conf.d" "$pkgdir/etc/icinga2/conf.d.example"
 	mkdir "$pkgdir/etc/icinga2/conf.d"
 	rm "$pkgdir/etc/icinga2/features-enabled/checker.conf"
@@ -73,10 +66,10 @@ EOF
 	install -Dm644 tools/syntax/nano/icinga2.nanorc "$pkgdir/usr/share/nano/icinga2.nanorc"
 
 	chmod 750 "$pkgdir/etc/icinga2" \
-            "$pkgdir/var/lib/icinga2" \
-            "$pkgdir/var/spool/icinga2" \
-            "$pkgdir/var/cache/icinga2" \
-            "$pkgdir/var/log/icinga2"
+		"$pkgdir/var/lib/icinga2" \
+		"$pkgdir/var/spool/icinga2" \
+		"$pkgdir/var/cache/icinga2" \
+		"$pkgdir/var/log/icinga2"
 
 	rm "$pkgdir"/etc/init.d/$pkgname
 
@@ -93,13 +86,13 @@ Add the web server user to the icingacmd group in order to grant it write
 permissions to the external command pipe and livestatus socket:
 
 For nginx, as example:
-    # adduser nginx icingacmd
+# adduser nginx icingacmd
 
 For Apache:
-    # adduser apache icingacmd
+# adduser apache icingacmd
 
 For lighttpd:
-    # adduser lighttpd icingacmd
+# adduser lighttpd icingacmd
 EOF
 }
 
@@ -112,12 +105,13 @@ bashcomp() {
 }
 
 vim() {
-    pkgdesc="$pkgdesc (vim syntax)"
-    depends=
+	pkgdesc="$pkgdesc (vim syntax)"
+	depends=
 
-    mkdir -p "$subpkgdir"/usr/share/vim
-    cp -r "$builddir"/tools/syntax/vim "$subpkgdir"/usr/share/vim/vimfiles
+	mkdir -p "$subpkgdir"/usr/share/vim
+	cp -r "$builddir"/tools/syntax/vim "$subpkgdir"/usr/share/vim/vimfiles
 }
 
-sha512sums="2fb30673fbeef395a43eb7947c0c0217d7c0fc9c149bb244d16dae461dd5728a2540e88bcb351bac2ec5d58d6896f8a4789ced5647cdac8cecf0623fff12054b  icinga2-2.10.2.tar.gz
-f368ea15be7054503924696129fe6b413f9a5cb5344af89f9a0f84df98ac7ef8ab135de60845deced55a982b6b037ce1a00b437189c78fcab981d1e3babec2d5  icinga2.initd"
+sha512sums="88bed284aae0196b964a9998c638066f54788474f91d9e21b0f262bf889b17d46ab0c143f9dc4bb976bfcc5785a1f0521c0bf16fa7e54a7af22fd1baae1a231d  icinga2-2.11.2.tar.gz
+2ecf1682c4be14ea68343dc6c8140a3a70aa279189d64d8fe1c588f9db971de8e599bdd2ae1c0675eee1eecc7a93fb89ac8ee73abaa0314f6c8384ef4fba1d0f  boost.patch
+46890756104563b1a4bc60b5952a2d63f5263883cfe702de7ccc4616dfe5b20d380ff1bc190482741a06bcfe7e662ad14a6965e26b9ce916ef56a1248d6b524c  icinga2.initd"

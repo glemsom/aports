@@ -1,0 +1,46 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=kio
+pkgver=5.67.0
+pkgrel=0
+pkgdesc="Resource and network access abstraction"
+arch="all !armhf"
+url="https://community.kde.org/Frameworks"
+license="LGPL-2.1-only AND LGPL-2.1-or-later AND (LGPL-2.1-only OR LGPL-3.0-only)"
+depends_dev="qt5-qtscript-dev karchive-dev kconfig-dev kcoreaddons-dev
+	kcrash-dev kdbusaddons-dev ki18n-dev kservice-dev solid-dev kbookmarks-dev
+	kcompletion-dev kconfigwidgets-dev kiconthemes-dev kitemviews-dev
+	kjobwidgets-dev kwidgetsaddons-dev kwindowsystem-dev kwallet-dev
+	knotifications-dev"
+makedepends="$depends_dev extra-cmake-modules doxygen qt5-qttools-dev libxslt-dev libxml2-dev kdoctools-dev"
+checkdepends="xvfb-run"
+source="https://download.kde.org/stable/frameworks/${pkgver%.*}/kio-$pkgver.tar.xz"
+subpackages="$pkgname-dev $pkgname-doc $pkgname-lang"
+options="!check" # Fails due to requiring physical devices not normally available and test 14 hangs
+
+prepare() {
+	default_prepare
+
+	mkdir "$builddir"/build
+}
+
+build() {
+	cd "$builddir"/build
+	cmake "$builddir" \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DBUILD_QCH=ON
+	make
+}
+
+check() {
+	cd "$builddir"/build
+	CTEST_OUTPUT_ON_FAILURE=TRUE xvfb-run ctest
+}
+
+package() {
+	cd "$builddir"/build
+	DESTDIR="$pkgdir" make install
+}
+sha512sums="baf1e6abc6ae1ffa4010245a79cb676787217d365fb033f620a9da293565ec267186afaac08791104cead3ce5c87d3a76ec89b796355361b326b16f044691d72  kio-5.67.0.tar.xz"

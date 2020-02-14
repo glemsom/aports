@@ -1,0 +1,31 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=libgravatar
+pkgver=19.12.2
+pkgrel=0
+pkgdesc="KDE PIM library providing Gravatar support"
+arch="all !armhf"
+url="https://kontact.kde.org/"
+license="LGPL-2.0-or-later"
+depends_dev="qt5-qtbase-dev ki18n-dev kconfig-dev kwidgetsaddons-dev ktextwidgets-dev kio-dev pimcommon-dev"
+makedepends="$depends_dev extra-cmake-modules"
+checkdepends="xvfb-run"
+source="https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz"
+subpackages="$pkgname-dev $pkgname-lang"
+
+build() {
+	cmake \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	CTEST_OUTPUT_ON_FAILURE=TRUE xvfb-run ctest
+}
+
+package() {
+	DESTDIR="$pkgdir" make install
+}
+sha512sums="77206e953f04415e0297513379c2124d5679f2778566c06c8ac90f6295ce08965d14793e12ae1e3b0503603c92983cbce2436fb72d970e10eaf0462dd09e0717  libgravatar-19.12.2.tar.xz"

@@ -1,42 +1,47 @@
 # Contributor: August Klein <amatcoder@gmail.com>
 # Maintainer: August Klein <amatcoder@gmail.com>
 pkgname=libtorrent-rasterbar
-pkgver=1.1.8
-_pkgver=${pkgver%.0}
-_pkgver=${_pkgver//./_}
-pkgrel=2
+pkgver=1.2.4
+_pkgver=${pkgver//./_}
+pkgrel=0
 pkgdesc="Feature complete C++ bittorrent implementation"
-url="http://www.rasterbar.com/products/libtorrent"
+options="!check" # Tests hang on all arches
+url="https://www.rasterbar.com/products/libtorrent"
 arch="all"
 license="BSD-3-Clause"
-depends=""
-depends_dev="boost-dev openssl-dev python2-dev"
+depends_dev="boost-dev openssl-dev python3-dev"
 makedepends="$depends_dev linux-headers"
-subpackages="$pkgname-dev"
-source="https://github.com/arvidn/libtorrent/releases/download/libtorrent-$_pkgver/$pkgname-$pkgver.tar.gz"
-
-builddir="$srcdir"/$pkgname-$pkgver
+subpackages="py3-$pkgname:_py3 $pkgname-static $pkgname-dev"
+source="https://github.com/arvidn/libtorrent/releases/download/libtorrent-$_pkgver/libtorrent-rasterbar-$pkgver.tar.gz"
 
 build() {
-	cd "$builddir"
+	local _py3ver=$(python3 -c 'import sys; print("{}{}".format(sys.version_info.major, sys.version_info.minor))')
+	PYTHON=/usr/bin/python3 \
 	./configure \
 		--build=$CBUILD \
 		--host=$CHOST \
 		--prefix=/usr \
 		--enable-tests \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--localstatedir=/var \
 		--enable-python-binding \
-		--with-boost-system=boost_system
+		--with-boost-system=boost_python$_py3ver
 	make
 }
 
 check() {
-	cd "$builddir"
 	make check
 }
 
 package() {
-	cd "$builddir"
 	make DESTDIR="$pkgdir" install
 }
 
-sha512sums="92132c472e203fb38928bd3ed981360a1c39355422f2668e5f609393bc7f49d77171205c39fcefcdb48e964c1ba66f1237edc2d94213a38fea3086e53a2a5b8a  libtorrent-rasterbar-1.1.8.tar.gz"
+_py3() {
+	pkgdesc="Python3 bindings for $pkgname"
+	mkdir -p "$subpkgdir"/usr/lib
+	mv "$pkgdir"/usr/lib/python* "$subpkgdir"/usr/lib/
+}
+
+sha512sums="2328747f9b03cd61c7c3eac095225b9e6fa78238346ac96a961394639790135deda009cf597c0538570ade8bf4c0e027062720c1776c72228d1c51ec16ef0e13  libtorrent-rasterbar-1.2.4.tar.gz"

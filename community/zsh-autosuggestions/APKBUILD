@@ -1,22 +1,19 @@
 # Contributor: Jakub Jirutka <jakub@jirutka.cz>
 # Maintainer: Jakub Jirutka <jakub@jirutka.cz>
 pkgname=zsh-autosuggestions
-pkgver=0.5.0
+pkgver=0.6.4
 pkgrel=0
 pkgdesc="Fish-like autosuggestions for Zsh"
+options="!check" # No testsuite
 url="https://github.com/zsh-users/zsh-autosuggestions"
 arch="noarch"
 license="MIT"
 depends="zsh"
-source="$pkgname-$pkgver.tar.gz::https://github.com/zsh-users/$pkgname/archive/v$pkgver.tar.gz"
-builddir="$srcdir/$pkgname-$pkgver"
+source="$pkgname-$pkgver.tar.gz::https://github.com/zsh-users/zsh-autosuggestions/archive/v$pkgver.tar.gz"
 
 package() {
-	local destdir="$pkgdir/usr/share/zsh/plugins/$pkgname"
-	cd "$builddir"
-
-	mkdir -p "$destdir"
-	cp $pkgname.zsh $pkgname.plugin.zsh "$destdir"/
+	install -D $pkgname.zsh $pkgname.plugin.zsh -t \
+		 "$pkgdir/usr/share/zsh/plugins/$pkgname"
 }
 
-sha512sums="0b26d56bd01c6a47e9a3815a5c1210b6c967c8d182544c6c2f94c02ac8135d0306a12055f1e786c9a78c2acc0f23a7b65b51410bc46408253a46cdec8e30312a  zsh-autosuggestions-0.5.0.tar.gz"
+sha512sums="226b99048577ecdbe198501e6e4b3156c3d849994f0a2f7e15687cd244d4cac472cbcf746aaa32b2886652f6962852a475777b5f2bfcb3a6d0279be98a6020bb  zsh-autosuggestions-0.6.4.tar.gz"

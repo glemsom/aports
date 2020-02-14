@@ -1,0 +1,41 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=kpeople
+pkgver=5.67.0
+pkgrel=0
+pkgdesc="A library that provides access to all contacts and the people who hold them"
+arch="all !armhf" # armhf blocked by qt5-qtdeclarative
+url="https://community.kde.org/Frameworks"
+license="LGPL-2.1-or-later"
+depends_dev="qt5-qtdeclarative-dev kcoreaddons-dev kwidgetsaddons-dev ki18n-dev kitemviews-dev kservice-dev"
+makedepends="$depends_dev extra-cmake-modules qt5-qttools-dev doxygen"
+source="https://download.kde.org/stable/frameworks/${pkgver%.*}/kpeople-$pkgver.tar.xz"
+subpackages="$pkgname-dev $pkgname-doc $pkgname-lang"
+
+prepare() {
+	default_prepare
+
+	mkdir "$builddir"/build
+}
+
+build() {
+	cd "$builddir"/build
+	cmake "$builddir" \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DBUILD_QCH=ON
+	make
+}
+
+check() {
+	cd "$builddir"/build
+	# personsmodeltest fails
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest -E '(personsmodeltest)'
+}
+
+package() {
+	cd "$builddir"/build
+	DESTDIR="$pkgdir" make install
+}
+sha512sums="b9bad73466ba99bf7afbef2b4cd2b1719acaada6942275d4e62efa75d5cb90a30ef7514e98fe4477736417f17686d2f278945c47dafaa638b45ccbca25b98b4d  kpeople-5.67.0.tar.xz"

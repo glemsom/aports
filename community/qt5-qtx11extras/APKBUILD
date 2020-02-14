@@ -2,7 +2,7 @@
 # Maintainer: Francesco Colista <fcolista@alpinelinux.org>
 pkgname=qt5-qtx11extras
 _pkgname=qtx11extras-everywhere-src
-pkgver=5.12.0
+pkgver=5.12.5
 _ver=${pkgver/_p/-}
 _ver=${_ver/_/-}
 _ver=${_ver/beta0/beta}
@@ -10,9 +10,9 @@ _ver=${_ver/rc0/rc}
 _V=${_ver/rc/RC}
 pkgrel=1
 pkgdesc="Provides platform-specific APIs for X11"
-url="http://qt-project.org/"
+url="https://www.qt.io/developers/"
 arch="all"
-license="GPL-3.0"
+license="(LGPL-3.0-or-later OR GPL-3.0-only OR GPL-2.0-or-later) AND Qt-GPL-exception-1.0"
 makedepends="qt5-qtbase-dev"
 subpackages="$pkgname-dev"
 replaces="qt5-x11extras"
@@ -21,7 +21,7 @@ case $pkgver in
 *_beta*|*_rc*) _rel=development_releases;;
 *) _rel=official_releases;;
 esac
-source="http://download.qt-project.org/$_rel/qt/${pkgver%.*}/$_ver/submodules/$_pkgname-$_V.tar.xz"
+source="https://download.qt.io/$_rel/qt/${pkgver%.*}/$_ver/submodules/$_pkgname-$_V.tar.xz"
 
 builddir="$srcdir"/$_pkgname-${_V%-*}
 
@@ -47,4 +47,4 @@ package() {
 	make INSTALL_ROOT="$pkgdir" install
 }
 
-sha512sums="7504692f638bcd6603f61b165d58b2853ac5c260cb231754fd1ddc0b8473063c561c72825081d4f1c1563c330e68b3cef37e9fb146c88feabb48f846ea94e9b9  qtx11extras-everywhere-src-5.12.0.tar.xz"
+sha512sums="1e83c2d350f423053fe07c41a8b889391100df93dd50f700e98116c36b3dbad9637a618765daf97b82b7ffcd0687fc52c9590d9ce48c2a9204f1edc6d2cae248  qtx11extras-everywhere-src-5.12.5.tar.xz"

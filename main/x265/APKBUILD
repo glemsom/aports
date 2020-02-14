@@ -1,0 +1,46 @@
+# Contributor: Carlo Landmeter <clandmeter@gmail.com>
+# Maintainer: Natanael Copa <ncopa@alpinelinux.org>
+pkgname=x265
+pkgver=3.2.1
+pkgrel=0
+pkgdesc="Open Source H265/HEVC video encoder"
+url="http://x265.org"
+arch="all"
+license="GPL-2.0-or-later"
+makedepends="cmake nasm"
+subpackages="$pkgname-dev $pkgname-libs"
+source="$pkgname-$pkgver.tar.gz::https://bitbucket.org/multicoreware/x265/downloads/x265_$pkgver.tar.gz"
+builddir="$srcdir/${pkgname}_$pkgver"
+
+build() {
+	cd "$builddir"/build/linux
+
+	# It has textrel on x86 so we disable asm.
+	local cmake_opts=""
+	case "$CARCH" in
+		x86) cmake_opts="-DENABLE_ASSEMBLY=OFF";;
+		ppc*) cmake_opts="-DENABLE_ALTIVEC=OFF -DCPU_POWER8=OFF";;
+	esac
+
+	cmake \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_VERBOSE_MAKEFILE=ON \
+		$cmake_opts \
+		../../source
+	make
+}
+
+check() {
+	cd "$builddir"/build/linux
+
+	./x265 --version
+}
+
+package() {
+	cd "$builddir"/build/linux
+
+	make DESTDIR="$pkgdir" install
+}
+
+sha512sums="5cb29b9d4475c1f686f6e31e47ccddde3db1639d5dcf9c058513389a9fdeb35a83b14e30e59498a76dec74bb0b410b6d8f5b1b45d18927be9811bb6a40d8d568  x265-3.2.1.tar.gz"

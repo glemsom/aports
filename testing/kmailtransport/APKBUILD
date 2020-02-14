@@ -1,0 +1,32 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=kmailtransport
+pkgver=19.12.2
+pkgrel=0
+pkgdesc="Manage mail transport"
+arch="all !ppc64le !s390x !armhf" # Limited by libkgapi -> qt5-qtwebengine
+url="https://kontact.kde.org/"
+license="LGPL-2.0-or-later"
+depends_dev="kcmutils-dev kconfigwidgets-dev kwallet-dev ki18n-dev kio-dev kmime-dev akonadi-dev akonadi-mime-dev ksmtp-dev libkgapi-dev"
+makedepends="$depends_dev extra-cmake-modules"
+checkdepends="xvfb-run"
+source="https://download.kde.org/stable/release-service/$pkgver/src/kmailtransport-$pkgver.tar.xz"
+subpackages="$pkgname-dev $pkgname-lang"
+options="!check" # Requires OpenGL and running dbus
+
+build() {
+	cmake \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	CTEST_OUTPUT_ON_FAILURE=TRUE xvfb-run ctest
+}
+
+package() {
+	DESTDIR="$pkgdir" make install
+}
+sha512sums="21d995d465cb0ed2ec651d1c423b71611c9767846a32c8f338996425ef93b101aa7141d7d9333b92b224c65286ed615b7729373f30793c32aac08c29dde09e23  kmailtransport-19.12.2.tar.xz"

@@ -1,0 +1,39 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=kcalc
+pkgver=19.12.2
+pkgrel=0
+arch="all !armhf" # armhf blocked by extra-cmake-modules
+url="https://kde.org/applications/utilities/org.kde.kcalc"
+pkgdesc="Scientific Calculator"
+license="GPL-2.0-or-later"
+makedepends="extra-cmake-modules qt5-qtbase-dev kcrash-dev kconfig-dev kconfigwidgets-dev kdoctools-dev kguiaddons-dev ki18n-dev kinit-dev knotifications-dev kxmlgui-dev gmp-dev mpfr-dev"
+source="https://download.kde.org/stable/release-service/$pkgver/src/kcalc-$pkgver.tar.xz"
+subpackages="$pkgname-doc $pkgname-lang"
+
+prepare() {
+	default_prepare
+
+	mkdir "$builddir"/build
+}
+
+build() {
+	cd "$builddir"/build
+	cmake "$builddir" \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	cd "$builddir"/build
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest
+}
+
+package() {
+	cd "$builddir"/build
+	DESTDIR="$pkgdir" make install
+}
+
+sha512sums="e67c1202bda13ca5682fb95412ae79159547d59c94c8f7c3894ae5182932d4e29fff4c7cc515a89c873c3e307021152b99e123d6fb4ba9b656a9bd902fa9a1a1  kcalc-19.12.2.tar.xz"

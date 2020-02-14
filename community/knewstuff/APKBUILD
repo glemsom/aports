@@ -1,0 +1,44 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=knewstuff
+pkgver=5.67.0
+pkgrel=0
+pkgdesc="Framework for downloading and sharing additional application data"
+arch="all !armhf" # armhf blocked by qt5-qtdeclarative
+url="https://community.kde.org/Frameworks"
+license="LGPL-2.1-or-later"
+depends="kirigami2"
+depends_dev="qt5-qtbase-dev qt5-qtdeclarative-dev karchive-dev kcompletion-dev
+	kconfig-dev kcoreaddons-dev ki18n-dev kiconthemes-dev kio-dev kitemviews-dev
+	kservice-dev ktextwidgets-dev kwidgetsaddons-dev kxmlgui-dev"
+makedepends="$depends_dev extra-cmake-modules doxygen qt5-qttools-dev"
+checkdepends="xvfb-run"
+source="https://download.kde.org/stable/frameworks/${pkgver%.*}/knewstuff-$pkgver.tar.xz"
+subpackages="$pkgname-dev $pkgname-doc $pkgname-lang"
+
+prepare() {
+	default_prepare
+
+	mkdir "$builddir"/build
+}
+
+build() {
+	cd "$builddir"/build
+	cmake "$builddir" \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DBUILD_QCH=ON
+	make
+}
+
+check() {
+	cd "$builddir"/build
+	CTEST_OUTPUT_ON_FAILURE=TRUE xvfb-run ctest
+}
+
+package() {
+	cd "$builddir"/build
+	make DESTDIR="$pkgdir" install
+}
+sha512sums="fc9a791f6b8330a8e674d8fc3c6f46d96a43266689552bdd7f0bee53b2ad157ccfc75fab07ba3215e2598127f0c3a6c77a2db96aad338d5c3e6bc2b47e2b2bf6  knewstuff-5.67.0.tar.xz"

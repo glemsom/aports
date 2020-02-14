@@ -1,20 +1,21 @@
 # Contributor: Lucas Ramage <ramage.lucas@protonmail.com>
 # Maintainer: Lucas Ramage <ramage.lucas@protonmail.com>
 pkgname=phoronix-test-suite
-pkgver=8.4.1
-pkgrel=0
+pkgver=9.0.1
+pkgrel=1
 pkgdesc="The most comprehensive testing and benchmarking platform available for Linux"
 url="https://www.phoronix-test-suite.com"
 arch="noarch"
-license="GPL-3.0"
+license="GPL-3.0-or-later"
 depends="php7 php7-dom php7-zip php7-json php7-simplexml"
 subpackages="pkgname-doc"
 provides="phoromatic-server phoromatic-client"
-source="${pkgname}-${pkgver}.tar.gz::https://github.com/$pkgname/$pkgname/archive/v$pkgver.tar.gz"
-options="!check"
+source="$pkgname-$pkgver.tar.gz::https://github.com/phoronix-test-suite/phoronix-test-suite/archive/v$pkgver.tar.gz"
+options="!check" # no tests
 
 package() {
-	cd $builddir
-	DESTDIR="${pkgdir}" ./install-sh
+	DESTDIR="$pkgdir" ./install-sh
+	rm -rf "$pkgdir"/usr/lib/systemd
 }
-sha512sums="f3eb28cbf9daef353ef129aaee1354e0b532e0bc5148a6b0c85397b3de663e1efc17a0ca8001a86868fb07471aab28870a8177f0f1362a0704e84ef1c768342f  phoronix-test-suite-8.4.1.tar.gz"
+
+sha512sums="7584f85fb57ca64128d6342c42244fe2498eec51e378bf4265f447b178d24dcde5855b644faa5937953ee262657e24dd5bb689a95e5843c184b205986e29ebce  phoronix-test-suite-9.0.1.tar.gz"

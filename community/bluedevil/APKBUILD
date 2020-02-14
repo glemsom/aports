@@ -1,0 +1,40 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=bluedevil
+pkgver=5.18.0
+pkgrel=0
+pkgdesc="Integrate the Bluetooth technology within KDE workspace and applications"
+arch="all !armhf" # armhf blocked by qt5-qtdeclarative
+url="https://www.kde.org/workspaces/plasmadesktop/"
+license="GPL-2.0-or-later AND LGPL-2.0-or-later AND (LGPL-2.1-only OR LGPL-3.0-only)"
+depends="kded bluez"
+makedepends="extra-cmake-modules qt5-qtbase-dev qt5-qtdeclarative-dev kcoreaddons-dev kwidgetsaddons-dev kdbusaddons-dev knotifications-dev kwindowsystem-dev kiconthemes-dev plasma-framework-dev ki18n-dev kio-dev bluez-qt-dev kded-dev kded shared-mime-info"
+source="https://download.kde.org/stable/plasma/$pkgver/bluedevil-$pkgver.tar.xz"
+subpackages="$pkgname-lang"
+
+prepare() {
+	default_prepare
+
+	mkdir "$builddir"/build
+}
+
+build() {
+	cd "$builddir"/build
+	cmake "$builddir" \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	cd "$builddir"/build
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest
+}
+
+package() {
+	cd "$builddir"/build
+	DESTDIR="$pkgdir" make install
+}
+
+sha512sums="ea64d3d65c3d93a3b05ff7cbb8b99575346d17f6f87ef13487701de6ea217abb0c55c596f8c62d62588606cf7747d0cd27079e8040274e5223704e9b0aefa5a3  bluedevil-5.18.0.tar.xz"

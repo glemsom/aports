@@ -1,5 +1,5 @@
-# Contributor: William Pitcock <nenolod@dereferenced.org>
-# Maintainer: William Pitcock <nenolod@dereferenced.org>
+# Contributor: 
+# Maintainer: 
 pkgname=fftw
 pkgver=3.3.8
 pkgrel=0
@@ -17,6 +17,10 @@ source="http://www.fftw.org/$pkgname-$srcpkgver.tar.gz
 builddir="$srcdir/$pkgname-$srcpkgver"
 
 _precision="single double long-double"
+
+case "$CARCH" in
+	armv7) options="$options !check" ;;
+esac
 
 prepare() {
 	default_prepare

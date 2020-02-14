@@ -1,21 +1,19 @@
 # Contributor: Alan Lacerda <alacerda@alpinelinux.org>
 # Maintainer: Alan Lacerda <alacerda@alpinelinux.org>
 pkgname=marco
-pkgver=1.21.1
+pkgver=1.24.0
 pkgrel=0
 pkgdesc="MATE window manager"
 url="https://github.com/mate-desktop/marco"
-arch="all"
+arch="all !s390x" # Limited by mate-desktop
 license="GPL-2.0-or-later"
-depends="mate-common yelp-tools libxml2-utils"
+depends="mate-common yelp-tools libxml2-utils mate-desktop"
 makedepends="libtool itstool zenity intltool glib-dev gtk+3.0-dev
 	libxcomposite-dev libxpresent-dev libcanberra-dev startup-notification-dev"
 subpackages="$pkgname-dev $pkgname-doc $pkgname-lang"
-source="https://pub.mate-desktop.org/releases/${pkgver%.*}/$pkgname-$pkgver.tar.xz"
-builddir="$srcdir/$pkgname-$pkgver"
+source="https://pub.mate-desktop.org/releases/${pkgver%.*}/marco-$pkgver.tar.xz"
 
 build() {
-	cd "$builddir"
 	./configure \
 		--build=$CBUILD \
 		--host=$CHOST \
@@ -27,13 +25,11 @@ build() {
 }
 
 check() {
-	cd "$builddir"
 	make check
 }
 
 package() {
-	cd "$builddir"
-	make DESTDIR="${pkgdir}" install
+	make DESTDIR="$pkgdir" install
 }
 
-sha512sums="f0bf852122a9b432a1a77352887e5a980e4da36469b0c7721aad83c7bbf7ff958312f72ceefe18c146b4d0dcdefef3d9bd40cfb157cb44bef840c2d80065c406  marco-1.21.1.tar.xz"
+sha512sums="b257994c097f174fe83f3f0f4d6b6991e8c0f402daffd99f8a9521d588b609c56953e73dd4d143be64f5c9a4caa8d890ff30a120e18a9d5b36c6f856a7190428  marco-1.24.0.tar.xz"

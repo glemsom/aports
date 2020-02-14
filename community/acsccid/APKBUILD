@@ -1,27 +1,24 @@
 # Maintainer: André Klitzing <aklitzing@gmail.com>
 pkgname=acsccid
-pkgver=1.1.6
+pkgver=1.1.8
 pkgrel=0
 pkgdesc="PCSC driver for ACS CCID smart card reader"
 url="https://github.com/acshk/acsccid"
 arch="all"
-license="LGPL"
+license="LGPL-2.1-or-later"
 depends="pcsc-lite"
 makedepends="pcsc-lite-dev libusb-dev perl flex"
 options="!check" # upstream does not provide tests
 subpackages="$pkgname-udev::noarch"
-source="https://downloads.sourceforge.net/acsccid/acsccid-${pkgver}.tar.bz2"
-builddir="$srcdir/"${pkgname}-${pkgver}
+source="https://downloads.sourceforge.net/acsccid/acsccid-$pkgver.tar.bz2"
 
 build() {
-	cd "$builddir"
 	./configure --prefix=/usr
 	make
 }
 
 package() {
-	cd "$builddir"
-	make DESTDIR="${pkgdir}" install
+	make DESTDIR="$pkgdir" install
 }
 
 udev() {
@@ -32,4 +29,4 @@ udev() {
 	install -Dm644 src/92_pcscd_acsccid.rules "$subpkgdir/etc/udev/rules.d/92_pcscd_acsccid.rules"
 }
 
-sha512sums="eeaa4601f0a0f97b1e4d6b5189da551ebd2cb0e309d59ff018e21771139d913714afb351ed6a685cc066be97fd6a7334fa6c28a934e427550daace8b5ebeb0bc  acsccid-1.1.6.tar.bz2"
+sha512sums="1a9bbfcda071b19693df5cc3e75216778ba4abeffe421ec6a308af77f382229f0d980b5ae0c63022833018413ea9e69f5ae1e12fb720a2dc400ca081772f8bfb  acsccid-1.1.8.tar.bz2"

@@ -1,21 +1,24 @@
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 pkgname=cfengine
-pkgver=3.12.0
-pkgrel=2
+pkgver=3.15.0
+pkgrel=0
 pkgdesc="A systems administration tool for networks"
-url="http://www.cfengine.com/"
+url="https://www.cfengine.com/"
 arch="all"
-license="GPL-3.0"
+license="GPL-3.0-only"
 install="$pkgname.post-install"
 makedepends="$depends_dev lmdb-dev openssl-dev bison flex-dev
 	acl-dev pcre-dev linux-headers"
 subpackages="$pkgname-doc $pkgname-masterfiles::noarch"
-source="https://cfengine-package-repos.s3.amazonaws.com/tarballs/$pkgname-$pkgver.tar.gz
-	https://cfengine-package-repos.s3.amazonaws.com/tarballs/$pkgname-masterfiles-$pkgver.tar.gz"
+source="https://cfengine-package-repos.s3.amazonaws.com/tarballs/cfengine-$pkgver.tar.gz
+	https://cfengine-package-repos.s3.amazonaws.com/tarballs/cfengine-masterfiles-$pkgver.tar.gz"
 
-builddir="$srcdir"/cfengine-${pkgver%_p*}
-builddirmasterfiles="$srcdir"/cfengine-masterfiles-${pkgver%_p*}
+_builddirmasterfiles="$srcdir"/cfengine-masterfiles-${pkgver%_p*}
 options="!check" # testsuite shows some unknown errors
+
+# secfixes:
+#   3.12.2-r0:
+#     - CVE-2019-9929
 
 prepare() {
 	default_prepare
@@ -26,7 +29,6 @@ prepare() {
 }
 
 build() {
-	cd "$builddir"
 	./configure \
 		--build=$CBUILD \
 		--host=$CHOST \
@@ -39,14 +41,13 @@ build() {
 		--without-pam
 	make
 
-	cd "$builddirmasterfiles"
+	cd "$_builddirmasterfiles"
 	./configure \
 		--prefix=/var/lib/cfengine
 	make
 }
 
 package() {
-	cd "$builddir"
 	make install DESTDIR="$pkgdir"
 
 	# not FHS but the tools seems to require those
@@ -60,9 +61,9 @@ masterfiles() {
 	pkgdesc="Cfengine default masterfiles"
 	depends="cfengine"
 
-	cd "$builddirmasterfiles"
+	cd "$_builddirmasterfiles"
 	make install DESTDIR="$subpkgdir"
 }
 
-sha512sums="da979c0db5830cd1f18f8f854190f3d50151d6b63bac399056d030e2486ec39dd680071bd6df9ef30e898e00900022b68f27f272f58f99eb8ee36525af9901f5  cfengine-3.12.0.tar.gz
-61925dc812f7a02e09e4ff407490f14d8736bbdf36677496fe2c977a8c0e9ba607f144dddc4318aaaeb7ad552c0ccd4ad8dfe9430caa7e67e9b28676622e6b0c  cfengine-masterfiles-3.12.0.tar.gz"
+sha512sums="de15d8c7b84eadf6a042a89cdf45cda7bb8f0eace3936a7f5699bde9a06a6ee203348e2b11236b55052cdb1008c83687ef282e7bf662c9f9ad3db11cf4429f58  cfengine-3.15.0.tar.gz
+a5f1f6b5275ee3e8e913aafad2598f76406ba61ea5b5692da23fed7a5fdbd9828c5b9b5fd51ae080e628c483197469c9cc19f8f786b5496fcbbfebeaac1b414b  cfengine-masterfiles-3.15.0.tar.gz"

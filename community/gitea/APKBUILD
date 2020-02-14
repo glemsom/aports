@@ -1,44 +1,59 @@
 # Contributor: Carlo Landmeter <clandmeter@gmail.com>
+# Contributor: 6543 <6543@obermui.de>
 # Maintainer: Carlo Landmeter <clandmeter@gmail.com>
 pkgname=gitea
-pkgver=1.7.1
+pkgver=1.11.0
 pkgrel=0
 pkgdesc="A self-hosted Git service written in Go"
 url="https://gitea.io"
 arch="all"
 license="MIT"
-depends="git"
-makedepends="go libcap"
+options="chmod-clean"
+depends="git git-lfs gnupg"
+makedepends="go libcap nodejs npm"
+checkdepends="bash git git-lfs gnupg openssh openssh-keygen sqlite"
 install="$pkgname.pre-install"
 pkgusers="gitea"
 pkggroups="www-data"
 subpackages="$pkgname-openrc"
-source="${pkgname}-${pkgver}.tar.gz::https://github.com/go-gitea/$pkgname/archive/v$pkgver.tar.gz
+source="$pkgname-$pkgver.tar.gz::https://github.com/go-gitea/gitea/archive/v$pkgver.tar.gz
 	$pkgname.initd
 	$pkgname.ini
-	allow-to-set-version.patch
 	"
 builddir="$srcdir/src/code.gitea.io/$pkgname"
 
+case "$CARCH" in
+s390x|x86) options="!check" ;;
+esac
+
 prepare() {
-        mkdir -p ${builddir%/*}
-        mv "$srcdir"/$pkgname-$pkgver "$builddir"/
-        cd "$builddir"
+	mkdir -p ${builddir%/*}
+	mv "$srcdir"/$pkgname-$pkgver "$builddir"/
 	default_prepare
 }
 
 build() {
-        cd "$builddir"
 	export GOPATH="$srcdir"
-	export TAGS="tidb sqlite"
+	export TAGS="tidb sqlite sqlite_unlock_notify"
 	export GITEA_VERSION="$pkgver"
 	unset LDFLAGS
 	make build
 }
 
-package() {
-	cd "$builddir"
+check() {
+	## "make test" - modified (exclude broken tests)
+	## 'code.gitea.io/gitea/modules/migrations': github hase rate limits! 403 API
+	PACKAGES=$(go list ./... | grep -v /vendor/ | \
+		grep -v 'code.gitea.io/gitea/modules/migrations' | \
+		grep -v 'code.gitea.io/gitea/modules/charset' | \
+		grep -v 'code.gitea.io/gitea/integrations' | \
+		grep -v 'code.gitea.io/gitea/modules/git')
+	GO111MODULE=on go test -mod=vendor -tags='sqlite sqlite_unlock_notify' $PACKAGES
 
+	timeout -s ABRT 20m make test-sqlite
+}
+
+package() {
 	for dir in $pkgname $pkgname/git $pkgname/data $pkgname/db $pkgname/custom; do
 		install -d -m 750 -o gitea -g www-data \
 			"$pkgdir"/var/lib/$dir
@@ -52,7 +67,7 @@ package() {
 	setcap cap_net_bind_service=+ep \
 		"$pkgdir"/usr/bin/$pkgname
 
-	install -D -m 644 -o gitea -g www-data "$srcdir"/${pkgname}.ini \
+	install -D -m 644 -o gitea -g www-data "$srcdir"/gitea.ini \
 		"$pkgdir"/etc/$pkgname/app.ini
 	chown gitea:www-data "$pkgdir"/etc/$pkgname
 
@@ -63,12 +78,6 @@ package() {
 		"$pkgdir"/etc/init.d/$pkgname
 }
 
-check() {
-	# basic check to see if the app works
-	"$builddir"/$pkgname help > /dev/null
-}
-
-sha512sums="b8e9fba09d34c8929d3ad04417a106a0c3b4b4d0982a7d4c92c764113d29a2e2016a9bee378955dbb9d3839850e481cdad0e94ed1b700c9eda85f63a0ada8e78  gitea-1.7.1.tar.gz
-a7c70a144dc0582d6230e59ff717023fddcac001a6a9c895b46a0df1fbd9639453b2f5027d47dad21f442869c145dbc801eda61b6c50a2dd8103f562b8569009  gitea.initd
-27a202006d6e8d4146659f6356eaa99437f9f596dd369e9430d64b859bc6a1ad16091eef09232aa385fe1bf8ca94bbdf31b94975068220ad10338cded384f726  gitea.ini
-05272f3733dffeb75881579ff6553d32515e4de32113ff9395e521e93946a45101d04d4e435d7d8e7bfe49a512e5e4ac300576d2e79d7bcf314fc0ce526a07f9  allow-to-set-version.patch"
+sha512sums="75078b8f26995dfc843106abc68c7f8970b35423aa12969089b703a24fd490e1e5cc0c212de7986f8b3fac9ac476ac5938b6622228c90ad1e1eaa26b7a5480e6  gitea-1.11.0.tar.gz
+2497e6f2a18e3ceb65352cd220eab2c1c0893d0e731600462a60397de2b70d7c1de7db2af2769b25fe708b0822c811bb20dc797b59b9dd93efb376bea1c35796  gitea.initd
+0fd40db2ec9150b354448f1fa6c8cd2515911619935afb55f070a1a9f594badce2cd46b436b930464495f6561f97c999de2489710761e3f829832b8e4da5eb23  gitea.ini"

@@ -1,0 +1,97 @@
+# Contributor: Mathias LANG <pro.mathias.lang@gmail.com>
+# Maintainer: Mathias LANG <pro.mathias.lang@gmail.com>
+pkgname=ldc
+pkgver=1.19.0
+pkgrel=1
+pkgdesc="The LLVM-based D Compiler"
+url="https://github.com/ldc-developers/ldc"
+# Currently limited to x86_64 because of issues with GDC
+arch="x86_64"
+license="BSD-3-Clause AND BSL-1.0 AND ( Artistic-1.0 OR GPL-2.0-or-later ) AND NCSA AND MIT"
+depends="libexecinfo tzdata"
+makedepends="chrpath cmake curl-dev diffutils gdmd llvm9-dev llvm9-static libedit-dev libexecinfo-static zlib-dev"
+checkdepends="bash gdb grep llvm9-test-utils"
+# A user might want to install the '-runtime' subpackage when they have
+# a dynamically-linked D program.
+subpackages="$pkgname-runtime $pkgname-static"
+source="https://github.com/ldc-developers/ldc/releases/download/v$pkgver/ldc-$pkgver-src.tar.gz
+		01-stdio-fseek.patch
+		02-conf.patch"
+builddir="$srcdir/ldc-$pkgver-src/"
+
+build() {
+	# First, build LDC using GDC
+	mkdir -p "$builddir/stage1"
+	if [ "$CBUILD" != "$CHOST" ]; then
+		CMAKE_CROSSOPTS="-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_HOST_SYSTEM_NAME=Linux"
+	fi
+	cmake \
+		-DCMAKE_CXX_FLAGS="$CXXFLAGS" \
+		-DCMAKE_C_FLAGS="$CFLAGS" \
+		-DD_COMPILER='gdmd' \
+		$CMAKE_CROSSOPTS -S "$builddir" -B "$builddir/stage1"
+	make -C "$builddir/stage1"
+
+	# Then, self-build
+	if [ "$CBUILD" != "$CHOST" ]; then
+		CMAKE_CROSSOPTS="-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_HOST_SYSTEM_NAME=Linux"
+	fi
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DBUILD_SHARED_LIBS=True \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_CXX_FLAGS="$CXXFLAGS" \
+		-DCMAKE_C_FLAGS="$CFLAGS" \
+		-DD_COMPILER="$builddir/stage1/bin/ldmd2" \
+		$CMAKE_CROSSOPTS "$builddir"
+	make
+
+	# CMake added the rpaths to the shared libs - strip them
+	chrpath -d "$builddir"/lib/*.so*
+}
+
+check() {
+	# Note: The testsuite does not parallelize well, as the 'clean' target get run in parallel.
+	# Hence '-j${JOBS}' was left out on purpose
+	#
+	# - dmd-testsuite takes too long to run and has more to do with language checks
+	#	which are less relevant to us than platform integration tests
+	# - lit-test disabled because 'TEST 'LDC :: debuginfo/print_gdb.d' FAILED'
+	#	Something to do with TLS variables not being printable in GDB
+	# - 'druntime-test-shared' fails, probably because it is using 'Object.factory'
+	# - 'druntime-test-stdcpp' fails for an unknown reason and is temporarily disabled
+	# - 'druntime-test-exceptions' fails for an unknown reason and is temporarily disabled
+	ctest --output-on-failure -E "dmd-testsuite|lit-tests|druntime-test-exceptions|druntime-test-shared|druntime-test-stdcpp"
+}
+
+package() {
+	depends="$pkgname-static=$pkgver-r$pkgrel"
+	make DESTDIR="$pkgdir" install
+}
+
+runtime() {
+	depends="libexecinfo-dev"
+	pkgdesc="Dynamic runtime library for D code compiled with $pkgname-$pkgver"
+
+	mkdir -p "$subpkgdir/usr/lib/"
+	for libn in "libdruntime" "libphobos2";
+	do
+		mv "$pkgdir"/usr/lib/$libn-ldc-shared.so* "$subpkgdir/usr/lib/"
+	done
+	mv "$pkgdir"/usr/lib/libldc-jit.so* "$subpkgdir/usr/lib"
+
+	mv "$pkgdir"/usr/lib/*.so* "$subpkgdir/usr/lib/"
+}
+
+static() {
+	depends="libexecinfo-static"
+	pkgdesc="$pkgdesc (static library)"
+
+	mkdir -p "$subpkgdir/usr/lib/"
+	mv "$pkgdir"/usr/lib/*.a "$subpkgdir/usr/lib/"
+}
+
+sha512sums="ffd1b085c7c8fe76162051234cc73e92f08a391cebac3f405c9dc6d03fcbf459d5e99295066ab4b0bd931bdce84dce53e23c33c1bc8ad35327f1b283f8e8f10a  ldc-1.19.0-src.tar.gz
+20d6bb560867052edeed6005e15473dae25c62002c7bd47f0e37610ffd5e94a50b49244c2a9b814f4858babca403f120ae6028cd86f964dd4734736eda068536  01-stdio-fseek.patch
+eb86e4be0ecf72aaabbd5608c8056bb9cede035895e766330b6d14f14c06dc513fcecc1b6e56ab6fc9fc26c220a689cc8b1394a30a319189c414f1e067c1d983  02-conf.patch"

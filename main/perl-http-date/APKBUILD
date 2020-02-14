@@ -1,38 +1,34 @@
 # Contributor: Leonardo Arena <rnalrd@alpinelinux.org>
 # Maintainer:  Leonardo Arena <rnalrd@alpinelinux.org>
 pkgname=perl-http-date
-_realname=HTTP-Date
-pkgver=6.02
-pkgrel=1
+_pkgname=HTTP-Date
+pkgver=6.05
+pkgrel=0
 pkgdesc="Perl module date conversion routines"
-url="http://search.cpan.org/~gaas"
+url="https://metacpan.org/pod/HTTP::Date"
 arch="noarch"
-license="GPL PerlArtistic"
+license="GPL-1.0-or-later OR Artistic-1.0-Perl"
 depends="perl"
 makedepends="perl-dev"
 replaces="perl-libwww"
-install=
 subpackages="$pkgname-doc"
-source="http://search.cpan.org/CPAN/authors/id/G/GA/GAAS/$_realname-$pkgver.tar.gz"
-
-builddir="$srcdir/$_realname-$pkgver"
+source="https://cpan.metacpan.org/authors/id/O/OA/OALDERS/HTTP-Date-$pkgver.tar.gz"
+builddir="$srcdir/$_pkgname-$pkgver"
 
 build() {
-	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
 	PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
 	make
 }
 
 check() {
-	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
 	make test
 }
 
 package() {
-	cd "$builddir"
 	make DESTDIR="$pkgdir" install
-	# creates file collision among perl modules
-	find "$pkgdir" -name perllocal.pod -delete
+	find "$pkgdir" \( -name perllocal.pod -o -name .packlist \) -delete
 }
 
-sha512sums="056d2ff01482922a644757f04cb924d60fa15b86873fdea02e65c78c8af2bbf3f184495852b579eb4fc86bc44f8a5a52f785ab800cc554431ed3e2767e858232  HTTP-Date-6.02.tar.gz"
+sha512sums="08a427a860161cd0d7a34a4fa3eb6bf6439c2504478a308ff560de0e6620c20df46f004cfcb719e3d19e35fdb650728d6983ffce1423f4d9da06f91d85c7b927  HTTP-Date-6.05.tar.gz"

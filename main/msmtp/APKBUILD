@@ -1,33 +1,35 @@
 # Contributor: Natanael Copa <ncopa@alpinelinux.org>
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 pkgname=msmtp
-pkgver=1.8.2
-pkgrel=0
+pkgver=1.8.7
+pkgrel=1
 pkgdesc="SMTP client with a sendmail compatible interface"
 url="https://marlam.de/msmtp/"
 arch="all"
 license="GPL-3.0-or-later"
 options="!check" # no test suite
 makedepends="gettext-dev gnutls-dev"
-subpackages="$pkgname-doc $pkgname-lang $pkgname-vim:vim:noarch"
-source="https://marlam.de/msmtp/releases/$pkgname-$pkgver.tar.xz"
+subpackages="$pkgname-doc $pkgname-lang $pkgname-openrc $pkgname-vim:vim:noarch"
+source="https://marlam.de/msmtp/releases/msmtp-$pkgver.tar.xz
+	msmtp.confd
+	msmtp.initd"
 
 build() {
-	cd "$builddir"
 	./configure \
 		--build=$CBUILD \
 		--host=$CHOST \
 		--prefix=/usr \
 		--sysconfdir=/etc \
 		--mandir=/usr/share/man \
-		--localstatedir=/var \
-		--with-ssl=gnutls
+		--localstatedir=/var
 	make
 }
 
 package() {
-	cd "$builddir"
 	make DESTDIR="$pkgdir" install
+
+	install -Dm755 "$srcdir/$pkgname.initd" "$pkgdir/etc/init.d/$pkgname"
+	install -Dm644 "$srcdir/$pkgname.confd" "$pkgdir/etc/conf.d/$pkgname"
 }
 
 vim() {
@@ -38,4 +40,6 @@ vim() {
 		"$subpkgdir"/usr/share/vim/vimfiles/syntax/$pkgname.vim
 }
 
-sha512sums="1f37be6f6bb01ddb3ba202673d7ba6457e6e9d8cfb718fdb5e9c19162b85e08c1487f160011775e626df0e37c414dcfbb20380d14084fbe80c46287eec15f5e6  msmtp-1.8.2.tar.xz"
+sha512sums="5a079cb90b48853ad812125e8b341f5bcd5f5ba4725d62c37210050896527b63f993aa6393f1d4107636153bf0ed84b0288e88a7e78a119c66b2d58f1e69a67d  msmtp-1.8.7.tar.xz
+3839d7e8400cf897830c674f59563e225096d9755121d1ac14f3b493ab4cc0672228a9b14b9d9620d566593e2ae27d322a78c46791c6b5166ab82275d25dc0d3  msmtp.confd
+0e1b32b07ccac6f5a174a1e317390815b459a4a7ca4f15672456ac0a30c89edb93001a8047c38d1f8da65b9f07a7b17b3270a0a07248a6be248500cd42773cef  msmtp.initd"

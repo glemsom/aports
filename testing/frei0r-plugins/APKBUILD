@@ -1,39 +1,34 @@
 # Contributor: Carlo Landmeter <clandmeter@gmail.com>
 # Maintainer:
 pkgname=frei0r-plugins
-pkgver=1.5.0
-pkgrel=2
+pkgver=1.7.0
+pkgrel=0
 pkgdesc="A minimalistic plugin API for video sources and filters"
-url="http://www.piksel.org/frei0r"
+url="https://frei0r.dyne.org/"
 arch="all"
 options="!check"  # No test suite.
-license="GPL-2.0+"
-depends=""
-makedepends="opencv-dev gavl-dev file cairo-dev doxygen
-	automake autoconf libtool"
-install=""
-subpackages="$pkgname-dev $pkgname-doc"
+license="GPL-2.0-or-later"
+makedepends="cmake gavl-dev cairo-dev"
+subpackages="$pkgname-dev"
 source="https://files.dyne.org/frei0r/releases/frei0r-plugins-$pkgver.tar.gz"
 
-prepare() {
-	default_prepare
-	cd "$builddir"
-	touch README AUTHORS ChangeLog TODO
-	autoreconf -i
-}
-
 build() {
-	cd "$builddir"
-	./configure \
-		--build=$CBUILD \
-		--host=$CHOST \
-		--prefix=/usr
+	if [ "$CBUILD" != "$CHOST" ]; then
+		CMAKE_CROSSOPTS="-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_HOST_SYSTEM_NAME=Linux"
+	fi
+	mkdir build && cd build
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DBUILD_SHARED_LIBS=True \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_CXX_FLAGS="$CXXFLAGS" \
+		-DCMAKE_C_FLAGS="$CFLAGS" \
+		${CMAKE_CROSSOPTS} ..
 	make
 }
 
 package() {
-	cd "$builddir"
-	make DESTDIR="$pkgdir" install
+	make -C build DESTDIR="$pkgdir" install
 }
 
-sha512sums="9be0384421ff5ac9000dcda9acefb5cb2b6dc05ea72d9771fae990cb5fad4424dcef8dd15c1e5031a89169f914af8c7a30e47934ad007a3bc0150f3c005bc6bf  frei0r-plugins-1.5.0.tar.gz"
+sha512sums="8c80e8e0ce8c302e633ea1f6ff4e2a141fd7a8bcb7fce25dc7f1f6521be11258a3efa1074c224c7323e6a17bc405413385be193a5c787e2f276252b50477ebce  frei0r-plugins-1.7.0.tar.gz"

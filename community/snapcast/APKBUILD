@@ -1,42 +1,47 @@
 # Contributor: Carlo Landmeter <clandmeter@gmail.com>
 # Maintainer: Bart Ribbers <bribbers@disroot.org>
 pkgname=snapcast
-pkgver=0.15.0
-pkgrel=4
+pkgver=0.18.1
+pkgrel=0
 pkgdesc="Synchronous multi-room audio player"
 url="https://github.com/badaix/snapcast"
 arch="all"
-license="GPL-3.0"
+license="GPL-3.0-or-later"
 depends="$pkgname-client $pkgname-server"
-makedepends="asio-dev bash avahi-dev flac-dev libvorbis-dev alsa-lib-dev aixlog popl"
+makedepends="cmake asio-dev avahi-dev flac-dev libvorbis-dev alsa-lib-dev opus-dev"
 pkgusers="$pkgname"
 pkggroups="$pkgname audio"
 install="$pkgname-client.pre-install $pkgname-server.pre-install"
 subpackages="$pkgname-doc $pkgname-client $pkgname-server"
-source="$pkgname-$pkgver.tar.gz::https://github.com/badaix/$pkgname/archive/v$pkgver.tar.gz
-	respect-optimization-level.patch
-
+source="$pkgname-$pkgver.tar.gz::https://github.com/badaix/snapcast/archive/v$pkgver.tar.gz
 	$pkgname-client.initd
 	$pkgname-client.confd
 	$pkgname-server.initd
 	$pkgname-server.confd
 	"
-builddir="$srcdir/$pkgname-$pkgver"
+options="!check" # No testsuite
 
 build() {
-	cd "$builddir"
+	cmake \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DBUILD_WITH_FLAC=ON \
+		-DBUILD_WITH_VORBIS=ON \
+		-DBUILD_WITH_OPUS=ON \
+		-DBUILD_WITH_AVAHI=ON
 	make
 }
 
 check() {
-	cd "$builddir"
-	client/snapclient --help > /dev/null
-	server/snapserver --help > /dev/null
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest
 }
 
 package() {
-	cd "$builddir"
-	make DESTDIR="$pkgdir" installclient installserver
+	DESTDIR="$pkgdir" make install
+
+	mkdir -p "$pkgdir"/usr/share/man/man1
+	install client/snapclient.1 "$pkgdir"/usr/share/man/man1/snapclient.1.gz
+	install server/snapserver.1 "$pkgdir"/usr/share/man/man1/snapserver.1.gz
 }
 
 client() {
@@ -47,9 +52,9 @@ client() {
 
 	mv "$pkgdir"/usr/bin/snapclient \
 		"$subpkgdir"/usr/bin/
-	install -Dm755 "$srcdir"/"$subpkgname.initd" \
+	install -Dm755 "$srcdir/$subpkgname.initd" \
 		"$subpkgdir"/etc/init.d/"$subpkgname"
-	install -Dm644 "$srcdir"/"$subpkgname.confd" \
+	install -Dm644 "$srcdir/$subpkgname.confd" \
 		"$subpkgdir"/etc/conf.d/"$subpkgname"
 }
 
@@ -61,14 +66,13 @@ server() {
 
 	mv "$pkgdir"/usr/bin/snapserver \
 		"$subpkgdir"/usr/bin/
-	install -Dm755 "$srcdir"/"$subpkgname.initd" \
+	install -Dm755 "$srcdir/$subpkgname.initd" \
 		"$subpkgdir"/etc/init.d/"$subpkgname"
-	install -Dm644 "$srcdir"/"$subpkgname.confd" \
+	install -Dm644 "$srcdir/$subpkgname.confd" \
 		"$subpkgdir"/etc/conf.d/"$subpkgname"
 }
 
-sha512sums="3751eeaa9be4ffd5c7633b8770f36e87360ab83004f090a8350e377f60a79d9502b92b92c5c9c35f513705e6484d113de9942f0a896824d7c5f806ba0010e84e  snapcast-0.15.0.tar.gz
-85792a3edf8de76228d8114992f6fdfba6321aeca29d1f773038e88b96e1d6cdf9b6e3993eb09da934c8f561977827cb57f4b435c99405e5a2b4645edd2b5bd2  respect-optimization-level.patch
+sha512sums="047ca4a6532f2486387464d473c3e253d316fb64896f1a7cc10c61f7c153da9b76903c077cc71f7071423b8153b7b38348485cbe52544b11fe377653fe78cc58  snapcast-0.18.1.tar.gz
 833ce6a5fecb023f32df340df98b5cfbecc765735d7133228dd703a6a0c7f2b67ac95aa787ac7119a2eb87e768e5c4deb12738d0b0354db3510d9047f9e9b24f  snapcast-client.initd
 fa353d7974d3a8b3b22ff009b762c7c4ee318f9f83e22762a9ebf550484b9fc3cc4dffd389b6d756630dc035cb86d5c5643541957785f8bbf71fe4915691c337  snapcast-client.confd
 ff610e08274d317e0df9590de47f3425d23a38528f82b9998de04d73cf2167ddb6aad237ddce9864b6c36fff959afb6a892c554ce40fd3e3d62c1308b022b2bb  snapcast-server.initd

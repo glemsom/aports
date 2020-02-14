@@ -1,0 +1,31 @@
+# Maintainer: Leonardo Arena <rnalrd@alpinelinux.org>
+pkgname=py3-tappy
+_pkgname=tap.py
+pkgver=2.6.2
+pkgrel=0
+pkgdesc="Python3 Test Anything Protocol (TAP) tools"
+url="https://github.com/python-tap/tappy"
+arch="noarch"
+license="BSD-2-Clause"
+depends="python3"
+makedepends="py3-setuptools py3-babel"
+source="$pkgname-$pkgver.tar.gz::https://files.pythonhosted.org/packages/source/t/tap.py/tap.py-$pkgver.tar.gz"
+options="!check" # no test suite
+builddir="$srcdir/tap.py-$pkgver"
+
+replaces="py-tappy" # Backwards compatibility
+provides="py-tappy=$pkgver-r$pkgrel" # Backwards compatibility
+
+build() {
+	cd "$builddir"
+	python3 setup.py build
+}
+
+package() {
+	cd "$builddir"
+	python3 setup.py install --prefix=/usr --root="$pkgdir"
+}
+
+
+
+sha512sums="2cd0b1b69f155970cf2367766cca96bc8391e074edc754531f0511c3dd027a0a8e95bb8481b627b2610ec9b5f685ebff95f07f5f97eb31c321d96590286be803  py3-tappy-2.6.2.tar.gz"

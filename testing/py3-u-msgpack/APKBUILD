@@ -1,0 +1,31 @@
+# Contributor: Stefan Wagner <stw@bit-strickerei.de>
+# Maintainer: Stefan Wagner <stw@bit-strickerei.de>
+pkgname=py3-u-msgpack
+_pkgname=u-msgpack-python
+pkgver=2.5.2
+pkgrel=1
+pkgdesc="A portable, lightweight MessagePack serializer and deserializer written in pure Python."
+url="https://github.com/vsergeev/u-msgpack-python"
+arch="noarch"
+license="MIT"
+checkdepends="py3-pytest"
+makedepends="py3-setuptools"
+source="$pkgname-$pkgver.tar.gz::https://github.com/vsergeev/$_pkgname/archive/v$pkgver.tar.gz"
+builddir="$srcdir/$_pkgname-$pkgver"
+
+replaces="py-u-msgpack" # Backwards compatibility
+provides="py-u-msgpack=$pkgver-r$pkgrel" # Backwards compatibility
+
+build() {
+	python3 setup.py build
+}
+
+check() {
+	python3 setup.py test
+}
+
+package() {
+	python3 setup.py install --prefix=/usr --root="$pkgdir"
+}
+
+sha512sums="6d249ae59d07a6ad591fa921d16d56b1f29fb2eb54e8c0d4e8c0819d8265c01e41563f6523424a5f66b42c218afb392e10d120c57c0a4d96c54e90e11f891dde  py3-u-msgpack-2.5.2.tar.gz"

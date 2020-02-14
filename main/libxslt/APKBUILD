@@ -1,20 +1,31 @@
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 # Contributor: Francesco Colista <fcolista@alpinelinux.org>
 pkgname=libxslt
-pkgver=1.1.32
+pkgver=1.1.34
 pkgrel=0
 pkgdesc="XML stylesheet transformation library"
 url="http://xmlsoft.org/XSLT/"
 arch="all"
 license="custom"
-makedepends="libxml2-dev libgcrypt-dev libgpg-error-dev python2-dev"
-subpackages="$pkgname-dev $pkgname-doc py2-$pkgname:py2"
-source="http://xmlsoft.org/sources/$pkgname-$pkgver.tar.gz"
-builddir="$srcdir/$pkgname-$pkgver"
+makedepends="libxml2-dev libgcrypt-dev libgpg-error-dev"
+subpackages="$pkgname-dev $pkgname-doc"
+source="http://xmlsoft.org/sources/libxslt-$pkgver.tar.gz"
 
 # secfixes:
+#   1.1.34-r0:
+#     - CVE-2019-13117
+#     - CVE-2019-13118
+#   1.1.33-r3:
+#     - CVE-2019-18197
+#   1.1.33-r1:
+#     - CVE-2019-11068
 #   1.1.29-r1:
 #     - CVE-2017-5029
+
+prepare() {
+	default_prepare
+	chmod 644 python/tests/*
+}
 
 build() {
 	cd "$builddir"
@@ -32,14 +43,4 @@ package() {
 	make DESTDIR="$pkgdir" install
 	install -D -m644 COPYING "$pkgdir"/usr/share/licenses/$pkgname/COPYING
 }
-
-py2() {
-	pkgdesc="$pkgname python2 bindings"
-	provides="py-libxslt=$pkgver-r$pkgrel"  # for backward compatibility
-	replaces="py-libxslt"  # for backward compatibility
-
-	install -d "$subpkgdir"/usr/lib
-	mv "$pkgdir"/usr/lib/python* "$subpkgdir"/usr/lib/
-}
-
-sha512sums="e1ed3c103cd4c9897e7dd2360a11f63cf30382b7566ce6fcc81117804e203714446b5a62179ce628c3834b0b32ecdeeceecbdfa417507ce9ed5a107a0ebefb39  libxslt-1.1.32.tar.gz"
+sha512sums="1516a11ad608b04740674060d2c5d733b88889de5e413b9a4e8bf8d1a90d712149df6d2b1345b615f529d7c7d3fa6dae12e544da828b39c7d415e54c0ee0776b  libxslt-1.1.34.tar.gz"

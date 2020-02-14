@@ -1,0 +1,25 @@
+# Contributor: Leo <thinkabit.ukim@gmail.com>
+# Maintainer: Leo <thinkabit.ukim@gmail.com>
+pkgname=broot
+pkgver=0.13.1
+pkgrel=0
+pkgdesc="New way to see and navigate directory trees"
+url="https://github.com/Canop/broot"
+arch="all !s390x"
+license="MIT"
+makedepends="cargo"
+source="$pkgname-$pkgver.tar.gz::https://crates.io/api/v1/crates/broot/$pkgver/download"
+
+build() {
+	cargo build --release --locked
+}
+
+check() {
+	cargo test --release --locked
+}
+
+package() {
+	install -Dm0755 target/release/broot "$pkgdir"/usr/bin/broot
+}
+
+sha512sums="40df15fd3de384cf122fcb81dd24f429a8ccfb5016e5969c4d4d1d4b845c28f1fa5f31127517386e05057769d78cc4163a5076138a7d045da44f64d99660b3dc  broot-0.13.1.tar.gz"

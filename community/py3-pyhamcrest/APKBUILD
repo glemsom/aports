@@ -1,0 +1,37 @@
+# Contributor: prspkt <prspkt@protonmail.com>
+# Maintainer: prspkt <prspkt@protonmail.com>
+pkgname=py3-pyhamcrest
+_pkgname=PyHamcrest
+pkgver=2.0.0
+pkgrel=0
+pkgdesc="Hamcrest framework for matcher objects"
+url="https://github.com/hamcrest/PyHamcrest"
+arch="noarch"
+license="BSD-3-Clause"
+depends="py3-six"
+makedepends="py3-setuptools"
+checkdepends="py3-hypothesis py3-mock py3-pytest"
+source="$_pkgname-$pkgver.tar.gz::https://github.com/hamcrest/PyHamcrest/archive/V$pkgver.tar.gz"
+builddir="$srcdir/"$_pkgname-$pkgver
+
+replaces="py3-hamcrest" # Backwards compatibility
+provides="py3-hamcrest=$pkgver-r$pkgrel" # Backwards compatibility
+
+prepare() {
+	default_prepare
+	rm -f pytest.ini
+}
+
+build() {
+	python3 setup.py build
+}
+
+check() {
+	PYTHONPATH="build/lib" py.test-3
+}
+
+package() {
+	python3 setup.py install --prefix=/usr --root="$pkgdir"
+}
+
+sha512sums="32683422c92f27ffbdb081cfeb588a81bd299fd965e3fdd67a5aca2900e0a89da0fa217b22f4333511831921953519d75861b18fcb164d1ec6cacf13994df5e3  PyHamcrest-2.0.0.tar.gz"

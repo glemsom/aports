@@ -1,0 +1,32 @@
+# Contributor: Francesco Colista <fcolista@alpinelinux.org>
+# Maintainer: Francesco Colista <fcolista@alpinelinux.org>
+pkgname=seahorse
+pkgver=3.34.1
+pkgrel=0
+pkgdesc="GNOME application for managing PGP keys."
+url="https://projects.gnome.org/seahorse/"
+arch="all"
+license="GPL-2.0-or-later"
+depends="openssh dconf"
+makedepends="vala libxml2-utils
+	yelp-tools intltool itstool gpgme-dev libsoup-dev
+	libsm-dev libsecret-dev gobject-introspection
+	gtk+3.0-dev gcr-dev glib-dev meson ninja
+	cmake libpwquality-dev openldap-dev avahi-dev"
+subpackages="$pkgname-lang $pkgname-doc"
+source="https://download.gnome.org/sources/seahorse/${pkgver%.*}/seahorse-$pkgver.tar.xz"
+
+build() {
+	meson --prefix=/usr --buildtype=debugoptimized builddir
+	ninja -C builddir
+}
+
+check() {
+	meson test -C builddir
+}
+
+package() {
+	DESTDIR="$pkgdir" meson install -C builddir
+}
+
+sha512sums="d2dff7d73a0968c1a5a8d39460f08b67f6794f22812200f564ef719354ab5cc2dac2213cba0d4bc10a455aecb9f55de8ff39943db4482beaac9cfdc2ca1012b8  seahorse-3.34.1.tar.xz"

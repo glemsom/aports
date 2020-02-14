@@ -1,0 +1,52 @@
+# Contributor: Leo <thinkabit.ukim@gmail.com>
+# Maintainer:
+pkgname=appstream
+pkgver=0.12.10
+pkgrel=0
+pkgdesc="Provides a standard for creating app stores across distributions"
+url="https://distributions.freedesktop.org/wiki/AppStream"
+arch="all"
+license="LGPL-2.1-or-later AND GPL-2.0-or-later"
+makedepends="meson yaml-dev libxml2-dev glib-dev lmdb-dev gobject-introspection-dev
+	gperf qt5-qtbase-dev libsoup-dev"
+triggers="$pkgname.trigger=/usr/share/app-info/*"
+install="$pkgname.post-install $pkgname.post-upgrade"
+subpackages="$pkgname-dev $pkgname-doc $pkgname-qt $pkgname-lang"
+source="https://www.freedesktop.org/software/appstream/releases/AppStream-$pkgver.tar.xz"
+builddir="$srcdir/AppStream-$pkgver"
+
+build() {
+	meson \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--localstatedir=/var \
+		--buildtype=debugoptimized \
+		-Dqt=true \
+		-Ddocs=false \
+		-Dapidocs=false \
+		-Dinstall-docs=false \
+		-Dstemming=false \
+		-Dvapi=false \
+		-Dapt-support=false \
+		-Dgir=true \
+		. output
+	ninja -C output
+}
+
+check() {
+	ninja -C output test
+}
+
+package() {
+	DESTDIR="$pkgdir" ninja -C output install
+}
+
+qt() {
+	pkgdesc="Qt5 interface for AppStream"
+	license="LGPL-2.1-or-later"
+
+	mkdir -p "$subpkgdir"/usr/lib
+	mv "$pkgdir"/usr/lib/libAppStreamQt.so.* "$subpkgdir"/usr/lib
+}
+sha512sums="5cd7da7adbd035947bde6a6d7655dc2f7c1be25cef102e51ef88e8f684a83b196a41b440edaabdd89da69a9117a26dad30e548b86b50f324f0ba70eef95a6060  AppStream-0.12.10.tar.xz"

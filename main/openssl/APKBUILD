@@ -1,32 +1,39 @@
 # Maintainer: Timo Teras <timo.teras@iki.fi>
 pkgname=openssl
-pkgver=1.1.1a
+pkgver=1.1.1d
 _abiver=${pkgver%.*}
-pkgrel=1
+pkgrel=4
 pkgdesc="Toolkit for Transport Layer Security (TLS)"
-url="https://www.openssl.org"
+url="https://www.openssl.org/"
 arch="all"
 license="OpenSSL"
 replaces="libressl"
 makedepends_build="perl"
 makedepends_host="linux-headers"
 makedepends="$makedepends_host $makedepends_build"
-subpackages="$pkgname-dbg $pkgname-dev $pkgname-doc libcrypto$_abiver:_libcrypto libssl$_abiver:_libssl"
-source="https://www.openssl.org/source/openssl-$pkgver.tar.gz"
-case "$CARCH" in
-s390x) options="$options !check";; # FIXME: test hangs
-esac
+subpackages="$pkgname-dbg $pkgname-libs-static $pkgname-dev $pkgname-doc
+	libcrypto$_abiver:_libcrypto libssl$_abiver:_libssl"
+source="https://www.openssl.org/source/openssl-$pkgver.tar.gz
+	man-section.patch
+	CVE-2019-1551.patch
+	"
 
-builddir="$srcdir/openssl-$pkgver"
 
 # secfixes:
-#   1.1.a-r0:
+#   1.1.1d-r3:
+#     - CVE-2019-1551
+#   1.1.1d-r1:
+#     - CVE-2019-1547
+#     - CVE-2019-1549
+#     - CVE-2019-1563
+#   1.1.1b-r1:
+#     - CVE-2019-1543
+#   1.1.1a-r0:
 #     - CVE-2018-0734
 #     - CVE-2018-0735
 
 build() {
 	local _target _optflags
-	cd "$builddir"
 
 	# openssl will prepend crosscompile always core CC et al
 	CC=${CC#${CROSS_COMPILE}}
@@ -35,21 +42,21 @@ build() {
 
 	# determine target OS for openssl
 	case "$CARCH" in
-	aarch64*) _target="linux-aarch64" ;;
-	arm*)   _target="linux-armv4" ;;
-	mips64*) _target="linux64-mips64" ;;
-	# explicit _optflags is needed to prevent automatic -mips3 addition
-	mips*) _target="linux-mips32"; _optflags="-mips32" ;;
-	ppc64le) _target="linux-ppc64le" ;;
-	x86)    _target="linux-elf" ;;
-	x86_64) _target="linux-x86_64"; _optflags="enable-ec_nistp_64_gcc_128" ;;
-	s390x)	_target="linux64-s390x";;
-	*)	msg "Unable to determine architecture from (CARCH=$CARCH)" ; return 1 ;;
+		aarch64*)	_target="linux-aarch64" ;;
+		arm*)		_target="linux-armv4" ;;
+		mips64*)	_target="linux64-mips64" ;;
+		# explicit _optflags is needed to prevent automatic -mips3 addition
+		mips*)		_target="linux-mips32"; _optflags="-mips32" ;;
+		ppc64le)	_target="linux-ppc64le" ;;
+		x86)		_target="linux-elf" ;;
+		x86_64)		_target="linux-x86_64"; _optflags="enable-ec_nistp_64_gcc_128" ;;
+		s390x) 		_target="linux64-s390x";;
+		*)		msg "Unable to determine architecture from (CARCH=$CARCH)" ; return 1 ;;
 	esac
 
 	# Configure assumes --options are for it, so can't use
 	# gcc's --sysroot fake this by overriding CC
-	[ -n "$CBUILDROOT" ] && CC="$CC --sysroot=${CBUILDROOT}"
+	[ -n "$CBUILDROOT" ] && CC="$CC --sysroot=$CBUILDROOT"
 
 	perl ./Configure $_target --prefix=/usr \
 		--libdir=lib \
@@ -63,12 +70,10 @@ build() {
 }
 
 check() {
-	cd "$builddir"
 	make test
 }
 
 package() {
-	cd "$builddir"
 	make DESTDIR="$pkgdir" install
 	# remove the script c_rehash
 	rm "$pkgdir"/usr/bin/c_rehash
@@ -101,4 +106,6 @@ _libssl() {
 	done
 }
 
-sha512sums="1523985ba90f38aa91aa6c2d57652f4e243cb2a095ce6336bf34b39b5a9b5b876804299a6825c758b65990e57948da532cca761aa12b10958c97478d04dd6d34  openssl-1.1.1a.tar.gz"
+sha512sums="2bc9f528c27fe644308eb7603c992bac8740e9f0c3601a130af30c9ffebbf7e0f5c28b76a00bbb478bad40fbe89b4223a58d604001e1713da71ff4b7fe6a08a7  openssl-1.1.1d.tar.gz
+3e5c425d219768721d38bb33db7445eb3ea12d9447a16c5b23b9fddfcbd9d40b98b39506aeac9cbaced4be22ad5a6cb8e4d16fbe4850ac50a6b0c716592b2a2b  man-section.patch
+11ca61515a89766241fe0fae27f3b39767128915f288ea88840bf93e8b50ac416024cb2153efcdf2658d3e82a8e4250a0c069333dbd7347475f9dafcc45370b5  CVE-2019-1551.patch"

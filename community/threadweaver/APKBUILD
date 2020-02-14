@@ -1,0 +1,41 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=threadweaver
+pkgver=5.67.0
+pkgrel=0
+pkgdesc="High-level multithreading framework"
+arch="all !armhf" # armhf blocked by qt5-qtdeclarative
+url="https://community.kde.org/Frameworks"
+license="LGPL-2.1-only"
+depends_dev="qt5-qtbase-dev qt5-qtdeclarative-dev"
+makedepends="$depends_dev extra-cmake-modules qt5-qttools-dev doxygen"
+source="https://download.kde.org/stable/frameworks/${pkgver%.*}/threadweaver-$pkgver.tar.xz"
+subpackages="$pkgname-dev $pkgname-doc"
+
+prepare() {
+	default_prepare
+
+	mkdir "$builddir"/build
+}
+
+build() {
+	cd "$builddir"/build
+	cmake "$builddir" \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DBUILD_QCH=ON
+	make
+}
+
+check() {
+	cd "$builddir"/build
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest
+}
+
+package() {
+	cd "$builddir"/build
+	DESTDIR="$pkgdir" make install
+}
+
+sha512sums="0fc05c6a1656608952b83286768ab9d5a8ec6be526756a95b08874f775521f7a65faaaad18b55d34e8e24eb54fb252f6c467782e0d2a861b710d9b7467e64f0d  threadweaver-5.67.0.tar.xz"

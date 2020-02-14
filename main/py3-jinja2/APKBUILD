@@ -1,0 +1,48 @@
+# Contributor: Matt Smith <mcs@darkregion.net>
+# Maintainer: Matt Smith <mcs@darkregion.net>
+pkgname=py3-jinja2
+_pkgname=Jinja2
+pkgver=2.11.1
+pkgrel=0
+pkgdesc="A small but fast and easy to use stand-alone python template engine"
+url="https://palletsprojects.com/p/jinja/"
+arch="noarch"
+license="BSD-3-Clause"
+depends="py3-markupsafe"
+checkdepends="py3-pytest"
+makedepends="python3-dev py3-setuptools"
+subpackages="$pkgname-doc $pkgname-vim"
+source="https://files.pythonhosted.org/packages/source/${_pkgname:0:1}/$_pkgname/$_pkgname-$pkgver.tar.gz"
+builddir="$srcdir/$_pkgname-$pkgver"
+
+build() {
+	python3 setup.py build
+}
+
+check() {
+	PYTHONPATH="$builddir/src" python3 -m pytest .
+}
+
+package() {
+	python3 setup.py install --prefix=/usr --root="$pkgdir"
+
+	local docdir="$pkgdir/usr/share/doc/$pkgname"
+	# Note: The documentation in the docs directory needs to be generated
+	# by py-sphinx, however, this package (py-jinja2) is a dependency of
+	# Sphinx itself!
+	mkdir -p "$docdir"
+	cp -R docs examples "$docdir"/
+
+	install -m 644 -D LICENSE.rst "$pkgdir"/usr/share/licenses/$pkgname/LICENSE.rst
+}
+
+vim() {
+	pkgdesc="Vim syntax for Jinja2"
+	depends="vim"
+	install_if="$pkgname=$pkgver-r$pkgrel vim"
+
+	install -m 644 -D "$builddir"/ext/Vim/jinja.vim \
+		"$subpkgdir"/usr/share/vim/vimfiles/syntax/jinja.vim
+}
+
+sha512sums="a9b7c1c0151f3b1a0764dc36f489104f30cc84f61d81cf018d7a5e9b5390ad07eb27d3d3d497812ea4130ddbd9142060117947c3283b1a646ce196709183ada6  Jinja2-2.11.1.tar.gz"

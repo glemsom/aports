@@ -1,0 +1,31 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=kanagram
+pkgver=19.12.2
+pkgrel=0
+arch="all !armhf" # armhf blocked by qt5-qtdeclarative
+url="https://edu.kde.org/kanagram/"
+pkgdesc="Letter Order Game"
+license="GPL-2.0-or-later AND GFDL-1.2-only"
+makedepends="extra-cmake-modules qt5-qtbase-dev qt5-qtdeclarative-dev ki18n-dev kcrash-dev sonnet-dev kconfig-dev kconfigwidgets-dev kcoreaddons-dev kdeclarative-dev kdoctools-dev kio-dev knewstuff-dev libkeduvocdocument-dev"
+source="https://download.kde.org/stable/release-service/$pkgver/src/kanagram-$pkgver.tar.xz"
+subpackages="$pkgname-doc $pkgname-lang"
+options="!check" # No tests
+
+build() {
+	cmake \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest
+}
+
+package() {
+	DESTDIR="$pkgdir" make install
+}
+
+sha512sums="f426ea393f02cc6de9dc1fab562d08e071b81a280a4ae20b89316ef38f0088b3c834bc9d514b4fc155fb3a997ec34272199d2507f7c576677c9c2a5fb5fe8166  kanagram-19.12.2.tar.xz"

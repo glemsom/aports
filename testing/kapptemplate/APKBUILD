@@ -1,0 +1,30 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=kapptemplate
+pkgver=19.12.2
+pkgrel=0
+arch="all !armhf"
+url="https://kde.org/applications/development/org.kde.kapptemplate"
+pkgdesc="Factory for the easy creation of KDE/Qt components and programs"
+license="GPL-2.0-or-lateri AND GFDL-1.2-only"
+makedepends="extra-cmake-modules qt5-qtbase-dev kcoreaddons-dev kconfigwidgets-dev kcompletion-dev karchive-dev kio-dev ki18n-dev kdoctools-dev"
+source="https://download.kde.org/stable/release-service/$pkgver/src/kapptemplate-$pkgver.tar.xz"
+subpackages="$pkgname-doc $pkgname-lang"
+
+build() {
+	cmake \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest
+}
+
+package() {
+	DESTDIR="$pkgdir" make install
+}
+
+sha512sums="5ea42d9364b6da766658a2ae5720f30b9fe1090bf62643d9b5f80001db05d05b1ba1ba2dcafcb886749338ad8a187be7f68cee509389b5f1ddf2f6dc24ebd5f2  kapptemplate-19.12.2.tar.xz"

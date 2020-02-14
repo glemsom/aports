@@ -1,48 +1,30 @@
-# Contributor: William Pitcock <nenolod@dereferenced.org>
+# Contributor:
 # Maintainer: Francesco Colista <fcolista@alpinelinux.org>
 pkgname=phonon
-pkgver=4.10.1
-pkgrel=0
+pkgver=4.11.1
+pkgrel=1
 pkgdesc="KDE multimedia backend"
 url="https://phonon.kde.org/"
-arch="all"
-license="LGPL"
-depends=
-depends_dev="glib-dev"
-makedepends="glib-dev qt-dev cmake automoc4"
-install=""
-subpackages="$pkgname-dev"
-source="http://download.kde.org/stable/phonon/${pkgver}/phonon-$pkgver.tar.xz"
-
+arch="all !armhf" # armhf blocked by qt5-qtdeclarative
+license="LGPL-2.1-or-later"
+depends_dev="qt5-qtdeclarative-dev glib-dev"
+makedepends="$depends_dev extra-cmake-modules qt5-qtbase-dev qt5-qttools-dev"
+subpackages="$pkgname-dev $pkgname-lang"
+source="http://download.kde.org/stable/phonon/$pkgver/phonon-$pkgver.tar.xz"
 options="!check" # No test configuration file found!
 
-_builddir="$srcdir"/phonon-$pkgver
-prepare() {
-	local i
-	cd "$_builddir"
-	for i in $source; do
-		case $i in
-		*.patch) msg $i; patch -p1 -i "$srcdir"/$i || return 1;;
-		esac
-	done
-	mkdir -p "$_builddir"/build
-}
-
 build() {
-	cd "$_builddir"/build
-	cmake -DCMAKE_INSTALL_PREFIX=/usr \
-	      -DCMAKE_BUILD_TYPE=Release \
-	      -DCMAKE_INSTALL_LIBDIR=lib \
-	      -DPHONON_INSTALL_QT_EXTENSIONS_INTO_SYSTEM_QT=FALSE \
-	      -DDBUS_INTERFACES_INSTALL_DIR=/usr/share/dbus-1/interfaces \
-	      -Wno-dev \
-	      "$_builddir" || return 1
-	make || return 1
+	cmake \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DPHONON_INSTALL_QT_EXTENSIONS_INTO_SYSTEM_QT=FALSE \
+		-DPHONON_BUILD_PHONON4QT5=ON
+	make
 }
 
 package() {
-	cd "$_builddir"/build
-	make DESTDIR="$pkgdir" install || return 1
+	DESTDIR="$pkgdir" make install
 }
 
-sha512sums="a1cc0960c587d09a2fb0f43ae82147df133c34cba7bf01f5720b4b27aca4dda1d83444e89e40fb2f25828d152f89ccfff56d2d4649007c57b7df9eca8c64c007  phonon-4.10.1.tar.xz"
+sha512sums="858b2b0d7b0336af76d226b30f3acd1914e7297e0879d5a417fa1b87b13c812f9aab7e20adcad33ce1a03624ce78323dd9968b4b277caf85f800ca60aa134f74  phonon-4.11.1.tar.xz"

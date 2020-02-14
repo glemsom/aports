@@ -6,7 +6,7 @@ TARGET_ARCH="$1"
 SUDO_APK=abuild-apk
 
 # optional cross build packages
-KERNEL_PKG="linux-firmware linux-vanilla"
+KERNEL_PKG="linux-firmware linux-lts"
 
 # get abuild configurables
 [ -e /usr/share/abuild/functions.sh ] || (echo "abuild not found" ; exit 1)
@@ -14,6 +14,7 @@ CBUILDROOT="$(CTARGET=$TARGET_ARCH . /usr/share/abuild/functions.sh ; echo $CBUI
 . /usr/share/abuild/functions.sh
 [ -z "$CBUILD_ARCH" ] && die "abuild is too old (use 2.29.0 or later)"
 [ -z "$CBUILDROOT" ] && die "CBUILDROOT not set for $TARGET_ARCH"
+export CBUILD
 
 # deduce aports directory
 [ -z "$APORTS" ] && APORTS=$(realpath $(dirname $0)/../)
@@ -46,7 +47,7 @@ Steps for introducing new architecture include:
 - adding the arch type detection to apk-tools
 - adjusting build rules for packages that are arch aware:
   gcc, openssl, linux-headers
-- create new kernel config for linux-vanilla
+- create new kernel config for linux-lts
 
 After these steps the initial cross-build can be completed
 by running this with the target arch as parameter, e.g.:
@@ -90,35 +91,33 @@ CTARGET=$TARGET_ARCH BOOTSTRAP=nobase APKBUILD=$(apkbuildname build-base) abuild
 
 msg "Cross building base system"
 
-# add implicit target prerequisite packages
-apk info --quiet --installed --root "$CBUILDROOT" libgcc libstdc++ musl-dev || \
-	${SUDO_APK} --root "$CBUILDROOT" add --repository "$REPODEST/main" libgcc libstdc++ musl-dev
+# Implicit dependencies for early targets
+EXTRADEPENDS_TARGET="libgcc libstdc++ musl-dev"
 
 # ordered cross-build
 for PKG in fortify-headers linux-headers musl libc-dev pkgconf zlib \
-	   openssl libbsd libtls-standalone busybox busybox-initscripts binutils make \
+	   openssl ca-certificates libbsd libtls-standalone busybox busybox-initscripts binutils make \
 	   apk-tools file \
-	   gmp mpfr3 mpc1 isl cloog gcc \
+	   gmp mpfr4 mpc1 isl cloog gcc \
 	   openrc alpine-conf alpine-baselayout alpine-keys alpine-base build-base \
 	   attr libcap patch sudo acl fakeroot tar \
-	   pax-utils lzip abuild openssh \
-	   ncurses libcap-ng util-linux libaio lvm2 popt xz \
+	   pax-utils lzip abuild ncurses libedit openssh \
+	   libcap-ng util-linux libaio lvm2 popt xz \
 	   json-c argon2 cryptsetup kmod lddtree mkinitfs \
 	   community/go libffi community/ghc \
 	   $KERNEL_PKG ; do
 
+	EXTRADEPENDS_TARGET="$EXTRADEPENDS_TARGET" \
 	CHOST=$TARGET_ARCH BOOTSTRAP=bootimage APKBUILD=$(apkbuildname $PKG) abuild -r
 
 	case "$PKG" in
-	fortify-headers | libc-dev | build-base)
-		# headers packages which are implicit but mandatory dependency
-		apk info --quiet --installed --root "$CBUILDROOT" $PKG || \
-			${SUDO_APK} --update --root "$CBUILDROOT" --repository "$REPODEST/main" add $PKG
+	fortify-headers | libc-dev)
+		# Additional implicit dependencies once built
+		EXTRADEPENDS_TARGET="$EXTRADEPENDS_TARGET $PKG"
 		;;
-	musl | gcc)
-		# target libraries rebuilt, force upgrade
-		[ "$(apk upgrade --root "$CBUILDROOT" --repository "$REPODEST/main" --available --simulate | wc -l)" -gt 1 ] &&
-			${SUDO_APK} upgrade --root "$CBUILDROOT" --repository "$REPODEST/main" --available
+	build-base)
+		# After build-base, that alone is sufficient dependency in the target
+		EXTRADEPENDS_TARGET="$PKG"
 		;;
 	esac
 done

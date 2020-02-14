@@ -1,0 +1,32 @@
+# Contributor: Peter Bui <pnutzh4x0r@gmail.com>
+# Maintainer: Fabian Affolter <fabian@affolter-engineering.ch>
+pkgname=py3-tz
+_pkgname=pytz
+pkgver=2019.3
+pkgrel=2
+pkgdesc="Python3 definitions of world timezone"
+url="http://pytz.sourceforge.net/"
+arch="noarch"
+license="MIT"
+depends="python3"
+makedepends="py3-setuptools"
+source="https://pypi.io/packages/source/${_pkgname:0:1}/$_pkgname/$_pkgname-$pkgver.tar.gz"
+builddir="$srcdir/$_pkgname-$pkgver"
+
+replaces="py-tz" # Backwards compatibility
+provides="py-tz=$pkgver-r$pkgrel" # Backwards compatibility
+
+build() {
+	python3 setup.py build
+}
+
+check() {
+	cd pytz/tests
+	python3 test_tzinfo.py
+}
+
+package() {
+	python3 setup.py install --prefix=/usr --root="$pkgdir"
+}
+
+sha512sums="b925b59d197e7007dae8098d35518a470e4b7588d9114f51e4d8816813243a9f816f662055f690bedf56b86cc9ece06428ed8c55e5b3ed676ba0f504f7cb43af  pytz-2019.3.tar.gz"

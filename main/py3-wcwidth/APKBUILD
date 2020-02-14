@@ -1,0 +1,31 @@
+# Contributor: Thomas Boerger <thomas@webhippie.de>
+# Maintainer: Thomas Boerger <thomas@webhippie.de>
+pkgname=py3-wcwidth
+_pkgname=wcwidth
+pkgver=0.1.8
+pkgrel=0
+pkgdesc="Measures number of Terminal column cells of wide-character codes"
+url="https://pypi.python.org/pypi/wcwidth"
+arch="noarch"
+license="MIT"
+depends="python3"
+makedepends="py3-setuptools"
+source="https://files.pythonhosted.org/packages/source/${_pkgname:0:1}/$_pkgname/$_pkgname-$pkgver.tar.gz"
+builddir="$srcdir/$_pkgname-$pkgver"
+
+replaces="py-wcwidth" # Backwards compatibility
+provides="py-wcwidth=$pkgver-r$pkgrel" # Backwards compatibility
+
+check() {
+	python3 setup.py check
+}
+
+build() {
+	python3 setup.py build
+}
+
+package() {
+	python3 setup.py install --prefix=/usr --root="$pkgdir"
+}
+
+sha512sums="b828450feb56b5c0e686f6922e777ab48d1336816a41ef4ef95f71c25a37ef492861634c16c788e1e4570d21bd4d45c990a18787860ba6043157c2781c78b65e  wcwidth-0.1.8.tar.gz"

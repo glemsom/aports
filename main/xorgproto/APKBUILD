@@ -1,12 +1,12 @@
 # Contributor: prspkt <prspkt@protonmail.com>
 # Maintainer: prspkt <prspkt@protonmail.com>
 pkgname=xorgproto
-pkgver=2018.4
-pkgrel=0
+pkgver=2019.2
+pkgrel=1
 pkgdesc="Combined X.Org X11 protocol headers"
-url="https://xorg.freedesktop.org"
+url="https://www.x.org"
 arch="noarch"
-license="MIT"
+license="BSD-2-Clause AND MIT AND X11"
 makedepends="meson util-macros"
 replaces="bigreqsproto compositeproto damageproto dri2proto dri3proto fixesproto
 	fontsproto glproto inputproto kbproto presentproto printproto randrproto
@@ -42,8 +42,7 @@ provides="bigreqsproto=$pkgver-r$pkgrel
 	xineramaproto=$pkgver-r$pkgrel
 	xproto=$pkgver-r$pkgrel
 	"
-source="https://xorg.freedesktop.org/archive/individual/proto/$pkgname-$pkgver.tar.bz2"
-builddir="$srcdir"/$pkgname-$pkgver
+source="https://xorg.freedesktop.org/archive/individual/proto/xorgproto-$pkgver.tar.bz2"
 
 build() {
 	cd "$builddir"
@@ -52,7 +51,7 @@ build() {
 		--sysconfdir=/etc \
 		--mandir=/usr/share/man \
 		--localstatedir=/var \
-		--buildtype=release \
+		--buildtype=debugoptimized \
 		--datadir=/usr/lib \
 		-Dlegacy=true \
 		. output
@@ -68,6 +67,8 @@ package() {
 	rm -f "$pkgdir"/usr/include/X11/extensions/windows*
 	rm -f "$pkgdir"/usr/lib/pkgconfig/apple*
 	rm -f "$pkgdir"/usr/lib/pkgconfig/windows*
+	rm -f "$pkgdir"/usr/include/X11/extensions/vldXvMC.h # libxvmc-dev >= 1.0.12-r0
+	rm -f "$pkgdir"/usr/include/X11/extensions/XKBgeom.h # libx11-dev >= 1.6.9-r0
 }
 
-sha512sums="2db682d10280ca58cdc04d8eb9fef30c111d4cd379de9fec86cff317865b859a576de5426447be9231d24be9762cc1d684c57383a99ad499398e8b7d62b1c03c  xorgproto-2018.4.tar.bz2"
+sha512sums="cbfdf6bb3d58d4d4e7788c9ed779402352715e9899f65594fbc527b3178f1dc5e03cebc8ba5a863b3c196a1a0f2026c2d0438207ca19f81f3c8b7da0c0667904  xorgproto-2019.2.tar.bz2"

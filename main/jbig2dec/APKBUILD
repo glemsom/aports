@@ -1,27 +1,25 @@
 # Contributor: Michael Zhou <zhoumichaely@gmail.com>
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 pkgname=jbig2dec
-pkgver=0.15
+pkgver=0.17
+_gsver="gs950"
 pkgrel=0
 pkgdesc="JBIG2 image compression format decoder"
-url="https://www.ghostscript.com/jbig2dec.html"
+options="!check" # Tests require python2
+url="https://jbig2dec.com/"
 arch="all"
 license="GPL-2.0-or-later"
 makedepends="autoconf automake libtool"
-checkdepends="python2"
 subpackages="$pkgname-dev $pkgname-doc"
-source="https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs924/jbig2dec-0.15.tar.gz"
+source="https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/$_gsver/jbig2dec-$pkgver.tar.gz"
 
-builddir="$srcdir/$pkgname-$pkgver"
 
 prepare() {
 	default_prepare
-	cd "$builddir"
 	autoreconf -vif
 }
 
 build() {
-	cd "$builddir"
 	./configure \
 		--build=$CBUILD \
 		--host=$CHOST \
@@ -34,14 +32,8 @@ build() {
 	make
 }
 
-check() {
-	cd "$builddir"
-	make check
-}
-
 package() {
-	cd "$builddir"
 	make DESTDIR="$pkgdir" install
 }
 
-sha512sums="142acf0c47be094232ff21074414be5cf633a7008b2095d60b8878c4e125966f36632d8db191959ae1ac4b12b8fdc78139f67cd531717d203864b459d2570369  jbig2dec-0.15.tar.gz"
+sha512sums="e1ac4af318fb31e097b558e6b88334d35e035d1378b152aabb025f2918969a3a79c6a6644848fccf5d4eaa6efaf2b0422ff01d5bbcde8245f7af6fa29022d9b8  jbig2dec-0.17.tar.gz"

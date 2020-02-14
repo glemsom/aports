@@ -1,0 +1,28 @@
+# Maintainer: Natanael Copa <ncopa@alpinelinux.org>
+pkgname=py3-zope-interface
+_pkgname=zope.interface
+pkgver=4.7.1
+pkgrel=0
+pkgdesc="Separate distribution of the zope.interface package used in Zope"
+url="https://zopeinterface.readthedocs.io"
+arch="all"
+license="ZPL-2.1"
+makedepends="python3-dev py3-setuptools"
+source="https://files.pythonhosted.org/packages/source/${_pkgname:0:1}/$_pkgname/$_pkgname-$pkgver.tar.gz"
+builddir="$srcdir/$_pkgname-$pkgver"
+replaces="py-zope-interface" # Backwards compatibility
+provides="py-zope-interface=$pkgver-r$pkgrel" # Backwards compatibility
+
+build() {
+	python3 setup.py build
+}
+
+check() {
+	python3 setup.py test
+}
+
+package() {
+	python3 setup.py install --prefix=/usr --root="$pkgdir"
+}
+
+sha512sums="cb99cdf9733cdd2fb6637163167da0073145db1ed1788ae147098a23a9cafb4d661368a1780a44a231a2ea9f1adfa4fd6acac423a4a8d9cf026ee3a603ca7767  zope.interface-4.7.1.tar.gz"

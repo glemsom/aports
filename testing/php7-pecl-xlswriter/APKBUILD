@@ -1,0 +1,35 @@
+# Contributor: viest <dev@service.viest.me>
+# Maintainer: viest <dev@service.viest.me>
+pkgname="php7-pecl-xlswriter"
+_pkgreal=xlswriter
+pkgver="1.3.3.2"
+pkgrel=1
+pkgdesc="A PHP Extension for creating and reader XLSX files. "
+url="https://pecl.php.net/package/xlswriter"
+arch="all !s390x" # Test failure
+license="BSD-2-Clause"
+depends="php7-common"
+makedepends="php7-dev zlib-dev re2c"
+source="$pkgname-$pkgver.tar.gz::https://pecl.php.net/get/$_pkgreal-$pkgver.tgz"
+builddir="$srcdir"/$_pkgreal-$pkgver
+
+build() {
+	phpize7
+	./configure \
+		--enable-reader \
+		--prefix=/usr \
+		--with-php-config=/usr/bin/php-config7
+	make
+}
+
+check() {
+	make NO_INTERACTION=1 REPORT_EXIT_STATUS=1 test
+}
+
+package() {
+	make INSTALL_ROOT="$pkgdir/" install
+	install -d "$pkgdir"/etc/php7/conf.d
+	echo "extension=$_pkgreal.so" > "$pkgdir"/etc/php7/conf.d/$_pkgreal.ini
+}
+
+sha512sums="a04606fac1419d7180aa7e05d9587bedfb9ac08ead907113d2e6023e6121855c98a0b991cb7cebc4493e004ca44fcc650cb593058dd39860beed5797d73b88d4  php7-pecl-xlswriter-1.3.3.2.tar.gz"

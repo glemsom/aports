@@ -3,22 +3,22 @@
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 pkgname=perl-list-someutils
 _pkgreal=List-SomeUtils
-pkgver=0.55
+pkgver=0.58
 pkgrel=0
 pkgdesc="Provide the stuff missing in List::Util"
-url="http://search.cpan.org/dist/List-SomeUtils/"
+url="https://metacpan.org/release/List-SomeUtils"
 arch="noarch"
-license="GPL PerlArtistic"
+license="GPL-1.0-or-later OR Artistic-1.0-Perl"
 cpandepends="perl-module-implementation perl-list-someutils-xs"
-cpanmakedepends="  perl-test-leaktrace "
+cpanmakedepends="perl-test-leaktrace"
 depends="$cpandepends"
 makedepends="perl-dev $cpanmakedepends"
 subpackages="$pkgname-doc"
-source="http://search.cpan.org/CPAN/authors/id/D/DR/DROLSKY/$_pkgreal-$pkgver.tar.gz"
+source="https://cpan.metacpan.org/authors/id/D/DR/DROLSKY/List-SomeUtils-$pkgver.tar.gz"
 builddir="$srcdir/$_pkgreal-$pkgver"
 
 prepare() {
-	default_prepare || return 1
+	default_prepare
 
 	cd "$builddir"
 	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
@@ -33,8 +33,8 @@ build() {
 
 package() {
 	cd "$builddir"
-	make DESTDIR="$pkgdir" install || return 1
+	make DESTDIR="$pkgdir" install
 	find "$pkgdir" \( -name perllocal.pod -o -name .packlist \) -delete
 }
 
-sha512sums="e65f83fbfcbaf22abb72c0277f694c9818775cb20fe576c99c816a68ca617bde113b7334a095dd24e83c8db663f52a63ca4cad63396903a27cb1b6790a2bae24  List-SomeUtils-0.55.tar.gz"
+sha512sums="e45f05dbd82914bf804cc1ee00c808b6f8b4f2c80f852db55b3efb13cfe1601c34926e4c7966887a75ef49fd0fb2bd43adf48d12c72687464ece4e2b5a697ff4  List-SomeUtils-0.58.tar.gz"

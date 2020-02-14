@@ -1,0 +1,34 @@
+# Contributor: Bhushan Shah <bshah@kde.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=libphonenumber
+pkgver=8.11.3
+pkgrel=0
+pkgdesc="Library for parsing, formatting, and validating international phone numbers."
+url="https://github.com/googlei18n/libphonenumber"
+arch="all"
+license="Apache-2.0"
+depends_dev="boost-dev protobuf-dev icu-dev"
+makedepends="$depends_dev cmake gtest-dev"
+checkdepends="gtest"
+subpackages="$pkgname-static $pkgname-dev"
+source="$pkgname-$pkgver.tar.gz::https://github.com/googlei18n/libphonenumber/archive/v$pkgver.tar.gz"
+
+build() {
+	cd "$builddir/cpp"
+	cmake \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	cd "$builddir/cpp"
+	./libphonenumber_test
+}
+package() {
+	cd "$builddir/cpp"
+	DESTDIR="$pkgdir" make install
+}
+
+sha512sums="1d7197c04f1cca9545b26796b8a4557da10aa5384e921fb81a21759770831a2bc37294c0ef15f95d19545a5bfa099324bce1954ba97d5b742d30cdcc69759960  libphonenumber-8.11.3.tar.gz"

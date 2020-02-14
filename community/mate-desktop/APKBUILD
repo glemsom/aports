@@ -1,21 +1,19 @@
 # Contributor: Alan Lacerda <alacerda@alpinelinux.org>
 # Maintainer: Alan Lacerda <alacerda@alpinelinux.org>
 pkgname=mate-desktop
-pkgver=1.21.2
+pkgver=1.24.0
 pkgrel=0
 pkgdesc="The MATE Desktop Environment"
-url="http://wiki.mate-desktop.org/mate-desktop"
-arch="all"
-license="GPL-2.0-or-later LGPL-2.0-or-later"
+url="https://wiki.mate-desktop.org/mate-desktop"
+arch="all !s390x" # librsvg
+license="GPL-2.0-or-later AND LGPL-2.0-or-later"
 depends="mate-common yelp-tools"
 makedepends="startup-notification itstool intltool dconf-dev gtk+3.0-dev
-	libxrandr-dev libxml2-utils iso-codes-dev"
+	libxrandr-dev libxml2-utils iso-codes-dev librsvg"
 subpackages="$pkgname-lang $pkgname-dev $pkgname-doc"
-source="https://pub.mate-desktop.org/releases/${pkgver%.*}/$pkgname-$pkgver.tar.xz"
-builddir="$srcdir/$pkgname-$pkgver"
+source="https://pub.mate-desktop.org/releases/${pkgver%.*}/mate-desktop-$pkgver.tar.xz"
 
 build() {
-	cd "$builddir"
 	./configure \
 		--build=$CBUILD \
 		--host=$CHOST \
@@ -26,13 +24,11 @@ build() {
 }
 
 check() {
-	cd "$builddir"
 	make check
 }
 
 package() {
-	cd "$builddir"
-	make DESTDIR="${pkgdir}" install
+	make DESTDIR="$pkgdir" install
 }
 
-sha512sums="d53b3336521bd394dda45f91fc0125c95d4875d090d536bb5f392efdfb8e7e1a7d952b0954545a5c1c14c5873393c8cbfba7204e74c6d2dc31deca250b13a5a9  mate-desktop-1.21.2.tar.xz"
+sha512sums="ca60325e7f6167efd21bdd32ae40c2f2bf5ae9bef85f0a43afec05d50567fb650fc0426d94c510b3a42c625dc4b2d31d7559befa50cfbb6d9878635558a52323  mate-desktop-1.24.0.tar.xz"

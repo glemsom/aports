@@ -1,0 +1,41 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=mailcommon
+pkgver=19.12.2
+pkgrel=0
+pkgdesc="KDE PIM library providing support for mail applications"
+arch="all !ppc64le !s390x !armhf" # Limited by messagelib -> qt5-qtwebengine
+url="https://kontact.kde.org/"
+license="GPL-2.0-or-later"
+depends_dev="qt5-qtbase-dev qt5-qttools-dev karchive-dev kcodecs-dev kcompletion-dev kconfig-dev kconfigwidgets-dev ki18n-dev kiconthemes-dev kitemmodels-dev kitemviews-dev kio-dev ktextwidgets-dev kwidgetsaddons-dev kwindowsystem-dev kxmlgui-dev kdbusaddons-dev syntax-highlighting-dev akonadi-dev akonadi-mime-dev libkdepim-dev mailimporter-dev kmailtransport-dev messagelib-dev"
+makedepends="$depends_dev extra-cmake-modules"
+checkdepends="xvfb-run"
+source="https://download.kde.org/stable/release-service/$pkgver/src/mailcommon-$pkgver.tar.xz"
+subpackages="$pkgname-dev $pkgname-lang"
+options="!check" # Requires running dbus server
+
+prepare() {
+	default_prepare
+
+	mkdir "$builddir"/build
+}
+
+build() {
+	cd "$builddir"/build
+	cmake "$builddir" \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	cd "$builddir"/build
+	CTEST_OUTPUT_ON_FAILURE=TRUE xvfb-run ctest
+}
+
+package() {
+	cd "$builddir"/build
+	DESTDIR="$pkgdir" make install
+}
+sha512sums="f16000d4f0dc40f0a6d645283ac7ab4eae8ae1f07090800c95d2c929ab707179b7c50b0e1820bdcae34a5bfa823331256a17027037109a3628beb21761d66eb8  mailcommon-19.12.2.tar.xz"

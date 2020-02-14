@@ -1,117 +1,44 @@
 # Contributor: Carlo Landmeter <clandmeter@gmail.com>
 # Maintainer: Francesco Colista <fcolista@alpinelinux.org>
 pkgname=certbot
-pkgver=0.30.2
-pkgrel=2
+pkgver=1.2.0
+pkgrel=0
 pkgdesc="An ACME client that can update Apache/Nginx configurations"
 url="https://github.com/certbot/certbot"
 arch="noarch"
-license="Apache"
+license="Apache-2.0"
 depends="
-	py3-acme=$pkgver-r$pkgrel
-	py3-argparse
+	py3-acme
 	py3-configargparse
 	py3-configobj
 	py3-cryptography
+	py3-distro
+	py3-distutils-extra
 	py3-josepy
 	py3-mock
 	py3-parsedatetime
-	py3-rfc3339
+	py3-pyrfc3339
 	py3-tz
 	py3-setuptools
 	py3-zope-component
 	py3-zope-interface
 "
 checkdepends="py3-augeas"
-makedepends="python3-dev"
 replaces="letsencrypt"
-subpackages="py3-acme:acme $pkgname-nginx $pkgname-apache $pkgname-postfix"
-source="certbot-$pkgver.tar.gz::https://github.com/certbot/certbot/archive/v$pkgver.tar.gz"
-builddir="$srcdir"/$pkgname-$pkgver
-
-check() {
-	cd "$builddir"
-	local i
-	for i in . $subpackages; do
-		cd "$builddir"/${i##*:}
-		python3 setup.py test
-	done
-}
+source="https://pypi.io/packages/source/c/certbot/certbot-$pkgver.tar.gz
+	cerbot_py3_looseversion.patch"
 
 build() {
-	cd "$builddir"
-	local i
-	for i in . $subpackages; do
-		cd "$builddir"/${i##*:}
-		python3 setup.py build
-	done
+	python3 setup.py build
+}
+
+check() {
+	python3 setup.py check
 }
 
 package() {
-	cd "$builddir"
 	python3 setup.py install --prefix=/usr --root="$pkgdir"
 }
 
-acme() {
-	cd "$builddir"/acme
-	pkgdesc="ACME protocol implementation for Python"
-	depends="
-		py3-setuptools
-		py3-cryptography
-		py3-josepy
-		py3-mock
-		py3-openssl
-		py3-rfc3339
-		py3-tz
-		py-requests
-		py3-requests-toolbelt
-		py3-six
-	"
-	python3 setup.py install --prefix=/usr --root="$subpkgdir"
-}
-
-nginx() {
-	cd "$builddir"/certbot-nginx
-	pkgdesc="nginx plugin for $pkgname"
-	depends="
-		certbot=$pkgver-r$pkgrel
-		py3-acme=$pkgver-r$pkgrel
-		py3-mock
-		py3-openssl
-		py3-setuptools
-		py3-zope-interface
-		py3-parsing
-	"
-	python3 setup.py install --prefix=/usr --root="$subpkgdir"
-}
-
-apache() {
-	cd "$builddir"/certbot-apache
-	pkgdesc="apache plugin for $pkgname"
-	depends="
-		certbot=$pkgver-r$pkgrel
-		py3-acme=$pkgver-r$pkgrel
-		py3-mock
-		py3-augeas
-		py3-setuptools
-		py3-zope-component
-		py3-zope-interface
-	"
-	python3 setup.py install --prefix=/usr --root="$subpkgdir"
-}
-
-postfix() {
-	cd "$builddir"/certbot-apache
-	pkgdesc="postfix plugin for $pkgname"
-	depends="
-		certbot=$pkgver-r$pkgrel
-		py3-acme=$pkgver-r$pkgrel
-		py3-setuptools
-		py3-six
-		py3-zope-component
-		py3-zope-interface
-	"
-	python3 setup.py install --prefix=/usr --root="$subpkgdir"
-}
-
-sha512sums="94c26be7c04de74acf650b4d243675e92c6807eb6bb82fcffd867b22aa5b5527e6f637155fafcb121dfeff77e8a236301c080ad42284b3bf777d2cfc7f4d0de6  certbot-0.30.2.tar.gz"
+sha512sums="e4e3855c8f3dde27554932a4db226c93b16588d91eed07415a7161776b93d1d006313ccaf10a05c5dc369843f4141dec2b0f98201967995b83ea3a036837cda7  certbot-1.2.0.tar.gz
+880c462d225567047e30c91e6f0cb57d8fff53785fb99430f1505051a6eb76252ee0aa82367d1e1ecc89030b06f82d2bac79a64f5f50f759db97d32d0e0f3fa0  cerbot_py3_looseversion.patch"

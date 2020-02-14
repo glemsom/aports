@@ -1,16 +1,17 @@
 # Contributor: Thomas Boerger <thomas@webhippie.de>
 # Contributor: Gennady Feldman <gena01@gmail.com>
 # Contributor: Sergii Sadovyi <serg.sadovoi@gmail.com>
+# Contributor: Galen Abell <galen@galenabell.com>
 # Maintainer: Thomas Boerger <thomas@webhippie.de>
 pkgname=terraform
-pkgver=0.11.11
+pkgver=0.12.20
 pkgrel=0
 pkgdesc="Building, changing and combining infrastructure safely and efficiently"
 url="https://www.terraform.io/"
 arch="all !armhf !armv7"
 license="MPL-2.0"
 makedepends="go"
-source="${pkgname}-${pkgver}.tar.gz::https://github.com/hashicorp/terraform/archive/v$pkgver.tar.gz"
+source="$pkgname-$pkgver.tar.gz::https://github.com/hashicorp/terraform/archive/v$pkgver.tar.gz"
 builddir="$srcdir/src/github.com/hashicorp/$pkgname"
 
 prepare() {
@@ -20,14 +21,12 @@ prepare() {
 }
 
 build() {
-	cd "$builddir"
-	GOPATH="$srcdir" go build -v -o bin/$pkgname \
+	GO111MODULE=off GOPATH="$srcdir" go build -v -o bin/$pkgname \
 		-ldflags "-X main.GitCommit=v$pkgver -X github.com/hashicorp/terraform/version.Prerelease= -s -w"
 }
 
 check() {
-	cd "$builddir"
-	GOPATH="$srcdir" go test
+	GOPATH="$srcdir" go list -mod=vendor . | xargs -t -n4 go test -mod=vendor -timeout=2m -parallel=4
 	bin/$pkgname -v
 }
 
@@ -35,4 +34,9 @@ package() {
 	install -Dm755 "$builddir"/bin/$pkgname "$pkgdir"/usr/bin/$pkgname
 }
 
-sha512sums="7c0cf4b0b70eab7dc88133d50ac4b586b72ac53e01c21c00766d03d10c753cfd404b146add21e378be8f1d305c5e92703cbaeac9e4c4b55bfc8b2532f74f63ee  terraform-0.11.11.tar.gz"
+cleanup_srcdir() {
+	go clean -modcache
+	default_cleanup_srcdir
+}
+
+sha512sums="df92422426e7ebaf2c3a6b953de9fc9fcb461f7227835e728bbccf5b796995d818a39817913d6010fadb8b3618710f77f50e36eb6ce4176e7312b68c7d7f7e96  terraform-0.12.20.tar.gz"

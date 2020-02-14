@@ -2,16 +2,16 @@
 # Maintainer: Francesco Colista <fcolista@alpinelinux.org>
 pkgname=qt5-qtremoteobjects
 _pkgname=${pkgname/qt5-//}-everywhere-src
-pkgver=5.12.0
+pkgver=5.12.5
 _ver=${pkgver/_/-}
 _ver=${_ver/beta0/beta}
 _ver=${_ver/rc0/rc}
 _V=${_ver/rc/RC}
-pkgrel=0
+pkgrel=1
 pkgdesc="Qt Remote Objects (QtRO) is an inter-process communication (IPC) module developed for Qt"
-url="http://qt-project.org/"
+url="https://www.qt.io/developers/"
 arch="all"
-license="LGPL-2.0 with exceptions or GPL-3.0 with exceptions"
+license="(LGPL-2.0-or-later OR GPL-3.0-only OR GPL-2.0-or-later) AND Qt-GPL-exception-1.0"
 options="!check" #upstream does not provide check
 makedepends="qt5-qtbase-dev"
 subpackages="$pkgname-dev"
@@ -20,7 +20,7 @@ case $pkgver in
 *_beta*|*_rc*) _rel=development_releases;;
 *) _rel=official_releases;;
 esac
-source="http://download.qt-project.org/$_rel/qt/${pkgver%.*}/$_ver/submodules/$_pkgname-$_V.tar.xz"
+source="https://download.qt.io/$_rel/qt/${pkgver%.*}/$_ver/submodules/$_pkgname-$_V.tar.xz"
 
 builddir="$srcdir"/$_pkgname-${_V%-*}
 
@@ -45,4 +45,4 @@ package() {
 	cd "$builddir"/build
 	make INSTALL_ROOT="$pkgdir" install
 }
-sha512sums="efd3cebed70640ef366c365dd06990bce7245efb2eecad83c71acb503a1a3042ef0a9ac15921ebb1d69cc57f57b03e956ccf01bf6abec5a64ab20bd6dbf7b0fd  qtremoteobjects-everywhere-src-5.12.0.tar.xz"
+sha512sums="ed3314b1c66f9375bdc101029eaf730a630157ee41c094de2ff9cc5340c3c92a781dcb2b2cf0b8bbad8b19e566fb80f2d3b76e58624e990f90f23b8cdd21bd54  qtremoteobjects-everywhere-src-5.12.5.tar.xz"

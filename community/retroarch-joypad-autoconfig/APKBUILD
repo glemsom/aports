@@ -1,0 +1,19 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=retroarch-joypad-autoconfig
+pkgver=0_git20191227
+pkgrel=0
+_commit="443b36d99f1ae4c43c2473f645ed5ae0de2a0c45"
+arch="noarch"
+url="https://github.com/libretro/retroarch-joypad-autoconfig"
+pkgdesc="RetroArch joypad autoconfig files"
+license="MIT"
+source="$pkgname-$_commit.tar.gz::https://github.com/libretro/retroarch-joypad-autoconfig/archive/$_commit.tar.gz"
+builddir="$srcdir/$pkgname-$_commit"
+options="!check" # No code to test
+
+package() {
+	DESTDIR="$pkgdir" make install
+}
+
+sha512sums="8fd3fc7c3f6a773ad37b2c975e2cd8db35f21d6fa03ead06cae063effab369c81574940c9ef65bbba56f00ad34b34c50958559866e724cdff0615d84336e843c  retroarch-joypad-autoconfig-443b36d99f1ae4c43c2473f645ed5ae0de2a0c45.tar.gz"

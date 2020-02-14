@@ -1,13 +1,14 @@
+# Contributor: Eric Molitor <eric@molitor.org>
 # Contributor: Jakub Jirutka <jakub@jirutka.cz>
-# Maintainer: Jakub Jirutka <jakub@jirutka.cz>
+# Maintainer: Rasmus Thomsen <oss@cogitri.dev>
 pkgname=lld
-pkgver=5.0.2
-pkgrel=0
+pkgver=9.0.1
+pkgrel=1
 _llvmver=${pkgver%%.*}
 pkgdesc="The LLVM Linker"
-url="http://llvm.org"
+url="https://llvm.org"
 arch="all"
-license="UOI-NCSA"
+license="Apache-2.0"
 makedepends="
 	cmake
 	libedit-dev
@@ -15,9 +16,9 @@ makedepends="
 	llvm-static>=$_llvmver
 	llvm-test-utils=>$_llvmver
 	zlib-dev"
-checkdepends="gtest gtest-dev"
-subpackages="$pkgname-dev"
-source="https://releases.llvm.org/$pkgver/$pkgname-$pkgver.src.tar.xz"
+checkdepends="gtest gtest-dev bash"
+subpackages="$pkgname-static $pkgname-dev"
+source="https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver/lld-$pkgver.src.tar.xz"
 builddir="$srcdir/$pkgname-$pkgver.src"
 
 build() {
@@ -29,9 +30,8 @@ build() {
 		-DCMAKE_VERBOSE_MAKEFILE=OFF \
 		-DCMAKE_C_FLAGS_MINSIZEREL_INIT="$CFLAGS" \
 		-DCMAKE_CXX_FLAGS_MINSIZEREL_INIT="$CXXFLAGS -fpermissive" \
-		-DCMAKE_EXE_LINKER_FLAGS_MINSIZEREL_INIT="$LDFLAGS" \
+		-DCMAKE_EXE_LINKER_FLAGS_MINSIZEREL_INIT="$LDFLAGS -Wl,-z,stack-size=2097152" \
 		-DCMAKE_INSTALL_PREFIX=/usr \
-		\
 		-DCMAKE_SKIP_INSTALL_RPATH=ON \
 		-DLLVM_INCLUDE_TESTS=ON
 	make
@@ -39,8 +39,18 @@ build() {
 
 check() {
 	cd "$builddir/build"
-	[ "$CARCH" = "armhf" ] && return 0
-	make check-lld
+
+	# ELF/eh-frame-hdr-augmentation.s is broken on armhf & armv7
+	case "$CARCH" in
+		armhf|armv7) rm ../test/ELF/eh-frame-hdr-augmentation.s;;
+	esac
+
+	# make check-lld doesn't like using system lit
+	lit -sv \
+		--param lld_site_config=$builddir/build/test/lit.site.cfg \
+		--param lld_unit_site_config=$builddir/build/test/Unit/lit.site.cfg \
+		$builddir/build/test
+
 }
 
 package() {
@@ -49,4 +59,4 @@ package() {
 	make install DESTDIR="$pkgdir"
 }
 
-sha512sums="6edafc277a5475a4b44fdf2d77bb8d0a80e8717f74c6db6c0208e0f1492a552f50640503ba8687bcd87a3d677b571dc4f9579b1e5c0bf53059c259ecbcc78c0e  lld-5.0.2.src.tar.xz"
+sha512sums="ca57d1a5fc2e39c002e061dc8278a721df8493d4c05c2275fe32b626258362563b82113b51bbaa454815d8ac0440078803f866444a8788aaca4816d7463ed430  lld-9.0.1.src.tar.xz"

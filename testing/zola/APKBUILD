@@ -1,0 +1,60 @@
+# Contributor: Leo <thinkabit.ukim@gmail.com>
+# Maintainer:
+pkgname=zola
+pkgver=0.9.0
+pkgrel=0
+pkgdesc="Opionated static site generator"
+url="https://github.com/getzola/zola"
+# (! denote spurious SIGSEGVs, depends on upstream LLVM x Rust)
+arch="x86_64 !armv7 armhf aarch64 !x86 ppc64le" # Limited by cargo
+license="MIT"
+makedepends="cargo openssl-dev libsass-dev oniguruma-dev"
+subpackages="
+	$pkgname-zsh-completion:zshcomp:noarch
+	$pkgname-fish-completion:fishcomp:noarch
+	$pkgname-bash-completion:bashcomp:noarch"
+source="$pkgname-$pkgver.tar.gz::https://github.com/getzola/zola/archive/v$pkgver.tar.gz"
+
+export RUSTONIG_SYSTEM_LIBONIG=1 # LInk against system liboniguruma
+
+build() {
+	cargo build --release --verbose
+}
+
+check() {
+	cargo test all --release --verbose
+}
+
+package() {
+	install -Dm0755 target/release/zola "$pkgdir"/usr/bin/zola
+}
+
+bashcomp() {
+	depends=""
+	pkgdesc="Bash completions for $pkgname"
+	install_if="$pkgname=$pkgver-r$pkgrel bash-completion"
+
+	install -Dm644 "$builddir"/completions/zola.bash \
+			"$subpkgdir"/usr/share/bash-completion/completions/zola
+}
+
+zshcomp() {
+	depends=""
+	pkgdesc="Zsh compltions for $pkgname"
+	install_if="$pkgname=$pkgver-r$pkgrel zsh"
+
+	install -Dm644 "$builddir"/completions/_zola \
+			"$subpkgdir"/usr/share/zsh/site-functions/_zola
+}
+
+fishcomp() {
+	depends=""
+	pkgdesc="Fish completions for $pkgname"
+	install_if="$pkgname=$pkgver-r$pkgrel fish"
+
+	install -Dm644 "$builddir"/completions/zola.fish \
+			"$subpkgdir"/usr/share/fish/completions/zola.fish
+}
+
+
+sha512sums="e9496b57e005a751e85533807f6be275d187baa3f4371a29416dd7d2373d9214ee3469b032102c0544782527f93692d9d71a40d20e34cfe776be058777374756  zola-0.9.0.tar.gz"

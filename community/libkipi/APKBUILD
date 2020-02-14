@@ -1,0 +1,41 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=libkipi
+pkgver=19.12.2
+pkgrel=0
+pkgdesc="KDE Image Plugin Interface library"
+arch="all !armhf" # armhf blocked by extra-cmake-modules
+url="https://www.digikam.org/"
+license="GPL-2.0-or-later AND LGPL-2.0-or-later"
+depends_dev="qt5-qtbase-dev kconfig-dev kxmlgui-dev kservice-dev"
+makedepends="$depends_dev extra-cmake-modules"
+source="https://download.kde.org/stable/release-service/$pkgver/src/libkipi-$pkgver.tar.xz"
+subpackages="$pkgname-dev"
+options="!check" # Test suite fails to compile
+
+prepare() {
+	default_prepare
+
+	mkdir "$builddir"/build
+}
+
+build() {
+	cd "$builddir"/build
+	cmake "$builddir" \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DBUILD_TESTING=OFF
+	make
+}
+
+check() {
+	cd "$builddir"/build
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest
+}
+
+package() {
+	cd "$builddir"/build
+	DESTDIR="$pkgdir" make install
+}
+sha512sums="a893e188e92ee61cc4048266dedc71b93caefc395fcd447110f6bcd3ebe42a74e22a18cc0b3b96307359e6ad13a61faea8f75274f951be6601942d3472ca4320  libkipi-19.12.2.tar.xz"

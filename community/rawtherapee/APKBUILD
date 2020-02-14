@@ -1,19 +1,20 @@
 # Contributor: ScrumpyJack <scrumpyjack@st.ilet.to>
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 pkgname=rawtherapee
-pkgver=5.4
+pkgver=5.7
 pkgrel=0
 pkgdesc="Powerful cross-platform raw image processing program"
-url="http://rawtherapee.com"
-arch="x86 x86_64 ppc64le"
+url="https://rawtherapee.com"
+arch="x86 x86_64 ppc64le aarch64"
 license="GPL-3.0-or-later"
-makedepends="bzip2-dev exiv2-dev expat-dev fftw-dev glib-dev gtk+3.0-dev gtk-engines-dev
-	gtkmm3-dev lcms2-dev libcanberra-dev libpng-dev libsigc++-dev tiff-dev zlib-dev
-	cmake mercurial libiptcdata-dev libjpeg-turbo-dev lensfun-dev"
+makedepends="bzip2-dev cmake exiv2-dev expat-dev fftw-dev glib-dev gtk+3.0-dev
+	gtk-engines-dev gtkmm3-dev lcms2-dev lensfun-dev libcanberra-dev
+	libiptcdata-dev libjpeg-turbo-dev libpng-dev librsvg-dev libsigc++-dev
+	mercurial tiff-dev zlib-dev
+	"
 options="!check !strip"
 subpackages="$pkgname-doc $pkgname-dbg"
-source="http://rawtherapee.com/shared/source/$pkgname-$pkgver.tar.xz"
-builddir="$srcdir"/$pkgname-$pkgver
+source="https://rawtherapee.com/shared/source/rawtherapee-$pkgver.tar.xz"
 
 prepare() {
 	default_prepare
@@ -25,12 +26,12 @@ prepare() {
 
 build() {
 	cd "$builddir"/build
-        make
+	make
 }
 
 package() {
 	cd "$builddir"/build
-        make DESTDIR="$pkgdir" install
+	make DESTDIR="$pkgdir" install
 }
 
-sha512sums="6dc9a82202b80675f90eeb8f08c4484700561861f296546ae9425c6e9603f6e84bdc0859896c333d2367cc0b371c6bb6ab2fe36ff3d6f56419cbf18a58d8ef89  rawtherapee-5.4.tar.xz"
+sha512sums="8101ec66d9be4cab0c0b91336a3f83a32a6220a2f342f1c74d604c15686ee08bc7dbc090232916f13d5436957d800b64b284a8a9d3352f2f721266b07e005162  rawtherapee-5.7.tar.xz"

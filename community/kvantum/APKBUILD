@@ -1,0 +1,38 @@
+# Contributor: Leo <thinkabit.ukim@gmail.com>
+# Maintainer: Leo <thinkabit.ukim@gmail.com>
+pkgname=kvantum
+pkgver=0.14.1
+pkgrel=1
+pkgdesc="SVG-based theme engine for Qt5"
+options="!check" # No testsuite
+url="https://github.com/tsujan/Kvantum"
+arch="all"
+license="GPL-2.0-or-later"
+depends="hicolor-icon-theme"
+makedepends="cmake qt5-qtbase-dev qt5-qtsvg-dev qt5-qtx11extras-dev libx11-dev
+	libxext-dev kwindowsystem-dev qt5-qttools-dev samurai"
+source="$pkgname-$pkgver.tar.gz::https://github.com/tsujan/Kvantum/archive/V$pkgver/kvantum-$pkgver.tar.gz"
+builddir="$srcdir/Kvantum-$pkgver/Kvantum"
+
+build() {
+	if [ "$CBUILD" != "$CHOST" ]; then
+		CMAKE_CROSSOPTS="-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_HOST_SYSTEM_NAME=Linux"
+	fi
+	cmake \
+		-GNinja \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DBUILD_SHARED_LIBS=True \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_CXX_FLAGS="$CXXFLAGS" \
+		-DCMAKE_C_FLAGS="$CFLAGS" \
+		-DENABLE_QT4=OFF \
+		${CMAKE_CROSSOPTS} .
+	ninja
+}
+
+package() {
+	DESTDIR="$pkgdir" ninja install
+	rm -rf "$pkgdir"/usr/share/kde4
+}
+
+sha512sums="18faa895bb6affa1744d15aa5b64636c49f7780eddca62ecee18c133702a156bca055cda473af9ea72e1d6de17fd86c4d7212bd16c544030d96d8afa4f5aff69  kvantum-0.14.1.tar.gz"

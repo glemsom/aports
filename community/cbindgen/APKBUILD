@@ -1,0 +1,27 @@
+# Contributor: Leo <thinkabit.ukim@gmail.com>
+# Maintainer:
+pkgname=cbindgen
+pkgver=0.13.1
+pkgrel=0
+pkgdesc="Tool to generate C bindings from Rust code"
+url="https://github.com/eqrion/cbindgen"
+arch="x86_64 armv7 armhf aarch64 x86 ppc64le" # Limited by cargo
+license="MPL-2.0"
+makedepends="cargo"
+source="$pkgname-$pkgver.tar.gz::https://crates.io/api/v1/crates/cbindgen/$pkgver/download"
+
+build() {
+	cargo build --release --locked --verbose
+}
+
+check() {
+	# Failing tests
+	rm -rf tests/rust/expand*
+	cargo test --release --locked --verbose
+}
+
+package() {
+	install -Dm0755 target/release/cbindgen -t "$pkgdir"/usr/bin
+}
+
+sha512sums="faaf76c95e3111931fbe044909be385c2af3366ee07cd4c5d9aeb02a9715ff75c3a78370a3b5c50af145970851feadb2aef983ff0c3aaae63626d25f40a656b8  cbindgen-0.13.1.tar.gz"

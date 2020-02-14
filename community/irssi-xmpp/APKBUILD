@@ -10,17 +10,15 @@ license="GPL-2.0"
 makedepends="irssi-dev loudmouth-dev"
 subpackages="$pkgname-doc"
 options="!check"
-source="https://cybione.org/~irssi-xmpp/files/$pkgname-$pkgver.tar.gz
-	musl-fixes.patch"
+source="irssi-xmpp-$pkgver.tar.gz::https://github.com/cdidier/irssi-xmpp/archive/v$pkgver/irssi-xmpp-$pkgver.tar.gz
+	musl-fixes.patch
+	"
 
-builddir="$srcdir/$pkgname-$pkgver"
 build() {
-	cd "$builddir"
 	make PREFIX=/usr
 }
 
 package() {
-	cd "$builddir"
 	make PREFIX=/usr DESTDIR="$pkgdir" install
 }
 

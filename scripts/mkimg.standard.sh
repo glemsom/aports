@@ -6,7 +6,7 @@ profile_standard() {
 	profile_base
 	profile_abbrev="std"
 	image_ext="iso"
-	arch="x86 x86_64 ppc64le s390x"
+	arch="aarch64 x86 x86_64 ppc64le s390x"
 	output_format="iso"
 	kernel_cmdline="nomodeset"
 	kernel_addons="xtables-addons"
@@ -30,9 +30,9 @@ profile_extended() {
 		Suitable for routers and servers.
 		Runs from RAM."
 	arch="x86 x86_64"
-	kernel_addons="dahdi-linux xtables-addons zfs spl"
+	kernel_addons="xtables-addons zfs"
 	apks="$apks
-		dahdi-linux dahdi-tools ethtool hwdata lftp links
+		ethtool hwids lftp links doas
 		logrotate lua5.3 lsof lm_sensors lxc lxc-templates nano
 		pax-utils paxmark pciutils screen strace sudo tmux
 		usbutils v86d vim xtables-addons curl
@@ -43,8 +43,8 @@ profile_extended() {
 		igmpproxy ip6tables iproute2 iproute2-qos ipsec-tools
 		iptables iputils irssi ldns-tools links
 		ncurses-terminfo net-snmp net-snmp-tools nrpe nsd
-		opennhrp openvpn openvswitch pingu ppp quagga
-		quagga-nhrp rpcbind sntpc socat ssmtp strongswan
+		opennhrp openvpn pingu ppp quagga
+		quagga-nhrp rng-tools rpcbind sntpc socat ssmtp strongswan
 		sysklogd tcpdump tinyproxy unbound
 		wireless-tools wpa_supplicant zonenotify
 
@@ -71,7 +71,7 @@ profile_virt() {
 	desc="Similar to standard.
 		Slimmed down kernel.
 		Optimized for virtual systems."
-	arch="x86 x86_64"
+	arch="aarch64 x86 x86_64"
 	kernel_addons=
 	kernel_flavors="virt"
 	kernel_cmdline="console=tty0 console=ttyS0,115200"

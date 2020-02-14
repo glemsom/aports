@@ -1,18 +1,18 @@
 # Maintainer: Timo Teräs <timo.teras@iki.fi>
 pkgname=raspberrypi
-pkgver=0.20181212
-_commitid=7cbfbd38d9824535164f93a1d32c81a33a00ca31
-pkgrel=0
+pkgver=0.20190416
+_commitid=ff2bd4552145e8dc190276d8fbdbadc7e8e0da78
+pkgrel=1
 pkgdesc="Raspberry Pi support tools"
 url="https://github.com/raspberrypi/userland"
 arch="armhf armv7 aarch64"
 license="BSD"
 depends=""
-depends_dev="linux-headers raspberrypi-libs"
+depends_dev="linux-headers raspberrypi-static raspberrypi-libs"
 makedepends="cmake $depends_dev"
 install=""
 options="!fhs !check"
-subpackages="$pkgname-dev $pkgname-libs $pkgname-openrc"
+subpackages="$pkgname-dev $pkgname-static $pkgname-libs $pkgname-openrc"
 source="raspberrypi-$pkgver.tar.gz::https://github.com/raspberrypi/userland/archive/$_commitid.tar.gz
 	"
 
@@ -33,6 +33,7 @@ build() {
 		-DARM64=$ARM64 \
 		-DCMAKE_BUILD_TYPE=MinSizeRel \
 		-DCMAKE_INSTALL_RPATH=/opt/vc/lib \
+		-DCMAKE_SHARED_LINKER_FLAGS="-Wl,--no-as-needed" \
 		$_sourcedir
 	make
 }
@@ -43,7 +44,14 @@ package() {
 
 	# nuke the unwanted stuff
 	rm -rf "$pkgdir"/opt/vc/src
-	rm -rf "$pkgdir"/opt/vc/lib/*.a
+	mv "$pkgdir"/opt/vc/etc "$pkgdir"
+}
+
+static() {
+	pkgdesc="Static files for $pkgname"
+
+	mkdir -p "$subpkgdir"/opt/vc/lib
+	mv "$pkgdir"/opt/vc/lib/*.a "$subpkgdir"/opt/vc/lib
 }
 
 libs() {
@@ -53,4 +61,4 @@ libs() {
 	mv "$pkgdir"/opt/vc/lib/* "$subpkgdir"/opt/vc/lib
 }
 
-sha512sums="37ebb121cbf4815bc367b9718e450145d48e78e095165e529dc4b30502c5d9370982134235a0dc90334a67b56e3326c1a933f2b11bef40e605f9aeaa85101618  raspberrypi-0.20181212.tar.gz"
+sha512sums="dad48bd88d11a3f6807250275950235122bf5f35c47c5891f4e2c40964adbf69de6dbc014cea561540e516bed369257fc134a0114b9bdfa6e6a689a48bfd9f40  raspberrypi-0.20190416.tar.gz"

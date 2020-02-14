@@ -3,45 +3,37 @@
 # Maintainer: Francesco Colista <fcolista@alpinelinux.org>
 pkgname=perl-test-simple
 _pkgreal=Test-Simple
-pkgver=1.302141
-pkgrel=0
+pkgver=1.302171
+pkgrel=1
 pkgdesc="Basic utilities for writing tests."
-url="http://search.cpan.org/dist/Test-Simple/"
+url="https://metacpan.org/release/Test-Simple"
 arch="noarch"
-license="GPL PerlArtistic"
-cpandepends=""
-cpanmakedepends=""
-cpancheckdepends=""
+license="GPL-1.0-or-later OR Artistic-1.0-Perl"
 provides="perl-test-tester"
-depends="$cpandepends"
-makedepends="perl-dev $cpanmakedepends"
-checkdepends="$cpancheckdepends"
+depends="perl"
+makedepends="perl-dev"
 subpackages="$pkgname-doc"
-source="http://search.cpan.org/CPAN/authors/id/E/EX/EXODIST/$_pkgreal-$pkgver.tar.gz"
+source="https://cpan.metacpan.org/authors/id/E/EX/EXODIST/$_pkgreal-$pkgver.tar.gz"
 builddir="$srcdir/$_pkgreal-$pkgver"
 
 prepare() {
 	default_prepare
 
-	cd "$builddir"
 	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
 	PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
 }
 
 build() {
-	cd "$builddir"
 	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
 	make
 }
 
 package() {
-	cd "$builddir"
 	make DESTDIR="$pkgdir" install
 	find "$pkgdir" \( -name perllocal.pod -o -name .packlist \) -delete
 }
 
 check() {
-	cd "$builddir"
 	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
 	make test
 }
@@ -51,4 +43,4 @@ doc() {
 	replaces="perl-doc"
 }
 
-sha512sums="3560308cc62441c4b4214b002a9c98cd9e0191fcf655295031b58f5ed6f43c26def278fb2669bca0c6fa1e803c2feb90a8700f840bd91cddd649573ad896e261  Test-Simple-1.302141.tar.gz"
+sha512sums="abae294e5c941c807b08ceafb2b30603c013fa669e9e6605c3495f6468a65303d5a639af719651b1f0bab6ea10771fc38cd2443a93142511ee27a1cd840d7ef9  Test-Simple-1.302171.tar.gz"

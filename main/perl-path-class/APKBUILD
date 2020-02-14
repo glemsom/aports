@@ -4,9 +4,9 @@
 pkgname=perl-path-class
 _pkgreal=Path-Class
 pkgver=0.37
-pkgrel=0
+pkgrel=1
 pkgdesc="Cross-platform path specification manipulation"
-url="http://search.cpan.org/dist/Path-Class/"
+url="https://metacpan.org/release/Path-Class/"
 arch="noarch"
 license="GPL PerlArtistic"
 cpandepends=""
@@ -14,7 +14,7 @@ cpanmakedepends=""
 depends="$cpandepends"
 makedepends="perl-dev $cpanmakedepends perl-module-build"
 subpackages="$pkgname-doc"
-source="http://search.cpan.org/CPAN/authors/id/K/KW/KWILLIAMS/$_pkgreal-$pkgver.tar.gz"
+source="https://cpan.metacpan.org/authors/id/K/KW/KWILLIAMS/$_pkgreal-$pkgver.tar.gz"
 
 _builddir="$srcdir/$_pkgreal-$pkgver"
 
@@ -35,6 +35,4 @@ package() {
 	find "$pkgdir" \( -name perllocal.pod -o -name .packlist \) -delete
 }
 
-md5sums="13e6db714f6d5a0e62ca1c4a7fc4d0f3  Path-Class-0.37.tar.gz"
-sha256sums="654781948602386f2cb2e4473a739f17dc6953d92aabc2498a4ca2561bc248ce  Path-Class-0.37.tar.gz"
 sha512sums="044d86f85eebff96bdff8fc11e97884eb4e06d56ecd2d3bfdc045135da6f08c40e644e0e5c1a779a8ef5d6c7c04e159e47721b4e637a92fed7d298b5f798ef83  Path-Class-0.37.tar.gz"

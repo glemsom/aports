@@ -1,42 +1,64 @@
-# Contributor: Kevin Daudt <ops@ikke.info>
-# Maintainer: Kevin Daudt <ops@ikke.info>
+# Contributor: Robert White <rjwhite2453@gmail.com>
+# Contributor: Kevin Daudt <kdaudt@alpinelinux.org>
+# Maintainer: Kevin Daudt <kdaudt@alpinelinux.org>
 pkgname=fzf
-pkgver=0.17.5
-pkgrel=2
+pkgver=0.20.0
+pkgrel=0
 pkgdesc="A command-line fuzzy finder"
 url="https://github.com/junegunn/fzf"
-arch="all !s390x !aarch64 !armhf !armv7"
+arch="all"
 license="MIT"
 makedepends="go glide bash tmux"
+options="net"
 subpackages="
 	$pkgname-tmux::noarch
 	$pkgname-bash-completion:bashcomp:noarch
 	$pkgname-zsh-completion:zshcomp:noarch
+	$pkgname-vim:vim:noarch
+	$pkgname-neovim:nvim:noarch
+	$pkgname-doc
 	"
 source="$pkgname-$pkgver.tar.gz::https://github.com/junegunn/fzf/archive/$pkgver.tar.gz
-	no-glide-install.patch"
+	glide.yaml
+	glide.lock
+	find-buzybox-compat.patch
+	"
+builddir="$srcdir/src/github.com/junegunn/$pkgname"
 
 prepare() {
+	export GOPATH="$srcdir"
+
+	mkdir -p "$(dirname "$builddir")"
+	mv "$srcdir"/$pkgname-$pkgver "$builddir"/
+
+	cp "$srcdir"/glide.yaml "$srcdir"/glide.lock "$builddir"
+	glide install --skip-test
+
 	default_prepare
-	cd "$builddir"
-	export GOPATH="$startdir"
-	glide install
 }
 
 build() {
-	cd "$builddir"
-	make
+	go build
 }
 
 check() {
-	cd "$builddir"
-	make test
+	# shellcheck disable=SC1007
+	SHELL=/bin/sh GOOS= go test -v \
+		github.com/junegunn/fzf/src \
+		github.com/junegunn/fzf/src/algo \
+		github.com/junegunn/fzf/src/tui \
+		github.com/junegunn/fzf/src/util
 }
 
 package() {
-	cd "$builddir"
-	make install # Just copies the target binary to $buildir/bin
-	install -Dm0755 bin/fzf "$pkgdir"/usr/bin/fzf
+	install -Dm0755 fzf "$pkgdir"/usr/bin/fzf
+
+	install -D man/man1/fzf.1 "$pkgdir"/usr/share/man/man1/fzf.1
+	install -D man/man1/fzf-tmux.1 "$pkgdir"/usr/share/man/man1/fzf-tmux.1
+
+	mkdir -p "$pkgdir"/usr/share/doc/$pkgname
+	install -Dm644 CHANGELOG.md README-VIM.md README.md \
+		"$pkgdir"/usr/share/doc
 }
 
 tmux() {
@@ -71,5 +93,41 @@ zshcomp() {
 	install -m0644 shell/key-bindings.zsh "$subpkgdir"/usr/share/fzf/
 }
 
-sha512sums="adb5290317362c32d053294a2dd9a2aa11711521635c1cb1fc11001dea1b06e27856a7c54e7316d211abee3304cc56b8a9ee60773bb99cb4132b533f5464a430  fzf-0.17.5.tar.gz
-daa16985079e3b55ccf5e74dde356e1e13e43865c9809e432b5d272b053f541f1eacd402f3b04957ee855fb8c0ca1820b507d08e408f55dc80004990a949874c  no-glide-install.patch"
+glide_init() {
+	abuild clean deps unpack prepare
+	cd "$builddir"
+	export GOPATH="$startdir"
+	rm -f glide.yaml glide.lock
+	glide init --non-interactive
+	glide update
+	cp glide.yaml glide.lock "$startdir"
+	cd "$startdir" && abuild checksum clean
+}
+
+vim() {
+	pkgdesc="fzf vim plugin"
+	install="$pkgname-vim.post-install"
+	install_if="$pkgname=$pkgver-r$pkgrel vim"
+	cd "$builddir"
+	install -Dm0644 plugin/fzf.vim "$subpkgdir"/usr/share/vim/vimfiles/plugin/fzf.vim
+	install -Dm0644 doc/fzf.txt "$subpkgdir"/usr/share/vim/vimfiles/doc/fzf.txt
+}
+
+nvim() {
+	pkgdesc="fzf vim plugin for neovim"
+	install_if="$pkgname=$pkgver-r$pkgrel neovim"
+	cd "$builddir"
+	install -Dm0644 plugin/fzf.vim "$subpkgdir"/usr/share/nvim/runtime/plugin/fzf.vim
+	install -Dm0644 doc/fzf.txt "$subpkgdir"/usr/share/nvim/runtime/doc/fzf.txt
+}
+
+cleanup_srcdir() {
+	export GOPATH="$srcdir"
+	go clean -modcache
+	default_cleanup_srcdir
+}
+
+sha512sums="a65294d29c59353d17468a919878f965934540eea27441292a7219aea7509c18ea31ed1d58453f890a43026e4ae58946e0122d49475e734bd9354a0e520d99e7  fzf-0.20.0.tar.gz
+dc14dea17ea585344e16eeffdc244693d97f4519676d20ec43434f6eff460d61be833399469ccb44c25c9fed296d52d424208c4a4cae5a3beecba14593cecd49  glide.yaml
+5d1c0801d79a0425e1ec02c818bf440f2201841f356f32350fac06bf3ed7a7d03c0718cbeadc07143701895152f7ee19919e6e527be9e17c0df430f93d0282c9  glide.lock
+8e905eaaa915373162e418416026c20138442cfc740b55b33d63653078a19d8aec6d7c99c12916c44443eab188a56a9b3466763c508de7d6579bd996b0af5d67  find-buzybox-compat.patch"

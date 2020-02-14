@@ -1,6 +1,6 @@
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 pkgname=imlib2
-pkgver=1.5.1
+pkgver=1.6.1
 pkgrel=0
 pkgdesc="Image manipulation library"
 url="https://sourceforge.net/projects/enlightenment"
@@ -10,11 +10,9 @@ subpackages="$pkgname-dev"
 depends_dev="freetype-dev libxext-dev libsm-dev"
 makedepends="$depends_dev tiff-dev giflib-dev bzip2-dev libpng-dev
 	libid3tag-dev libjpeg-turbo-dev zlib-dev util-linux-dev"
-source="https://downloads.sourceforge.net/enlightenment/$pkgname-src/$pkgname-$pkgver.tar.bz2"
+source="https://downloads.sourceforge.net/enlightenment/imlib2-$pkgver.tar.gz"
 
-builddir="$srcdir/$pkgname-$pkgver"
 build() {
-	cd "$builddir"
 	./configure \
 		--build=$CBUILD \
 		--host=$CHOST \
@@ -36,13 +34,11 @@ build() {
 }
 
 check() {
-	cd "$builddir"
 	make check
 }
 
 package() {
-	cd "$builddir"
 	make DESTDIR=$pkgdir install
 }
 
-sha512sums="f9d971674887d4af067c6921e34b6fe598db0317052bc864b676c526b36373ce021d9d49cad95aa64dbbd8e74f1831ddf3ed105900e3df2b66a6b53f7f27c732  imlib2-1.5.1.tar.bz2"
+sha512sums="0c6d874973c46c7e96e49fc391d463ec8c7c5ce9de682600cb4e28ca81ff0366a02055cbec2a2b743204051243d20b2316ab602b98df9d03dcf319297f7e6a13  imlib2-1.6.1.tar.gz"

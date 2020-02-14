@@ -1,0 +1,31 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=kajongg
+pkgver=19.12.2
+pkgrel=0
+arch="noarch !armhf"
+url="https://kde.org/applications/games/org.kde.kajongg"
+pkgdesc="Mah Jongg - the ancient Chinese board game for 4 players"
+license="GPL-2.0-or-later AND GFDL-1.2-only"
+depends="python3"
+makedepends="extra-cmake-modules qt5-qtbase-dev qt5-qtsvg-dev kconfig-dev kdoctools-dev kconfigwidgets-dev libkmahjongg-dev py3-twisted"
+source="https://download.kde.org/stable/release-service/$pkgver/src/kajongg-$pkgver.tar.xz"
+subpackages="$pkgname-doc $pkgname-lang"
+
+build() {
+	cmake \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest
+}
+
+package() {
+	DESTDIR="$pkgdir" make install
+}
+
+sha512sums="a6999391093e16d31442c3b91eba639e929d250332d1e654eb00fde3e0104ff83d071b88a5e42193b03ee172a053d79784f59f02f1679c364c465bf218327342  kajongg-19.12.2.tar.xz"

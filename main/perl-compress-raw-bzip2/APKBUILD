@@ -2,15 +2,15 @@
 # Maintainer:  Leonardo Arena <rnalrd@alpinelinux.org>
 pkgname=perl-compress-raw-bzip2
 _pkgname=Compress-Raw-Bzip2
-pkgver=2.084
-pkgrel=0
+pkgver=2.093
+pkgrel=1
 pkgdesc="Perl low-level interface to bzip2 compression library"
-url="http://search.cpan.org/~pmqs/Compress-Raw-Bzip2-2.024/"
+url="https://metacpan.org/release/PMQS/Compress-Raw-Bzip2-$pkgver"
 arch="all"
-license="GPL PerlArtistic"
+license="GPL-1.0-or-later OR Artistic-1.0-Perl"
 depends="perl"
 makedepends="perl-dev"
-source="http://search.cpan.org/CPAN/authors/id/P/PM/PMQS/${_pkgname}-${pkgver}.tar.gz"
+source="https://cpan.metacpan.org/authors/id/P/PM/PMQS/$_pkgname-$pkgver.tar.gz"
 builddir="$srcdir/$_pkgname-$pkgver"
 
 prepare() {
@@ -19,19 +19,16 @@ prepare() {
 }
 
 build() {
-	cd $builddir
 	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
 	make
 }
 
 check() {
-	cd "$builddir"
 	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
 	make test
 }
 
 package() {
-	cd $builddir
 	make DESTDIR="$pkgdir" install
 	find "$pkgdir" \( -name perllocal.pod -o -name .packlist \) -delete
 
@@ -39,4 +36,4 @@ package() {
 	rm -rf "$pkgdir"/usr/share/man
 }
 
-sha512sums="fdc8ff3805d58b2a79dd7ae9e01e43c6f93273197794a18d22b20af83d2915255fb5ceb486865d2b2249b08c1bf990fba164757ab2caffff56bce52abaf3740b  Compress-Raw-Bzip2-2.084.tar.gz"
+sha512sums="03299251b84e457a82749411f237d92a6d77438ccbda6f8ba30a95c70ab40decf85e86d6b60cbefdda9602afd7cb74819a53d5bbe22ecca347f01e4c1a97229e  Compress-Raw-Bzip2-2.093.tar.gz"

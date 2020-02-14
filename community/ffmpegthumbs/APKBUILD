@@ -1,0 +1,40 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=ffmpegthumbs
+pkgver=19.12.2
+pkgrel=0
+arch="all !armhf" # armhf blocked by extra-cmake-modules
+url="https://www.kde.org/applications/multimedia/"
+pkgdesc="FFmpeg-based thumbnail creator for video files"
+license="GPL-2.0-or-later"
+makedepends="extra-cmake-modules qt5-qtbase-dev kio-dev ki18n-dev kconfig-dev ffmpeg-dev"
+source="https://download.kde.org/stable/release-service/$pkgver/src/ffmpegthumbs-$pkgver.tar.xz"
+subpackages="$pkgname-lang"
+options="!check" # No tests
+
+prepare() {
+	default_prepare
+
+	mkdir "$builddir"/build
+}
+
+build() {
+	cd "$builddir"/build
+	cmake "$builddir" \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	cd "$builddir"/build
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest
+}
+
+package() {
+	cd "$builddir"/build
+	DESTDIR="$pkgdir" make install
+}
+
+sha512sums="9bf1d0db50d194f31f915ec2dfbd451428755ab574f2548c09c542db644034bd8a581dff5e492316b71451fca917b7ae56422b6f9efc058b88b8ed85b4d118f6  ffmpegthumbs-19.12.2.tar.xz"

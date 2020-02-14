@@ -1,16 +1,14 @@
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 pkgname=iso-codes
-pkgver=4.1
+pkgver=4.4
 pkgrel=0
 pkgdesc="ISO codes and their translations"
-url="http://pkg-isocodes.alioth.debian.org"
+url="https://salsa.debian.org/iso-codes-team/iso-codes"
 arch="noarch"
 license="LGPL-2.1-or-later"
-depends=""
 subpackages="$pkgname-lang $pkgname-dev"
 makedepends="python3 gettext"
-source="http://http.debian.net/debian/pool/main/i/$pkgname/${pkgname}_${pkgver}.orig.tar.xz"
-builddir="$srcdir/$pkgname-$pkgver"
+source="http://http.debian.net/debian/pool/main/i/iso-codes/iso-codes_$pkgver.orig.tar.xz"
 build() {
 	cd "$builddir"
 	./configure \
@@ -29,4 +27,4 @@ package() {
 	make DESTDIR="$pkgdir" pkgconfigdir=/usr/lib/pkgconfig install
 }
 
-sha512sums="cf02be0cfc43a1fb28334ccae552cac9a7dee70ca3969b6263eca4bd7fee8ddcc437bd23d290643ba2cd7e99b207661d7330daaf452dc59cde36fdd5919b5616  iso-codes_4.1.orig.tar.xz"
+sha512sums="a832447edd0847d514086e05c90fa143d4c19146c06d266bc70d5c8da0605efdd6be35fcf73d5833c616396e486a77c107b4f506172e7a47f689a44f892eb669  iso-codes_4.4.orig.tar.xz"

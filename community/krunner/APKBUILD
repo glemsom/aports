@@ -1,0 +1,43 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=krunner
+pkgver=5.67.0
+pkgrel=0
+pkgdesc="Framework for providing different actions given a string query"
+arch="all !armhf" # armhf blocked by extra-cmake-modules
+url="https://community.kde.org/Frameworks"
+license="LGPL-2.1-only AND LGPL-2.1-or-later"
+depends_dev="qt5-qtbase-dev kconfig-dev kcoreaddons-dev ki18n-dev kio-dev
+	kservice-dev plasma-framework-dev threadweaver-dev"
+makedepends="$depends_dev extra-cmake-modules qt5-qttools-dev doxygen"
+checkdepends="xvfb-run"
+source="https://download.kde.org/stable/frameworks/${pkgver%.*}/krunner-$pkgver.tar.xz"
+subpackages="$pkgname-dev $pkgname-doc"
+options="!check" # Requires running dbus instance
+
+prepare() {
+	default_prepare
+
+	mkdir "$builddir"/build
+}
+
+build() {
+	cd "$builddir"/build
+	cmake "$builddir" \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DBUILD_QCH=ON
+	make
+}
+
+check() {
+	cd "$builddir"/build
+	CTEST_OUTPUT_ON_FAILURE=TRUE xvfb-run ctest
+}
+
+package() {
+	cd "$builddir"/build
+	DESTDIR="$pkgdir" make install
+}
+sha512sums="a43cd902a26d7a0af5b9e5114f96fbeaa2f24918ae64ba0ab899c299ad4c0ff95ca98c19380a61ecdd414c5a3c7ad5fc9924337180a67d9fcc92748b798f7234  krunner-5.67.0.tar.xz"

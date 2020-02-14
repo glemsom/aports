@@ -3,10 +3,10 @@
 # Maintainer: Francesco Colista <fcolista@alpinelinux.org>
 pkgname=perl-datetime-format-strptime
 _pkgreal=DateTime-Format-Strptime
-pkgver=1.74
-pkgrel=0
+pkgver=1.76
+pkgrel=1
 pkgdesc="Parse and format strp and strf time patterns"
-url="http://search.cpan.org/dist/DateTime-Format-Strptime/"
+url="https://metacpan.org/release/DateTime-Format-Strptime/"
 arch="noarch"
 license="Artistic-2.0"
 cpandepends="perl-params-validate perl-datetime perl-try-tiny
@@ -16,7 +16,7 @@ cpanmakedepends="perl-test-warnings perl-test-fatal "
 depends="$cpandepends"
 makedepends="perl-dev $cpanmakedepends"
 subpackages="$pkgname-doc"
-source="http://search.cpan.org/CPAN/authors/id/D/DR/DROLSKY/$_pkgreal-$pkgver.tar.gz"
+source="https://cpan.metacpan.org/authors/id/D/DR/DROLSKY/$_pkgreal-$pkgver.tar.gz"
 
 builddir="$srcdir/$_pkgreal-$pkgver"
 
@@ -43,4 +43,4 @@ package() {
 	find "$pkgdir" \( -name perllocal.pod -o -name .packlist \) -delete
 }
 
-sha512sums="3b2b640f93956e82aff47f068c596018700615414c9b9ccf8d6bf68ad7b626ec86a831ec2b68807d7f137c10d4b8cfa5d2d50a6304252f3dfecbe9ff94e59617  DateTime-Format-Strptime-1.74.tar.gz"
+sha512sums="896c6f1bdb77cf21f1170aae97466a96d7a4469d478f31ea66c16ed9ba5c86edd184fa578ea113bcc90a25fbd6b4ae5264053f1ef6092764b15f7fd461b491c9  DateTime-Format-Strptime-1.76.tar.gz"

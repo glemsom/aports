@@ -1,0 +1,27 @@
+# Contributor: Carlo Landmeter <clandmeter@gmail.com>
+# Maintainer: Francesco Colista <fcolista@alpinelinux.org>
+pkgname=py3-idna
+_pkgname=idna
+pkgver=2.8
+pkgrel=3
+pkgdesc="IDNA 2008 and UTS #46 for Python3"
+url="https://github.com/kjd/idna"
+arch="noarch"
+license="BSD-3-Clause"
+depends="python3"
+makedepends="py3-setuptools"
+source="idna-$pkgver.tar.gz::https://github.com/kjd/idna/archive/v$pkgver.tar.gz"
+builddir="$srcdir/$_pkgname-$pkgver"
+
+replaces="py-idna" # Backwards compatibility
+provides="py-idna=$pkgver-r$pkgrel" # Backwards compatibility
+
+build() {
+	python3 setup.py build
+}
+
+package() {
+	python3 setup.py install --prefix=/usr --root="$pkgdir"
+}
+
+sha512sums="848ca6a2630da1cfd9c4657854d71dc060f31fdd1f687ce35fd10467ca08ab29223bae521999aabde44ef777724bd5f5c2b5f362109c2c531c2ad6358ed1f3d6  idna-2.8.tar.gz"

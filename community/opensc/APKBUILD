@@ -2,7 +2,7 @@
 # Maintainer: Timo Teräs <timo.teras@iki.fi>
 pkgname=opensc
 _realname=OpenSC
-pkgver=0.19.0
+pkgver=0.20.0
 pkgrel=0
 pkgdesc="Open source smart card tools and middleware"
 url="https://github.com/OpenSC/OpenSC"
@@ -13,11 +13,19 @@ depends_dev="zlib-dev pcsc-lite-dev openssl-dev readline-dev"
 makedepends="$depends_dev automake autoconf m4 gettext libtool"
 install=""
 subpackages="$pkgname-dev $pkgname-doc"
-source="$_realname-${pkgver}.tar.gz::https://github.com/OpenSC/OpenSC/archive/${pkgver}.tar.gz"
+source="$_realname-${pkgver}.tar.gz::https://github.com/OpenSC/OpenSC/archive/${pkgver}.tar.gz
+	"
 
 builddir="$srcdir/$_realname-$pkgver"
 
 # secfixes:
+#   0.20.0-r0:
+#     - CVE-2019-6502
+#     - CVE-2019-15945
+#     - CVE-2019-15946
+#     - CVE-2019-19479
+#     - CVE-2019-19480
+#     - CVE-2019-19481
 #   0.19.0-r0:
 #     - CVE-2018-16391
 #     - CVE-2018-16392
@@ -59,4 +67,4 @@ package() {
 		"$pkgdir/etc/opensc.conf"
 }
 
-sha512sums="a54161b72e6ecea9d61d8bdf0fe0dbd0f97dd8fff0ce6ce344442d9dd9218779851054f8a9049c95c4276e69d3ab96afd0906ebb3278739c8f8e32ad3dbf2d4b  OpenSC-0.19.0.tar.gz"
+sha512sums="1360ee35f579cbeecf368777bb60d6c23ec2a80a2983328ea2c193530cc9b101a807ff1e2982ad34bfcc2bae2c867feecf300b6229d15057e796bd31ecffb02d  OpenSC-0.20.0.tar.gz"

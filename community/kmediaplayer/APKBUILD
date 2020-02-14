@@ -1,0 +1,41 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=kmediaplayer
+pkgver=5.67.0
+pkgrel=0
+pkgdesc="Media player framework for KDE 5"
+arch="all !armhf" # armhf blocked by extra-cmake-modules
+url="https://community.kde.org/Frameworks"
+license="X11 AND LGPL-2.1-or-later"
+depends_dev="qt5-qtbase-dev kparts-dev kxmlgui-dev"
+makedepends="$depends_dev extra-cmake-modules"
+checkdepends="xvfb-run"
+source="https://download.kde.org/stable/frameworks/${pkgver%.*}/portingAids/kmediaplayer-$pkgver.tar.xz"
+subpackages="$pkgname-dev"
+
+prepare() {
+	default_prepare
+
+	mkdir "$builddir"/build
+}
+
+build() {
+	cd "$builddir"/build
+	cmake "$builddir" \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	cd "$builddir"/build
+	# viewtest requires X11 to be running
+	CTEST_OUTPUT_ON_FAILURE=TRUE xvfb-run ctest
+}
+
+package() {
+	cd "$builddir"/build
+	DESTDIR="$pkgdir" make install
+}
+sha512sums="b5ce946004df9f006f4ac20e7e483765f0b78360f4d6aae9585ba707464dca275ff21a44d159e9834d160ccd832823796ae8f5ad6daf55881371a1d6669e648e  kmediaplayer-5.67.0.tar.xz"

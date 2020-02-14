@@ -1,32 +1,33 @@
 # Contributor: Łukasz Jendrysik <scadu@yandex.com>
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 pkgname=nss
-pkgver=3.41
-_ver=${pkgver//./_}
+pkgver=3.50
 pkgrel=0
 pkgdesc="Mozilla Network Security Services"
-url="http://www.mozilla.org/projects/security/pki/nss/"
+url="https://developer.mozilla.org/docs/Mozilla/Projects/NSS"
 arch="all"
-license="MPL GPL"
-options="!check"
-depends=
+license="MPL-2.0"
+options="!check" # failing tests
 depends_dev="nspr-dev"
 makedepends="nspr-dev sqlite-dev zlib-dev perl bsd-compat-headers linux-headers"
 subpackages="$pkgname-static $pkgname-dev $pkgname-tools"
-source="https://ftp.mozilla.org/pub/security/$pkgname/releases/NSS_${pkgver//./_}_RTM/src/$pkgname-$pkgver.tar.gz
+source="https://ftp.mozilla.org/pub/security/nss/releases/NSS_${pkgver//./_}_RTM/src/nss-$pkgver.tar.gz
 	nss.pc.in
 	nss-util.pc.in
 	nss-softokn.pc.in
 	nss-config.in
 	add_spi+cacert_ca_certs.patch
 	"
-builddir="$srcdir/$pkgname-$pkgver"
 
 # secfixes:
+#   3.49-r0:
+#     - CVE-2019-17023
+#   3.47.1-r0:
+#     - CVE-2019-11745
 #   3.41-r0:
-#   - CVE-2018-12404
+#     - CVE-2018-12404
 #   3.39-r0:
-#   - CVE-2018-12384
+#     - CVE-2018-12384
 
 prepare() {
 	default_prepare
@@ -37,7 +38,6 @@ prepare() {
 }
 
 build() {
-	cd "$builddir"
 	unset CFLAGS
 	unset CXXFLAGS
 	export BUILD_OPT=1
@@ -46,8 +46,8 @@ build() {
 	export FREEBL_NO_DEPEND=0
 	export NSS_USE_SYSTEM_SQLITE=1
 	export NSS_ENABLE_WERROR=0
-	export NSPR_INCLUDE_DIR=`pkg-config --cflags-only-I nspr | sed 's/-I//'`
-	export NSPR_LIB_DIR=`pkg-config --libs-only-L nspr | sed 's/-L.//'`
+	export NSPR_INCLUDE_DIR=$(pkg-config --cflags-only-I nspr | sed 's/-I//')
+	export NSPR_LIB_DIR=$(pkg-config --libs-only-L nspr | sed 's/-L//')
 	case "$CARCH" in
 		*64* | s390x) export USE_64=1;;
 	esac
@@ -56,23 +56,24 @@ build() {
 	make -j 1 -C nss
 }
 
+check() {
+	HOST=localhost DOMSUF=localdomain sh "$builddir/nss/tests/all.sh"
+}
+
 package() {
 	replaces="nss-dev libnss"
-
-	cd "$builddir"
 
 	install -m755 -d "$pkgdir"/usr/lib/pkgconfig
 	install -m755 -d "$pkgdir"/usr/bin
 	install -m755 -d "$pkgdir"/usr/include/nss/private
 
-	NSS_VMAJOR=`awk '/#define.*NSS_VMAJOR/ {print $3}' nss/lib/nss/nss.h `
-	msg "DEBUG: $NSS_VMAJOR"
-	NSS_VMINOR=`awk '/#define.*NSS_VMINOR/ {print $3}' nss/lib/nss/nss.h`
-	NSS_VPATCH=`awk '/#define.*NSS_VPATCH/ {print $3}' nss/lib/nss/nss.h`
+	NSS_VMAJOR=$(awk '/#define.*NSS_VMAJOR/ {print $3}' nss/lib/nss/nss.h)
+	NSS_VMINOR=$(awk '/#define.*NSS_VMINOR/ {print $3}' nss/lib/nss/nss.h)
+	NSS_VPATCH=$(awk '/#define.*NSS_VPATCH/ {print $3}' nss/lib/nss/nss.h)
 
 	# pkgconfig files
 	local _pc; for _pc in nss.pc nss-util.pc nss-softokn.pc; do
-		sed "$srcdir"/${_pc}.in \
+		sed "$srcdir"/$_pc.in \
 			-e "s,%libdir%,/usr/lib,g" \
 			-e "s,%prefix%,/usr,g" \
 			-e "s,%exec_prefix%,/usr/bin,g" \
@@ -81,7 +82,7 @@ package() {
 			-e "s,%NSPR_VERSION%,$pkgver,g" \
 			-e "s,%NSS_VERSION%,$pkgver,g" \
 			-e "s,%NSSUTIL_VERSION%,$pkgver,g" \
-			> "$pkgdir"/usr/lib/pkgconfig/${_pc}
+			> "$pkgdir"/usr/lib/pkgconfig/$_pc
 	done
 	ln -sf nss.pc "$pkgdir"/usr/lib/pkgconfig/mozilla-nss.pc
 	chmod 644 "$pkgdir"/usr/lib/pkgconfig/*.pc
@@ -116,17 +117,15 @@ package() {
 }
 
 static() {
-	pkgdesc="Static libraries for nss"
-	mkdir -p "$subpkgdir"/usr/lib
-	mv "$pkgdir"/usr/lib/*.a "$subpkgdir"/usr/lib/
+	default_static
 
-	# remove libssl.a which conflicts with libressl
+	# remove libssl.a which conflicts with openssl
 	rm "$subpkgdir"/usr/lib/libssl.a
 }
 
 dev() {
 	# we cannot use default_dev because we need the .so symlinks in main package
-	local i= j=
+	local i
 	pkgdesc="Development files for nss"
 	depends="$pkgname $depends_dev"
 
@@ -153,7 +152,7 @@ tools() {
 	mv "$pkgdir"/usr/bin "$subpkgdir"/usr/
 }
 
-sha512sums="b5a43fe86ded664002fd714c493d9222a64539cd6139b64720625d1742fec5100712cbe401c90c79196e9cbad9ec07d9b4f0f517ce34e4b207beaa3e01c9e114  nss-3.41.tar.gz
+sha512sums="d6bcaf8ad65b5a97c42cd6cbbc68add5c4b49db74b2debcedb2a007f72511ac0e9bd21fd2dec041bc1975cfc8af26a48450aa0d1b962f755931ab2ac45c795b1  nss-3.50.tar.gz
 75dbd648a461940647ff373389cc73bc8ec609139cd46c91bcce866af02be6bcbb0524eb3dfb721fbd5b0bc68c20081ed6f7debf6b24317f2a7ba823e8d3c531  nss.pc.in
 0f2efa8563b11da68669d281b4459289a56f5a3a906eb60382126f3adcfe47420cdcedc6ab57727a3afeeffa2bbb4c750b43bef8b5f343a75c968411dfa30e09  nss-util.pc.in
 09c69d4cc39ec9deebc88696a80d0f15eb2d8c94d9daa234a2adfec941b63805eb4ce7f2e1943857b938bddcaee1beac246a0ec627b71563d9f846e6119a4a15  nss-softokn.pc.in

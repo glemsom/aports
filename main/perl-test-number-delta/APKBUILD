@@ -4,9 +4,9 @@
 pkgname=perl-test-number-delta
 _pkgreal=Test-Number-Delta
 pkgver=1.06
-pkgrel=0
+pkgrel=1
 pkgdesc="Compare the difference between numbers against a given tolerance"
-url="http://search.cpan.org/dist/Test-Number-Delta/"
+url="https://metacpan.org/release/Test-Number-Delta/"
 arch="noarch"
 license="Apache-2.0"
 cpandepends=""
@@ -14,7 +14,7 @@ cpanmakedepends="   "
 depends="$cpandepends"
 makedepends="perl-dev $cpanmakedepends"
 subpackages="$pkgname-doc"
-source="http://search.cpan.org/CPAN/authors/id/D/DA/DAGOLDEN/$_pkgreal-$pkgver.tar.gz"
+source="https://cpan.metacpan.org/authors/id/D/DA/DAGOLDEN/$_pkgreal-$pkgver.tar.gz"
 
 _builddir="$srcdir/$_pkgreal-$pkgver"
 
@@ -36,6 +36,4 @@ package() {
 	find "$pkgdir" \( -name perllocal.pod -o -name .packlist \) -delete
 }
 
-md5sums="f0d420e7f679a0bc593713d21c25f51e  Test-Number-Delta-1.06.tar.gz"
-sha256sums="535430919e6fdf6ce55ff76e9892afccba3b7d4160db45f3ac43b0f92ffcd049  Test-Number-Delta-1.06.tar.gz"
 sha512sums="87d64aad1ffc180ac9105d8f80aa1086ae9f6d11d7fead6f77daca6b0440320ed49dc628bed88b67836c091116fa43402b4a902e8319997fbad7a0fa19edfd79  Test-Number-Delta-1.06.tar.gz"

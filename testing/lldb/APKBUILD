@@ -1,14 +1,14 @@
 # Contributor: Bartłomiej Piotrowski <bpiotrowski@alpinelinux.org>
-# Maintainer:
+# Maintainer: Rasmus Thomsen <oss@cogitri.dev>
 pkgname=lldb
 # Note: Update together with llvm.
-pkgver=5.0.2
+pkgver=9.0.1
 pkgrel=0
 _vermajor=${pkgver%%.*}
 pkgdesc="Next generation, high-performance debugger"
 arch="aarch64 armv7 s390x x86_64"
 url="https://llvm.org/"
-license="UOI-NCSA"
+license="Apache-2.0"
 makedepends="
 	clang-dev>=$_vermajor
 	clang-static>=$_vermajor
@@ -22,13 +22,11 @@ makedepends="
 	llvm-static>=$_vermajor
 	ncurses-dev
 	ninja
-	python2-dev
+	python3-dev
 	swig
 	"
-subpackages="$pkgname-dev py2-$pkgname:py2"
-source="https://releases.llvm.org/$pkgver/$pkgname-$pkgver.src.tar.xz
-	musl-include-ptrace.aarch64.patch
-	cmake-include-ClangConfig.patch
+subpackages="$pkgname-dev py3-$pkgname:py3"
+source="https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver/lldb-$pkgver.src.tar.xz
 	fix-embedded_interpreter.patch
 	"
 builddir="$srcdir/$pkgname-$pkgver.src"
@@ -45,7 +43,9 @@ build() {
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		-DLLVM_LINK_LLVM_DYLIB=ON \
 		-DLLDB_DISABLE_LIBEDIT=ON \
-		-DPYTHON_EXECUTABLE=/usr/bin/python2
+		-DLLDB_TEST_C_COMPILER=clang \
+		-DLLDB_TEST_CXX_COMPILER=clang++ \
+		-DPYTHON_EXECUTABLE=/usr/bin/python3
 	ninja
 }
 
@@ -53,37 +53,25 @@ package() {
 	cd "$builddir"/build
 
 	DESTDIR="$pkgdir" ninja install
-
-	# XXX: I have no idea why this is installed to bindir. Moving it to
-	# libdir may break it, but I don't know how to test this.
-	mv "$pkgdir"/usr/bin/liblldb-intel-mpxtable.so "$pkgdir"/usr/lib/ || true
-
-	# Remove static libraries.
-	rm -f "$pkgdir"/usr/lib/*.a
 }
 
-py2() {
-	pkgdesc="Python module for LLDB"
-	depends="$pkgname py2-six"
+py3() {
+	pkgdesc="Python3 module for LLDB"
+	depends="$pkgname python3 py3-six"
 	replaces="py-lldb"
-	local sitedir="usr/lib/python2.7/site-packages"
+
+	local sitedir=$(python3 -c "import site; print(site.getsitepackages()[0])")
 
 	mkdir -p "$subpkgdir"/$sitedir
-	cd "$subpkgdir"
 
-	mv "$pkgdir"/$sitedir ${sitedir%/*}/
-	rmdir "$pkgdir"/${sitedir%/*}
-
-	# Move binary lib to the module's directory.
-	mv $sitedir/readline.so $sitedir/lldb/
+	mv "$pkgdir"/"$sitedir"/* "$subpkgdir"/"$sitedir"
+	rm -rf "$pkgdir"/"$sitedir"
 
 	# Remove bundled module.
-	rm $sitedir/six.py
+	rm "$subpkgdir"/"$sitedir"/six.py
 
-	python2 -m compileall -fqd /$sitedir $sitedir
+	python3 -m compileall -fq "$subpkgdir"/"$sitedir"
 }
 
-sha512sums="66eaaead60cc908ac061bedb4fac9cb96cecb7f4e5a79a51b6fa080e8f61f718b14e5f3581ead832b495bf10f055d4253d199236a0947dd22395ec80bf2afcf4  lldb-5.0.2.src.tar.xz
-1613a1cb042edd430aba6b86e4971ebb01f7d2bc3f13a5a1264cb94da7612188897e9dcaaa9233be8af5c8f4bad013dd0cfb821e323cd73dfe07fe125869ccef  musl-include-ptrace.aarch64.patch
-18ea4cd3ef357299833e243613031ad67ff82f7c93c1f3fbe2cbce8876ffeec2d8ff2f94c8242ea540c2604ffbc023fb2678643fc9d3b64231f096054d186aef  cmake-include-ClangConfig.patch
+sha512sums="8ec31129933d95cead2c5dcf9ead71b7fd69a49bbc10544a86025edc8f4deaf070b7c4309df01e4569b2de54a1d2028dbf9489a889d7c7c484dd899e58939b6a  lldb-9.0.1.src.tar.xz
 3c611fa5d45b6cb3f2925a31deeb8a34c295277aedcd55c22851d373897acd376fa92f4ef953c96a25c8dae4c93b6a88de0918550672141d324a3813d8283d48  fix-embedded_interpreter.patch"

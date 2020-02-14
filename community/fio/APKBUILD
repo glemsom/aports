@@ -1,0 +1,40 @@
+# Contributor: wener <wenermail@gmail.com>
+# Maintainer: wener <wenermail@gmail.com>
+pkgname=fio
+pkgver=3.18
+pkgrel=0
+pkgdesc="Flexible I/O Tester"
+options="!check" # Tests break due to missing drand_r
+url="https://github.com/axboe/fio"
+arch="all"
+license="GPL-2.0-only"
+makedepends="linux-headers zlib-dev coreutils libaio-dev"
+subpackages="$pkgname-doc"
+source="$pkgname-$pkgver.tar.gz::https://github.com/axboe/fio/archive/fio-$pkgver.tar.gz"
+builddir="$srcdir/fio-$pkgname-$pkgver"
+
+case "$CARCH" in
+	arm*) ;; # no numactl-dev for arm
+	*) makedepends="$makedepends numactl-dev" ;;
+esac
+
+build() {
+	./configure --prefix=/usr
+	make T_TEST_PROGS=
+}
+
+check() {
+	make test
+}
+
+package() {
+	make DESTDIR="$pkgdir" install
+	mv "$pkgdir"/usr/man "$pkgdir"/usr/share
+
+	mkdir -p "$pkgdir"/usr/share/doc/$pkgname
+	for i in README REPORTING-BUGS MORAL-LICENSE; do
+		cp -a "$builddir/$i" "$pkgdir/usr/share/doc/$pkgname"
+	done
+}
+
+sha512sums="bb1c878560508b6eae806d6f7f06fec0249684957c299f1e258c464d36c6b015a982d492abe2e5d1a18959ac66f6f37472a1e1cf0ed94f12ddfc19ebd07efd90  fio-3.18.tar.gz"

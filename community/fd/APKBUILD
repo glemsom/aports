@@ -1,0 +1,59 @@
+# Contributor: Leo <thinkabit.ukim@gmail.com>
+# Maintainer: Leo <thinkabit.ukim@gmail.com>
+pkgname=fd
+pkgver=7.4.0
+pkgrel=0
+pkgdesc="Simple, fast, user-friendly alternative to find"
+url="https://github.com/sharkdp/fd"
+arch="x86_64 armv7 armhf !aarch64 x86 ppc64le" # Cargo (aarch64 due to MAP_32BIT)
+license="MIT Apache-2.0"
+makedepends="cargo"
+options="net"
+subpackages="
+	$pkgname-doc
+	$pkgname-bash-completion:bashcomp:noarch
+	$pkgname-zsh-compltion:zshcomp:noarch
+	$pkgname-fish-completion:fishcomp:noarch"
+source="$pkgname-$pkgver.tar.gz::https://github.com/sharkdp/fd/archive/v$pkgver.tar.gz"
+
+build() {
+	cargo build --release
+}
+
+check() {
+	cargo test --release
+}
+
+package() {
+	cargo install --path . --root="$pkgdir"/usr
+	rm "$pkgdir"/usr/.crates.toml
+	install -Dm644 doc/fd.1 "$pkgdir"/usr/share/man/man1/fd.1
+}
+
+bashcomp() {
+	depends=""
+	pkgdesc="Bash completions for $pkgname"
+	install_if="$pkgname=$pkgver-r$pkgrel bash-completion"
+
+	install -Dm644 "$builddir"/target/release/build/fd-find-*/out/fd.bash \
+		"$subpkgdir"/usr/share/bash-completion/completions/$pkgname
+}
+
+zshcomp() {
+	depends=""
+	pkgdesc="Zsh completions for $pkgname"
+	install_if="$pkgname=$pkgver-r$pkgrel zsh"
+
+	install -Dm644 "$builddir"/target/release/build/fd-find-*/out/_fd \
+		"$subpkgdir"/usr/share/zsh/site-functions/_$pkgname
+}
+
+fishcomp() {
+	depends=""
+	pkgdesc="Fish completions for $pkgname"
+	install_if="$pkgname=$pkgver-r$pkgrel fish"
+
+	install -Dm644 "$builddir"/target/release/build/fd-find-*/out/fd.fish \
+	   "$subpkgdir"/usr/share/fish/completions/fd.fish
+}
+sha512sums="abe42ffedc8bb4ac5ddff9ccfe0d38dc70604ab0184b6e300a3800735d82d25f48b7b01d3cf94a5b661810d66f706517549dcb636b01fd41cf6d8b5b31eaef31  fd-7.4.0.tar.gz"

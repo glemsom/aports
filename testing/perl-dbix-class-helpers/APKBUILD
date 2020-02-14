@@ -3,46 +3,45 @@
 # Maintainer: Timo Teräs <timo.teras@iki.fi>
 pkgname=perl-dbix-class-helpers
 _pkgreal=DBIx-Class-Helpers
-pkgver=2.033003
+pkgver=2.034002
 pkgrel=0
 pkgdesc="Simplify the common case stuff for DBIx::Class."
-url="http://search.cpan.org/dist/DBIx-Class-Helpers/"
-arch="noarch"
-license="GPL PerlArtistic"
-cpandepends="perl-safe-isa perl-dbix-class perl-carp-clan perl-text-brew perl-namespace-clean perl-sub-exporter-progressive perl-module-runtime perl-try-tiny perl-dbix-introspector perl-dbix-class-candy perl-lingua-en-inflect perl-moo"
-cpanmakedepends=""
-cpancheckdepends="perl-dbd-sqlite perl-test-fatal perl-test-roo perl-aliased perl-test-deep perl-datetime-format-sqlite"
+url="https://metacpan.org/release/DBIx-Class-Helpers"
+arch="noarch !armv7"
+license="GPL-1.0-or-later OR Artistic-1.0-Perl"
+cpandepends="perl-safe-isa perl-dbix-class perl-carp-clan perl-text-brew
+	perl-namespace-clean perl-sub-exporter-progressive perl-module-runtime
+	perl-try-tiny perl-dbix-introspector perl-dbix-class-candy
+	perl-lingua-en-inflect perl-moo"
+cpancheckdepends="perl-dbd-sqlite perl-test-fatal perl-test-roo
+	perl-aliased perl-test-deep perl-datetime-format-sqlite"
 depends="$cpandepends"
-makedepends="perl-dev $cpanmakedepends"
+makedepends="perl-dev"
 checkdepends="$cpancheckdepends"
 subpackages="$pkgname-doc"
-source="http://search.cpan.org/CPAN/authors/id/F/FR/FREW/$_pkgreal-$pkgver.tar.gz"
+source="https://cpan.metacpan.org/authors/id/F/FR/FREW/DBIx-Class-Helpers-$pkgver.tar.gz"
 builddir="$srcdir/$_pkgreal-$pkgver"
 
 prepare() {
-	default_prepare || return 1
+	default_prepare
 
-	cd "$builddir"
 	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
 	PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
 }
 
 build() {
-	cd "$builddir"
 	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
 	make
 }
 
 package() {
-	cd "$builddir"
-	make DESTDIR="$pkgdir" install || return 1
+	make DESTDIR="$pkgdir" install
 	find "$pkgdir" \( -name perllocal.pod -o -name .packlist \) -delete
 }
 
 check() {
-	cd "$builddir"
 	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
 	make test
 }
 
-sha512sums="4df5ddfb7c10eb5561615c2d87d309a95a4f4f6908e2af634e39b04477cf9cf15039355029f4cae5e4069e1022a1d5423f4b03bd83cddb695ae24360a2250b9d  DBIx-Class-Helpers-2.033003.tar.gz"
+sha512sums="61d482b702803bd63d8129365de57e8e8aa060bd2ecbffba6b7ffcaddb176b63bba22776774c3055cae5ca64bdf583b55f473a2f615aed2d265a8044bcac7d2c  DBIx-Class-Helpers-2.034002.tar.gz"

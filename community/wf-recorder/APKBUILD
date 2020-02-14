@@ -1,0 +1,33 @@
+# Contributor: Leo <thinkabit.ukim@gmail.com>
+# Maintainer:
+pkgname=wf-recorder
+pkgver=0.2
+pkgrel=1
+pkgdesc="Screen recording for wlroots-based compositors"
+options="!check" # No testsuite
+url="https://github.com/ammen99/wf-recorder"
+arch="all !ppc64le"
+license="MIT"
+makedepends="meson ffmpeg-dev opencl-headers pulseaudio-dev wayland-dev wayland-protocols
+	x264-dev scdoc opencl-icd-loader-dev"
+subpackages="$pkgname-doc"
+source="https://github.com/ammen99/wf-recorder/releases/download/v$pkgver/wf-recorder-$pkgver.tar.xz"
+
+build() {
+	meson \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--localstatedir=/var \
+		--buildtype=debugoptimized \
+		-Dman-pages=enabled \
+		-Dopencl=enabled \
+		. output
+	ninja -C output
+}
+
+package() {
+	DESTDIR="$pkgdir" ninja -C output install
+}
+
+sha512sums="c1b9b9b39c03a9d99955446c54b5a70e4f53ad62fa2e9c9f42cf5a3b92b51eb14bab3ddd2a6d776428f79c920c91d699cb79a430c85c21cd74088e1ef7d5dbd1  wf-recorder-0.2.tar.xz"

@@ -3,22 +3,23 @@
 # Contributor: Łukasz Jendrysik <scadu@yandex.com>
 # Contributor: Carlo Landmeter <clandmeter@gmail.com>
 # Contributor: TBK <alpine@jjtc.eu>
+# Contributor: Marcel Haazen <marcel@haazen.xyz>
+# Contributor: Jake Buchholz <tomalok@gmail.com>
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 pkgname=mariadb
-pkgver=10.3.12
-pkgrel=2
+pkgver=10.4.12
+pkgrel=0
 pkgdesc="A fast SQL database server"
-url="http://www.mariadb.org"
+url="https://www.mariadb.org/"
 pkgusers="mysql"
 pkggroups="mysql"
 arch="all"
 license="GPL-2.0-or-later"
 depends="$pkgname-common"
-checkdepends="perl"
 _mytopdeps="perl perl-dbi perl-dbd-mysql perl-getopt-long perl-socket perl-term-readkey"
 depends_dev="openssl-dev zlib-dev mariadb-connector-c-dev"
 makedepends="$depends_dev bison cmake curl-dev libaio-dev libarchive-dev libevent-dev
-	libxml2-dev ncurses-dev pcre-dev readline-dev xz-dev linux-headers
+	libxml2-dev ncurses-dev pcre-dev readline-dev xz-dev linux-headers linux-pam-dev
 	$_mytopdeps"
 install="$pkgname.pre-install $pkgname-common.post-upgrade"
 subpackages="$pkgname-static $pkgname-test:mytest $pkgname-embedded-dev:_embedded_dev
@@ -26,30 +27,44 @@ subpackages="$pkgname-static $pkgname-test:mytest $pkgname-embedded-dev:_embedde
 	$pkgname-client $pkgname-bench $pkgname-backup $pkgname-embedded $pkgname-mytop
 	$pkgname-server-utils:_server_utils
 	mysql mysql-client:_compat_client mysql-bench:_compat_bench"
-options="!checkroot"
+options="!checkroot suid"
 
-_enable_rocksdb=YES
 case "$CARCH" in
-x86|s390x) _enable_rocksdb=NO;;
+	x86|s390x|mips64) _enable_rocksdb=NO ;;
+	*)
+		_enable_rocksdb=YES
+		subpackages="$subpackages $pkgname-plugin-rocksdb:_plugin_rocksdb"
+		;;
 esac
-
-if [ "$_enable_rocksdb" = "YES" ]; then
-	subpackages="$subpackages $pkgname-plugin-rocksdb:_plugin_rocksdb"
-fi
 
 source="https://downloads.mariadb.org/interstitial/mariadb-$pkgver/source/mariadb-$pkgver.tar.gz
 	$pkgname.initd
-	fix-c11-atomics-check.patch
-	fix-mysql-install-db-path.patch
-	ppc-remove-glibc-dep.patch
 	pcre.cmake.patch
-	0001-MDEV-18269-fix-off-by-one-bug-in-unittest.patch
+	ppc-remove-glibc-dep.patch
+	disable-failing-test.patch
 	"
 # dbug test fails under rootbld
 #options="!check"
-builddir="$srcdir/$pkgname-$pkgver"
 
 # secfixes:
+#   10.4.12-r0:
+#     - CVE-2020-2574
+#   10.4.10-r0:
+#     - CVE-2019-2938
+#     - CVE-2019-2974
+#   10.4.7-r0:
+#     - CVE-2019-2805
+#     - CVE-2019-2740
+#     - CVE-2019-2739
+#     - CVE-2019-2737
+#     - CVE-2019-2758
+#   10.3.15-r0:
+#     - CVE-2019-2614
+#     - CVE-2019-2627
+#     - CVE-2019-2628
+#   10.3.13-r0:
+#     - CVE-2019-2510
+#     - CVE-2019-2537
 #   10.3.11-r0:
 #     - CVE-2018-3282
 #     - CVE-2016-9843
@@ -99,16 +114,14 @@ builddir="$srcdir/$pkgname-$pkgver"
 # Available plugins https://mariadb.com/kb/en/library/list-of-plugins/
 # All cmake configuration options can be displayed with: cmake ../server -LH
 build() {
-	cd "$builddir"
-
 	cmake . -DBUILD_CONFIG=mysql_release \
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		-DSYSCONFDIR=/etc \
 		-DSYSCONF2DIR=/etc/my.cnf.d \
 		-DMYSQL_DATADIR=/var/lib/mysql \
 		-DMYSQL_UNIX_ADDR=/run/mysqld/mysqld.sock \
-		-DDEFAULT_CHARSET=utf8 \
-		-DDEFAULT_COLLATION=utf8_general_ci \
+		-DDEFAULT_CHARSET=utf8mb4 \
+		-DDEFAULT_COLLATION=utf8mb4_general_ci \
 		-DENABLED_LOCAL_INFILE=ON \
 		-DINSTALL_INFODIR=share/info \
 		-DINSTALL_MANDIR=share/man \
@@ -136,7 +149,6 @@ build() {
 		-DPLUGIN_ROCKSDB=$_enable_rocksdb \
 		-DPLUGIN_SPHINX=NO \
 		-DPLUGIN_TOKUDB=NO \
-		-DPLUGIN_AUTH_PAM=NO \
 		-DPLUGIN_AUTH_GSSAPI=NO \
 		-DPLUGIN_AUTH_GSSAPI_CLIENT=OFF \
 		-DPLUGIN_CRACKLIB_PASSWORD_CHECK=NO \
@@ -174,15 +186,11 @@ build() {
 }
 
 check() {
-	cd "$builddir"
 	# exclude test-connect which seems to be buggy. testsuite does not set port env var
-	# ma_test_loghandler_readonly seems to fail if /etc/my.conf.d is missing
-	ctest -E '(test-connect|ma_test_loghandler_readonly)'
-
+	ctest -E '(test-connect)'
 }
 
 package() {
-	cd "$builddir"
 	make DESTDIR="$pkgdir/" install
 
 	install -Dm 755 "$startdir"/$pkgname.initd \
@@ -221,6 +229,7 @@ package() {
 		"$pkgdir"/usr/lib/$pkgname/plugin/mysql_clear_password.so \
 		"$pkgdir"/usr/lib/$pkgname/plugin/sha256_password.so \
 		"$pkgdir"/usr/lib/$pkgname/plugin/caching_sha2_password.so \
+		"$pkgdir"/usr/lib/$pkgname/plugin/client_ed25519.so \
 		"$pkgdir"/usr/lib/libmysqlclient.so \
 		"$pkgdir"/usr/lib/libmysqlclient_r.so \
 		"$pkgdir"/usr/lib/libmariadb.so* \
@@ -316,7 +325,12 @@ mytest() {
 	pkgdesc="The test suite distributed with MariaDB"
 	mkdir -p "$subpkgdir"/usr/bin
 	mv "$pkgdir"/usr/bin/mysql_client_test \
+		"$pkgdir"/usr/bin/mysql_client_test_embedded \
 		"$pkgdir"/usr/bin/my_safe_process \
+		"$pkgdir"/usr/bin/mariadb-client-test \
+		"$pkgdir"/usr/bin/mariadb-client-test-embedded \
+		"$pkgdir"/usr/bin/mariadb-test \
+		"$pkgdir"/usr/bin/mariadb-test-embedded \
 		"$pkgdir"/usr/bin/mysqltest \
 		"$pkgdir"/usr/bin/mysqltest_embedded \
 		"$subpkgdir"/usr/bin/
@@ -331,8 +345,11 @@ client() {
 	local bins="myisam_ftdump mysql mysqlaccess mysqladmin
 		mysqlcheck mysqldump mysqldumpslow mysql_find_rows
 		mysql_fix_extensions mysqlimport mysqlshow mysql_waitpid"
+	local symlinks="mariadb mariadb-access mariadb-admin mariadb-check
+		mariadb-dump mariadb-dumpslow mariadb-find-rows mariadb-fix-extensions
+		mariadb-import mariadb-show mariadb-waitpid"
 	mkdir -p "$subpkgdir"/usr/bin/
-	for i in $bins; do
+	for i in $bins $symlinks; do
 		mv "$pkgdir"/usr/bin/${i} "$subpkgdir"/usr/bin/
 	done
 }
@@ -364,6 +381,7 @@ backup() {
 	pkgdesc="The mariabackup tool for physical online backups"
 	mkdir -p "$subpkgdir"/usr/bin
 	mv "$pkgdir"/usr/bin/mariabackup \
+		"$pkgdir"/usr/bin/mariadb-backup \
 		"$pkgdir"/usr/bin/mbstream \
 		"$subpkgdir"/usr/bin/
 }
@@ -398,15 +416,21 @@ _server_utils() {
 	# perl utils
 	mv \
 		"$pkgdir"/usr/bin/mysql_convert_table_format \
+		"$pkgdir"/usr/bin/mariadb-convert-table-format \
 		"$pkgdir"/usr/bin/mysql_setpermission \
+		"$pkgdir"/usr/bin/mariadb-setpermission \
 		"$pkgdir"/usr/bin/mysqld_multi \
+		"$pkgdir"/usr/bin/mariadbd-multi \
 		"$pkgdir"/usr/bin/mysqlhotcopy \
+		"$pkgdir"/usr/bin/mariadb-hotcopy \
 		"$subpkgdir"/usr/bin/
 	# tools that can be used remotely and other tools
 	mv \
 		"$pkgdir"/usr/bin/mysql_upgrade \
+		"$pkgdir"/usr/bin/mariadb-upgrade \
 		"$pkgdir"/usr/bin/perror \
 		"$pkgdir"/usr/bin/mysqld_safe_helper \
+		"$pkgdir"/usr/bin/mariadbd-safe-helper \
 		"$subpkgdir"/usr/bin/
 }
 
@@ -416,13 +440,11 @@ _plugin_rocksdb() {
 	depends="$pkgname=$pkgver-r$pkgrel"
 	mkdir -p "$subpkgdir"/usr/lib/mariadb/plugin
 	mv "$pkgdir"/usr/lib/mariadb/plugin/ha_rocksdb.so \
-		 "$subpkgdir"/usr/lib/mariadb/plugin/ha_rocksdb.so
+		"$subpkgdir"/usr/lib/mariadb/plugin/ha_rocksdb.so
 }
 
-sha512sums="9dd2939684c4591db306be6afb34663626dfaae133f88dd31125c759dce16b9e9d767a9254e30d9ee5fa2ea027e223dd4799effba8a8b0e4638d5de9e2512003  mariadb-10.3.12.tar.gz
-06751768cb00d2e433655635c38d267ef25084a5830ff40e719ac579223c7192dc34b43f919ab6faf480094632327511cbd22456064dde2d04dc15648b9e3b9f  mariadb.initd
-b4469f2f0299e71c09b65c91373f2d72b7fe9a9cd58ad24737a78a8097473b29c32b7267e173a2dfe1158f2f7d40a7fb02fb1b35caeda44d16ae3b9e2602a75f  fix-c11-atomics-check.patch
-0c08198b907dad18c5a7ab89f37ff53da7cb102b0848fb58912900bd92468a0d4f853bc5c0116f655c500d5ed20dcbf20d3884dcd0040634e23c911dfeaf7001  fix-mysql-install-db-path.patch
-e9ae4613f1d8c5f0a59b39a3548c46e50674ae78e7457d0e64c49f7e1573125c13634bbce7e29179bb8865a423171f852f43b96f7ef95619a95f02edcfc71efd  ppc-remove-glibc-dep.patch
+sha512sums="518dae18c04a1f7fcc6fd4d2dfbfbfbdf5e83e72ca41e66e1074328df8d92ab41b458e6a9973771419ac09a7348f264f158916cd198c335085d6e823e707bbc6  mariadb-10.4.12.tar.gz
+c352969f6665b0ffa387f7b185a5dea7751f4b16c12c809627857b27321efa09159369d7dd5c852d6159a9f173cb895fb601f0c52a1fa6e3527899520030964c  mariadb.initd
 70da971aa78815495098205bcbd28428430aa83c3f1050fec0231ca86af9d9def2d2108a48ee08d86812c8dc5ad8ab1ef4e17a49b4936ed5187ae0f6a7ef8f63  pcre.cmake.patch
-f203fe7d4ab2c54dba1219b7fe7fcc7d128256424441f45441b65f117da2fb3e217fb69561bb3891c4b8a3cbd6d7b98ee614242533b441f198e211dcf6c5b1d9  0001-MDEV-18269-fix-off-by-one-bug-in-unittest.patch"
+e9ae4613f1d8c5f0a59b39a3548c46e50674ae78e7457d0e64c49f7e1573125c13634bbce7e29179bb8865a423171f852f43b96f7ef95619a95f02edcfc71efd  ppc-remove-glibc-dep.patch
+0f5f2147e80b21abe65ccdee72b7d820ea1459112802e44f63d00d9247704d6a5562fce146a255e02f7367bc5d81cffe4e7c39758d533bf5ec9a6544a2a25738  disable-failing-test.patch"

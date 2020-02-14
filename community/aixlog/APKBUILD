@@ -1,36 +1,17 @@
 # Contributor: Carlo Landmeter <clandmeter@alpinelinux.org>
 # Maintainer: Bart Ribbers <bribbers@disroot.org>
 pkgname=aixlog
-pkgver=1.2.0
+pkgver=1.2.4
 pkgrel=0
 pkgdesc="Header-only C++ logging library"
 url="https://github.com/badaix/aixlog"
 arch="noarch"
 license="MIT"
-depends=""
-makedepends="cmake bash"
-install=""
 options="!check" # not test
-subpackages=""
 source="aixlog-$pkgver.tar.gz::https://github.com/badaix/aixlog/archive/v$pkgver.tar.gz"
-builddir="$srcdir/aixlog-$pkgver"
-
-build() {
-	cd "$builddir"
-        if [ "$CBUILD" != "$CHOST" ]; then
-                CMAKE_CROSSOPTS="-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_HOST_SYSTEM_NAME=Linux"
-        fi
-        cmake \
-		-DCMAKE_INSTALL_PREFIX=/usr \
-		-DCMAKE_BUILD_TYPE=Release \
-		-DCMAKE_CXX_FLAGS="$CXXFLAGS" \
-		${CMAKE_CROSSOPTS}
-	make
-}
 
 package() {
-	cd "$builddir"
-	make DESTDIR="$pkgdir" install
+	install -Dm644 include/aixlog.hpp "$pkgdir/usr/include/aixlog.hpp"
 }
 
-sha512sums="57f8f98377bf2ae8405244bb20eec0a408419da9545f15ef4357f8b7d9533c15fa65aa0f1a684b079319db2ad488956ff5251c24329a86afcf1661ca2dd3b5b9  aixlog-1.2.0.tar.gz"
+sha512sums="ba9209501cdbaf3b3cb824c7cdc72f97ad34c98fc87bf8d6aeb5b0ff0e5dd1230bd59637e5844dabca8429142c19544e5af495f84a37aff76d5e2ef205389421  aixlog-1.2.4.tar.gz"

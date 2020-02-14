@@ -1,0 +1,39 @@
+# Maintainer: Galen Abell <galen@galenabell.com>
+# Contributor: Galen Abell <galen@galenabell.com>
+pkgname=packer
+pkgver=1.5.2
+pkgrel=0
+pkgdesc="Build Automated Machine Images"
+url="https://www.packer.io/"
+arch="all !armhf !armv7"
+license="MPL-2.0"
+makedepends="go"
+source="$pkgname-$pkgver.tar.gz::https://github.com/hashicorp/packer/archive/v$pkgver.tar.gz"
+builddir="$srcdir/src/github.com/hashicorp/$pkgname"
+
+prepare() {
+	mkdir -p ${builddir%/*}
+	mv $srcdir/$pkgname-$pkgver "$builddir"/
+	default_prepare
+}
+
+build() {
+	GO111MODULE=off GOPATH="$srcdir" go build -v -o bin/$pkgname \
+		-ldflags "-X main.GitCommit=v$pkgver -X github.com/hashicorp/packer/version.Prerelease= -s -w"
+}
+
+check() {
+	GOPATH="$srcdir" go list -mod=vendor . | xargs -t -n4 go test -mod=vendor -timeout=2m -parallel=4
+	bin/$pkgname -v
+}
+
+package() {
+	install -Dm755 "$builddir"/bin/$pkgname "$pkgdir"/usr/bin/$pkgname
+}
+
+cleanup_srcdir() {
+	go clean -modcache
+	default_cleanup_srcdir
+}
+
+sha512sums="b3a88c5c3cde9b9313f8f95f3d38e3b5218ab2119358265844a33d720a82bf16795bfb87e20b0b7dc1898a66561bdbf32697eb722284f797fc1ee341a3c0c42f  packer-1.5.2.tar.gz"

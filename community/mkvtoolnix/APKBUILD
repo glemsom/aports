@@ -2,21 +2,19 @@
 # Contributor: Carlo Landmeter <clandmeter@gmail.com>
 # Maintainer: Francesco Colista <fcolista@alpinelinux.org>
 pkgname=mkvtoolnix
-pkgver=29.0.0
-pkgrel=1
+pkgver=43.0.0
+pkgrel=0
 pkgdesc="Set of tools to create, edit and inspect Matroska files"
 url="https://mkvtoolnix.download/index.html"
-arch="all"
+arch="all !armhf" # qtmultimedia -> qtdeclarative
 license="GPL-2.0-only"
-makedepends="libmatroska-dev flac-dev libvorbis-dev boost-dev
-	zlib-dev file-dev libogg-dev ruby-rake ruby-json 
-	gtest-dev bash docbook-xsl"
-subpackages="$pkgname-doc"
+makedepends="boost-dev docbook-xsl file-dev flac-dev gtest-dev
+	libmatroska-dev libogg-dev libvorbis-dev ruby-json ruby-rake zlib-dev
+	qt5-qtbase-dev qt5-qtmultimedia-dev cmark-dev"
+subpackages="$pkgname-doc $pkgname-gui"
 source="https://mkvtoolnix.download/sources/$pkgname-$pkgver.tar.xz"
-builddir="$srcdir"/$pkgname-$pkgver
 
 build() {
-	cd "$builddir"
 	./configure CC="${CC:-gcc}" CFLAGS="${CFLAGS}" \
 		--build=$CBUILD \
 		--host=$CHOST \
@@ -29,14 +27,21 @@ build() {
 }
 
 check() {
-	cd "$builddir"
-	rake V=1 -j$(JOBS) tests:unit 
-	rake V=1 -j$(JOBS) tests:run_unit 
+	rake V=1 -j${JOBS} tests:unit
+	rake V=1 -j${JOBS} tests:run_unit
 }
 
 package() {
-	cd "$builddir"
 	rake DESTDIR="$pkgdir" install
 }
 
-sha512sums="bfb5e31fdd43dbb1c3a54a9b82af414abd43f8edad1cc87e5118f8c1781185470152163fda828303c58db97df27c8037b7fa64e2077c69e3204d5080f0248dae  mkvtoolnix-29.0.0.tar.xz"
+gui() {
+	pkgdesc="$pkgdesc (GUI)"
+	depends="$pkgname qt5-qtmultimedia"
+
+	mkdir -p "$subpkgdir"/usr/bin
+	mv "$pkgdir"/usr/bin/mkvtoolnix-gui "$subpkgdir"/usr/bin/
+	mv "$pkgdir"/usr/share "$subpkgdir"/usr/
+}
+
+sha512sums="dec32df70aeb53ecdfbffff8b773a3f61bb224d630536ba41e36d9687c3b66ae47347c85d8c8d75763d270b7605c6b7010b0bb04c4bdb1e6d6b624c85edeb663  mkvtoolnix-43.0.0.tar.xz"

@@ -3,38 +3,32 @@
 # Contributor: Jean-Louis Fuchs <ganwell@fangorn.ch>
 # Maintainer: Jean-Louis Fuchs <ganwell@fangorn.ch>
 pkgname=zathura
-pkgver=0.4.0
+pkgver=0.4.5
 pkgrel=0
 pkgdesc="zathura - highly customizable and functional document viewer"
-url="https://pwmt.org/projects/zathura/"
+url="https://git.pwmt.org/pwmt/zathura"
 arch="all"
-license="zlib"
-depends="libmagic"
+license="Zlib"
 makedepends="girara-dev file-dev sqlite-dev intltool check-dev libseccomp-dev
-	py-docutils ncurses meson ninja py-sphinx desktop-file-utils"
+	py3-docutils ncurses meson ninja py3-sphinx desktop-file-utils appstream-glib"
 checkdepends="mesa-dri-swrast dbus xvfb"
 subpackages="$pkgname-doc $pkgname-dev $pkgname-lang"
-source="https://pwmt.org/projects/zathura/download/zathura-$pkgver.tar.xz
-	test.sh"
-builddir="$srcdir/$pkgname-$pkgver"
-
+source="https://git.pwmt.org/pwmt/zathura/-/archive/$pkgver/zathura-$pkgver.tar.gz
+	test.sh
+	"
 
 build() {
-	cd "$builddir"
 	meson build --prefix=/usr
 	ninja -C build
 }
 
 check() {
-	cd "$builddir"
 	"$srcdir/test.sh"
 }
 
 package() {
-	cd "$builddir"
 	DESTDIR="$pkgdir" ninja -C build install
 }
 
-
-sha512sums="3da8099ca4cad357f637d88dad3491b1fdea85d4d2201357ebbea3b8a2923aa9f4c79027aabe10289d28a35d88a27ffe8775d93a1e4d694c5e1bc1218016d421  zathura-0.4.0.tar.xz
+sha512sums="9ce6c7745d83d7e21fcbbc6a7c799a4223cf77afbe1c933b710c1c7920c98ae1edcf683ae42433f448a091eb317f2b71b3bde9d1b27c8089d1adbc9aa0ab4e78  zathura-0.4.5.tar.gz
 2190d324753810c8dc5b109274dcf4f644e51edcda876c225ac76369dd569dda0b8db445b01dac1ac2b06178534d18e1074ca37d1a69622bdc58fd77350b4ddd  test.sh"

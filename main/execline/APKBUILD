@@ -1,7 +1,7 @@
 # Maintainer: Laurent Bercot <ska-devel@skarnet.org>
 # Contributor: John Regan <john@jrjrtech.com>
 pkgname=execline
-pkgver=2.5.0.1
+pkgver=2.5.3.0
 pkgrel=0
 pkgdesc="A small scripting language, to be used in place of a shell in non-interactive scripts."
 url="http://skarnet.org/software/$pkgname/"
@@ -9,9 +9,8 @@ arch="all"
 license="ISC"
 options="!check"
 makedepends="skalibs-dev"
-subpackages="$pkgname-dev $pkgname-doc"
-source="http://skarnet.org/software/$pkgname/$pkgname-$pkgver.tar.gz"
-builddir="$srcdir/$pkgname-$pkgver"
+subpackages="$pkgname-static $pkgname-dev $pkgname-doc"
+source="http://skarnet.org/software/execline/execline-$pkgver.tar.gz"
 
 build() {
 	cd "$builddir"
@@ -35,4 +34,9 @@ doc() {
 	cp -a "$builddir/doc" "$subpkgdir/usr/share/doc/$pkgname"
 }
 
-sha512sums="9e013a83844fc3f5b28c6aea44b446f550dafe52131facf0d7c0648c9ae62c4a62d895f72cedb010754319c0e298fb4c8396d2c6be019cd6218558934bffaea3  execline-2.5.0.1.tar.gz"
+static() {
+	default_static
+	rmdir -p "$pkgdir"/usr/lib || :
+}
+
+sha512sums="75b584e2365288bb1d05fd67e390fab1b6ccf48cb0a2ccbfb84a7d22ddf6957c9c591ab165542ed180b2ff1ef9ceb2a16cbae569e69c5dd5f20e52be092cff15  execline-2.5.3.0.tar.gz"

@@ -1,7 +1,7 @@
 # Maintainer: Laurent Bercot <ska-devel@skarnet.org>
-# Contributor: Eivind Uggedal <eivind@uggedal.com>
+# Contributor: Eivind Uggedal <eu@eju.no>
 pkgname=s6-rc
-pkgver=0.4.1.0
+pkgver=0.5.1.1
 pkgrel=0
 pkgdesc="A service manager for s6-based systems."
 url="http://skarnet.org/software/$pkgname/"
@@ -9,9 +9,8 @@ arch="all"
 license="ISC"
 options="!check"
 makedepends="skalibs-dev execline-dev s6-dev"
-subpackages="$pkgname-dev $pkgname-doc"
-source="http://skarnet.org/software/$pkgname/$pkgname-$pkgver.tar.gz"
-builddir="$srcdir/$pkgname-$pkgver"
+subpackages="$pkgname-static $pkgname-dev $pkgname-doc"
+source="http://skarnet.org/software/s6-rc/s6-rc-$pkgver.tar.gz"
 
 build() {
 	cd "$builddir"
@@ -20,7 +19,7 @@ build() {
 		--enable-static \
 		--disable-allstatic \
 		--libdir=/usr/lib \
-                --libexecdir="/lib/$pkgname" \
+		--libexecdir="/lib/$pkgname" \
 		--with-dynlib=/lib
 	make
 }
@@ -36,4 +35,9 @@ doc() {
 	cp -a "$builddir/doc" "$subpkgdir/usr/share/doc/$pkgname"
 }
 
-sha512sums="12bb1136bc1222e09f115118b631dd5ce7d8155151b1e57427ae932db7654484543dbf5b12f442708ca9defe51d44bba9785caf0a9857847a1f3acb375301e92  s6-rc-0.4.1.0.tar.gz"
+static() {
+	default_static
+	rmdir -p "$pkgdir"/usr/lib || :
+}
+
+sha512sums="88e6ad4f09501eda231e3bbac58e9dafc925ff4b2c2a845c9796f3c1519834901f0126d751705b00ecd71173e208085bd68c5ae221a7074da8254d2b71e8a772  s6-rc-0.5.1.1.tar.gz"

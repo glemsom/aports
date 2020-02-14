@@ -1,27 +1,33 @@
+# Contributor: Michael Pirogov <vbnet.ru@gmail.com>
 # Contributor: jv <jens@eisfair.org>
 # Contributor: Adrian Guenter <adrian@gntr.me>
 # Contributor: Jakub Jirutka <jakub@jirutka.cz>
 # Maintainer: jv <jens@eisfair.org>
 pkgname=syslog-ng
-pkgver=3.19.1
+pkgver=3.25.1
 pkgrel=0
 pkgdesc="Next generation logging daemon"
 url="http://www.balabit.com"
-arch="all !aarch64"
+arch="all"
 license="GPL-2.0-or-later"
+options="!check" # unit tests require https://github.com/Snaipe/Criterion with deps
 makedepends="
 	curl-dev
 	eventlog-dev
 	file
-	geoip-dev
+	bison
+	flex
+	autoconf
+	automake
+	libtool
 	glib-dev
 	hiredis-dev
-	ivykis-dev>=0.42.3
+	ivykis-dev>=0.42.4
 	libdbi-dev
 	json-c-dev
 	openssl-dev
 	pcre-dev
-	python2-dev
+	python3-dev
 	rabbitmq-c-dev
 	"
 install="$pkgname.post-install $pkgname.post-upgrade"
@@ -30,20 +36,18 @@ subpackages="
 	$pkgname-dev
 	$pkgname-doc
 	$pkgname-openrc
-	$pkgname-python2:_python2
+	py3-$pkgname:_python3
 	"
 source="https://github.com/balabit/syslog-ng/releases/download/syslog-ng-$pkgver/syslog-ng-$pkgver.tar.gz
 	$pkgname.conf
 	$pkgname.logrotate
 	$pkgname.initd
 	"
-builddir="$srcdir/$pkgname-$pkgver"
 
 _modules="
 	add-contextual-data
 	amqp:afamqp
 	examples
-	geoip:geoip-plugin
 	graphite
 	http
 	json:json-plugin
@@ -60,18 +64,16 @@ for _i in $_modules; do
 done
 
 prepare() {
-	cd "$builddir"
 	default_prepare
 
 	# Remove bundled libraries
 	rm -rf lib/ivykis
 	rm -rf modules/afamqp/rabbitmq-c
 	rm -rf modules/afmongodb/mongo-c-driver
+	autoreconf -if
 }
 
 build() {
-	cd "$builddir"
-
 	./configure \
 		--prefix=/usr \
 		--sysconfdir=/etc/syslog-ng \
@@ -97,7 +99,7 @@ build() {
 		--disable-java \
 		--disable-java-modules \
 		--enable-native \
-		\
+		--enable-rdrand \
 		--with-ivykis=system \
 		--with-jsonc=system \
 		--with-librabbitmq-client=system
@@ -105,8 +107,6 @@ build() {
 }
 
 package() {
-	cd "$builddir"
-
 	make -j1 DESTDIR="$pkgdir" install
 
 	cd "$pkgdir"
@@ -140,11 +140,16 @@ dev() {
 		usr/share/syslog-ng/xsd
 }
 
-_python2() {
-	pkgdesc="$pkgdesc (python2 module)"
+_python3() {
+	pkgdesc="$pkgdesc (python3 module)"
 
-	_submv usr/lib/syslog-ng/libmod-python.so \
-		usr/lib/python2.7
+	_submv usr/lib/syslog-ng/libmod-python.so
+
+	local site_pkgs="$(python3 -c 'import site; print(site.getsitepackages()[0])')"
+
+	mkdir -p "$subpkgdir"/"$site_pkgs"
+	mv "$pkgdir"/usr/lib/syslog-ng/python/* \
+		"$subpkgdir"/"$site_pkgs"
 }
 
 _module() {
@@ -164,7 +169,7 @@ _submv() {
 	done
 }
 
-sha512sums="f625073bafa9378109d5be34591247766a62cb5a76e814f42bfbf03472e96ebe2833f19779812abfdd950a3498115f57b97c1427c280ee0dab21d3e2eb92ca57  syslog-ng-3.19.1.tar.gz
-2c9d51ece6f7fd8a7654f33c0f340447c2ef1865b0e4134537732576659c947699badbf33c6514995aa0a53fd729d0798e5637b9badc71fddd2f220dd09b99ea  syslog-ng.conf
+sha512sums="79e09f1ba11080179c572016ce27328a28d479e68e663d39fb16624c03dc37d8439020ede922f78680e31e21629a6c13a4671464a31213c1dcf6acd2c5cd4b13  syslog-ng-3.25.1.tar.gz
+3e844f70564325f7b356e6cb6310c72473aedc14f8be3c3c7eb262184c84523648d3ea1de1aa40489529c97343026481e790ad92dfbcdc410a94e734fd744fc0  syslog-ng.conf
 1825b85fb584c5cecf0ad370e81a7473b5c973ce10adce386d1ba5f68432abe4e2f54c937d7d94edb22dbd9031eff483bd113bc3244ce0d0072cf4bf4ab5c2cc  syslog-ng.logrotate
-778ee58647dbc2db4260c163b5b16d1e744b88373d0080b64d24c770a0668cbb9032c13d8b5d5a35818f1de01b2a8e173fd7657056dfd1eab156f18abab8838a  syslog-ng.initd"
+873fef8815131f0acc618fa4911cd1eda59e260adc1eaae6eb91034900ce789f05ee48fa8afa4a87763026c18c87aef351e7ea76e0cbb46bcd5297f9ca14d527  syslog-ng.initd"

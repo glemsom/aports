@@ -1,0 +1,33 @@
+# Contributor: Sören Tempel <soeren+alpine@soeren-tempel.net>
+# Maintainer: Sören Tempel <soeren+alpine@soeren-tempel.net>
+pkgname=py3-oscrypto
+_pkgname=${pkgname##py3-}
+pkgver=1.2.0
+pkgrel=0
+pkgdesc="Python crypto library backed by the OS"
+url="https://github.com/wbond/oscrypto"
+arch="noarch"
+license="MIT"
+options="net" # required to make tests pass in abuild rootbld
+depends="python3 py3-setuptools py3-asn1crypto>=1.0.0"
+subpackages="$pkgname-doc"
+source="$pkgname-$pkgver.tar.gz::https://github.com/wbond/oscrypto/archive/$pkgver.tar.gz"
+builddir="$srcdir/$_pkgname-$pkgver"
+
+build() {
+	python3 setup.py build
+}
+
+check() {
+	python3 run.py tests
+}
+
+package() {
+	mkdir -p "$pkgdir"/usr/share/doc/$pkgname
+	install -m644 docs/* \
+		"$pkgdir"/usr/share/doc/$pkgname
+
+	python3 setup.py install --prefix=/usr --root="$pkgdir"
+}
+
+sha512sums="5ee34db3201d50bbc76ed0f45a7f5bc94bb00a50ba5d4073829a4abb98bff83f173e2d69adf4b1b9018195623ef1fdb9bd7861a784e22b4a9ac9470b678cd59b  py3-oscrypto-1.2.0.tar.gz"

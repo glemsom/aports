@@ -1,0 +1,34 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Rasmus Thomsen <oss@cogitri.dev>
+pkgname=chatty
+pkgver=0.1.4
+pkgrel=0
+pkgdesc="A phone dialer and call handler"
+arch="all !s390x" # Blocked by libhandy and evolution
+url="https://gitlab.gnome.org/Community/Purism/chatty"
+license="GPL-3.0-or-later"
+depends="purple-mm-sms"
+makedepends="meson ninja gtk+3.0-dev pidgin-dev libhandy-dev evolution-dev libgee-dev folks-dev"
+source="$pkgname-$pkgver.tar.gz::https://source.puri.sm/Librem5/chatty/-/archive/v$pkgver/chatty-v$pkgver.tar.gz"
+subpackages="$pkgname-lang"
+builddir="$srcdir/$pkgname-v$pkgver"
+
+build() {
+	meson \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--localstatedir=/var \
+		--buildtype=release \
+		. output
+	ninja -C output
+}
+
+check() {
+	ninja -C output test
+}
+
+package() {
+	DESTDIR="$pkgdir" ninja -C output install
+}
+sha512sums="d69af6412e15147adfabf877fcb03ed38b28b08194ee33572f532690de23ca7d3d6fb3732ab52f4271544657e53c04f211a22185b54fcb1b03f2b197897ff2f8  chatty-0.1.4.tar.gz"

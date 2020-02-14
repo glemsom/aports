@@ -1,31 +1,38 @@
 # Contributor: stef <l0ls0fo2i@ctrlc.hu>
 # Maintainer: André Klitzing <aklitzing@gmail.com>
 pkgname=zstd
-pkgver=1.3.8
-pkgrel=0
+pkgver=1.4.4
+pkgrel=1
 pkgdesc="Zstandard - Fast real-time compression algorithm"
-url="http://www.zstd.net"
-arch="all !armhf"
+url="https://www.zstd.net"
+arch="all"
 license="BSD-3-Clause GPL-2.0-or-later"
 checkdepends="file"
 makedepends="grep"
 subpackages="$pkgname-static $pkgname-libs $pkgname-dev $pkgname-doc"
-source="$pkgname-$pkgver.tar.gz::https://github.com/facebook/zstd/archive/v$pkgver.tar.gz
-	lift-XXH_FORCE_MEMORY_ACCESS-condition.patch
+source="zstd-$pkgver.tar.gz::https://github.com/facebook/zstd/archive/v$pkgver.tar.gz
 	"
-builddir="$srcdir/$pkgname-$pkgver"
+
+# secfixes:
+#   1.3.8-r0:
+#     - CVE-2019-11922
 
 build() {
 	cd "$builddir"
 	unset CPPFLAGS
-	make HAVE_PTHREAD=1 HAVE_ZLIB=0 HAVE_LZMA=0 HAVE_LZ4=0 MOREFLAGS="-O2"
+	local _moreflags="-O2"
+	case "$CARCH" in
+		# avoid memory copy hack that violates C standard
+		armhf) _moreflags="$_moreflags -DMEM_FORCE_MEMORY_ACCESS=0" ;;
+	esac
+	make HAVE_PTHREAD=1 HAVE_ZLIB=0 HAVE_LZMA=0 HAVE_LZ4=0 MOREFLAGS="$_moreflags"
 }
 
 check() {
 	cd "$builddir"
 	case "$CARCH" in
-	arm*)	make check ;;
-	*)	make test ;;
+		arm*) make check ;;
+		*) make test ;;
 	esac
 }
 
@@ -40,5 +47,4 @@ static() {
 	mv "$pkgdir"/usr/lib/*.a "$subpkgdir"/usr/lib/
 }
 
-sha512sums="834f7b6477c1e7d70f71105ea52be15c33866b48b93b7a3c6dff4f10c761e5ad35f3903899516317690a4b768051f6eedf7c030292f57cea5613d4017fab9466  zstd-1.3.8.tar.gz
-4e577dc44f7b870ef55e179865e03a924f1cab5307367658e011f9868ef82562ca299e31411ef2ea15f0ac4247bcc5ce013a5c716479e08b34d0229d896aefc8  lift-XXH_FORCE_MEMORY_ACCESS-condition.patch"
+sha512sums="8209837e8eb14e474dfe21d5511085f46cef93b03ab77613fd41e7b8be652418231c38852669c8e0b55b78ad41ea2cb8008d0da122a83f8f27e32b5c86f045cf  zstd-1.4.4.tar.gz"

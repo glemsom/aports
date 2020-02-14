@@ -1,43 +1,42 @@
 # Contributor: Leonardo Arena <rnalrd@alpinelinux.org>
 # Maintainer:
 pkgname=flightgear
-pkgver=2018.2.2
+pkgver=2019.1.1
 pkgrel=0
 pkgdesc="Sophisticated flight simulator"
 url="http://flightgear.org"
-arch="all !aarch64"
+arch="x86_64" # openscenegraph availability
 license="GPL"
 makedepends="$depends_dev boost-dev cmake curl-dev dbus-dev eudev-dev
 	freeglut-dev glew-dev libx11-dev libxi-dev libxmu-dev mesa-dev
 	openal-soft-dev openscenegraph-dev plib qt5-qtbase-dev
-	qt5-qtdeclarative-dev simgear zlib-dev"
+	qt5-qtdeclarative-dev qt5-qtsvg-dev simgear-dev zlib-dev"
 install="$pkgname.post-install"
 subpackages="$pkgname-doc $pkgname-dbg"
-source="https://downloads.sourceforge.net/project/$pkgname/release-${pkgver%.[1-9]*}/$pkgname-$pkgver.tar.bz2
+options="!check" # FIXME test suite does not get built
+source="https://downloads.sourceforge.net/project/flightgear/release-${pkgver%.[1-9]*}/flightgear-$pkgver.tar.bz2
 	musl-fixes.patch
 	"
-builddir="$srcdir"/$pkgname-$pkgver
 
 build() {
-	cd "$builddir"
-	mkdir _build.tmp && cd _build.tmp
 	cmake \
+		-D BUILD_TESTING=ON \
 		-D CMAKE_BUILD_TYPE="Release" \
 		-D CMAKE_INSTALL_PREFIX=/usr \
 		-D CMAKE_INSTALL_SYSCONFDIR=/etc/$pkgname \
 		-D FG_DATA_DIR=/var/lib/$pkgname \
 		-D SimGear_DIR=/usr/lib/cmake/SimGear \
-		.. || return 1
+		.
+	make
+}
+
+check() {
+	make test
 }
 
 package() {
-	cd "$builddir/_build.tmp"
-	make DESTDIR="$pkgdir" install || return 1
-
-	# remove the 2 lines below (and this) if there is no init.d script
-	# install -m755 -D "$srcdir"/$pkgname.initd "$pkgdir"/etc/init.d/$pkgname
-	# install -m644 -D "$srcdir"/$pkgname.confd "$pkgdir"/etc/conf.d/$pkgname
+	make DESTDIR="$pkgdir" install
 }
 
-sha512sums="f845fcd24e14a4d3abba5f6011d6fe61d4c8ab587989b597c2ab16d75711e9dc6808d6c91e2ba56ff7d644278bc10e09c116e82ba0f6391b03c5bc84a546f440  flightgear-2018.2.2.tar.bz2
+sha512sums="edcc464af0bde4766e61137211276d77a6bb297567b0168dfaf3b97fdb9a595e5e8a0b84232680fcc975cf195261b9751edb79ae73123333feb31ab3d7215d8c  flightgear-2019.1.1.tar.bz2
 3350de9e465dc4f865d2a94d96b2f79b4c98c994fc4713cfa296c20ed12129f310779171b89639f69d1e4f5f0103fca6cc01df5a9e25d77f93a0b4e76f6b973a  musl-fixes.patch"

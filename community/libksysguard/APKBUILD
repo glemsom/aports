@@ -1,0 +1,41 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=libksysguard
+pkgver=5.18.0
+pkgrel=0
+pkgdesc="KDE system monitor library"
+arch="all !armhf"
+url="https://www.kde.org/workspaces/plasmadesktop/"
+license="LGPL-2.1-or-later AND (GPL-2.0-only OR GPL-3.0-only)"
+depends_dev="qt5-qtwebchannel-dev kcoreaddons-dev kconfig-dev ki18n-dev kwindowsystem-dev kcompletion-dev kauth-dev kwidgetsaddons-dev kiconthemes-dev kconfigwidgets-dev kservice-dev kglobalaccel-dev kio-dev plasma-framework-dev zlib-dev"
+makedepends="$depends_dev extra-cmake-modules"
+checkdepends="xvfb-run"
+source="https://download.kde.org/stable/plasma/$pkgver/libksysguard-$pkgver.tar.xz"
+subpackages="$pkgname-dev $pkgname-lang"
+
+prepare() {
+	default_prepare
+
+	mkdir "$builddir"/build
+}
+
+build() {
+	cd "$builddir"/build
+	cmake "$builddir" \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	cd "$builddir"/build
+	# processtest requires working OpenGL
+	CTEST_OUTPUT_ON_FAILURE=TRUE xvfb-run ctest -E "processtest"
+}
+
+package() {
+	cd "$builddir"/build
+	DESTDIR="$pkgdir" make install
+}
+sha512sums="90dd36c7e85a66ea18f63f2c2db2601c4016a345faeb49524111de070f92dfc7334e2c5d377623c38ad3f94a351319dfa66a4b7296c40994c64b45d19f16d78d  libksysguard-5.18.0.tar.xz"

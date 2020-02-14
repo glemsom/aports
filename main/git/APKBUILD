@@ -2,25 +2,34 @@
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 #
 # secfixes:
+#   2.24.1:
+#     - CVE-2019-1348
+#     - CVE-2019-1349
+#     - CVE-2019-1350
+#     - CVE-2019-1351
+#     - CVE-2019-1352
+#     - CVE-2019-1353
+#     - CVE-2019-1354
+#     - CVE-2019-1387
+#     - CVE-2019-19604
 #   2.19.1:
-#   - CVE-2018-17456
+#     - CVE-2018-17456
 #   2.17.1:
-#   - CVE-2018-11233
-#   - CVE-2018-11235
+#     - CVE-2018-11233
+#     - CVE-2018-11235
 #   2.14.1:
-#   - CVE-2017-1000117
+#     - CVE-2017-1000117
 pkgname=git
-pkgver=2.20.1
+pkgver=2.25.0
 pkgrel=0
 pkgdesc="Distributed version control system"
-url="https://www.git-scm.com"
+url="https://www.git-scm.com/"
 arch="all"
 license="GPL-2.0-or-later"
-depends=""
 # we need tcl and tk to be built before git due to git-gui and gitk
-makedepends="zlib-dev openssl-dev curl-dev expat-dev perl-dev python2-dev
+makedepends="zlib-dev openssl-dev curl-dev expat-dev perl-dev python3-dev
 	pcre2-dev asciidoc xmlto perl-error tcl tk"
-replaces="git-perl"
+options="!check" # Check is currently failing on t3900-i18n-commit.sh ISO-2022-JP.txt
 # note that order matters
 subpackages="$pkgname-doc
 	$pkgname-bash-completion:completion:noarch
@@ -32,6 +41,7 @@ subpackages="$pkgname-doc
 	$pkgname-cvs::noarch
 	$pkgname-p4::noarch
 	$pkgname-daemon
+	$pkgname-daemon-openrc:daemon_openrc
 	$pkgname-gitweb::noarch
 	$pkgname-subtree::noarch
 	$pkgname-subtree-doc:subtree_doc:noarch
@@ -41,11 +51,9 @@ subpackages="$pkgname-doc
 	$pkgname-diff-highlight:diff_highlight:noarch
 	"
 source="https://www.kernel.org/pub/software/scm/git/git-$pkgver.tar.xz
-	bb-tar.patch
 	git-daemon.initd
 	git-daemon.confd
 	"
-builddir="$srcdir/$pkgname-$pkgver"
 
 _gitcoredir=/usr/libexec/git-core
 
@@ -57,10 +65,16 @@ prepare() {
 		NO_SVN_TESTS=YesPlease
 		NO_REGEX=YesPlease
 		USE_LIBPCRE2=YesPlease
-		NO_NSEC=YesPlease
 		NO_SYS_POLL_H=1
 		CFLAGS=$CFLAGS
 	EOF
+
+	# The multimail hook is installed with git. Use python3 to avoid an
+	# unnecessary python2 dependency.
+	sed -i -e '1s@#!\( */usr/bin/env python\|%{__python2}\)$@#!%{__python3}@' \
+		contrib/hooks/multimail/git_multimail.py \
+		contrib/hooks/multimail/migrate-mailhook-config \
+		contrib/hooks/multimail/post-receive.example
 }
 
 build() {
@@ -82,8 +96,7 @@ package() {
 
 _perl_git_svn() {
 	pkgdesc="Perl interface to Git::SVN"
-	depends="git=$pkgver-r$pkgrel"
-	replaces="git-perl"
+	depends="git=$pkgver-r$pkgrel perl-git=$pkgver-r$pkgrel"
 	local vendorlib
 
 	vendorlib=$(_perl_config vendorlib)
@@ -95,7 +108,6 @@ _perl_git_svn() {
 _perl_git() {
 	pkgdesc="Perl interface to Git"
 	depends="git=$pkgver-r$pkgrel perl-error"
-	replaces="git-perl"
 
 	local i
 	for i in "$(_perl_config vendorlib)" "$(_perl_config vendorarch)"; do
@@ -108,7 +120,6 @@ _perl_git() {
 email() {
 	pkgdesc="Git tools for sending email"
 	depends="perl perl-git=$pkgver-r$pkgrel perl-net-smtp-ssl perl-authen-sasl"
-	replaces="git"
 
 	mkdir -p "$subpkgdir"/$_gitcoredir
 	mv "$pkgdir"/$_gitcoredir/*email* "$pkgdir"/$_gitcoredir/*imap* \
@@ -119,7 +130,6 @@ svn() {
 	pkgdesc="Subversion support for git"
 	depends="perl perl-git-svn=$pkgver-r$pkgrel perl-subversion
 		perl-term-readkey"
-	replaces=""
 
 	mkdir -p "$subpkgdir"/$_gitcoredir
 	mv "$pkgdir"/$_gitcoredir/git-svn \
@@ -130,7 +140,6 @@ svn() {
 cvs() {
 	pkgdesc="Git tools for importing CVS repositories"
 	depends="perl perl-git=$pkgver-r$pkgrel cvs perl-dbd-sqlite"
-	replaces="git-perl"
 
 	mkdir -p "$subpkgdir"/usr/bin "$subpkgdir"/$_gitcoredir
 	mv "$pkgdir"/usr/bin/git-cvs* "$subpkgdir"/usr/bin/
@@ -148,7 +157,6 @@ _fast_import() {
 p4() {
 	pkgdesc="Git tools for working with Perforce depots"
 	depends="git=$pkgver-r$pkgrel git-fast-import=$pkgver-r$pkgrel"
-	replaces="git"
 
 	mkdir -p "$subpkgdir"/$_gitcoredir/mergetools
 	mv "$pkgdir"/$_gitcoredir/*p4* "$subpkgdir"/$_gitcoredir/
@@ -159,21 +167,26 @@ p4() {
 daemon() {
 	pkgdesc="Git protocol daemon"
 	depends="git=$pkgver-r$pkgrel"
-	replaces="git"
 
 	mkdir -p "$subpkgdir"/$_gitcoredir
 	mv "$pkgdir"/$_gitcoredir/git-daemon \
 		"$pkgdir"/$_gitcoredir/git-http-backend \
 		"$pkgdir"/$_gitcoredir/git-shell \
 		"$subpkgdir"/$_gitcoredir/
+}
 
-	mv "$pkgdir"/etc "$subpkgdir"/
+daemon_openrc() {
+	pkgdesc="Git protocol daemon"
+
+	default_openrc
+
+	depends="git-daemon=$pkgver-r${pkgrel} $depends_openrc"
+	install_if="openrc $pkgname-daemon=$pkgver-r$pkgrel"
 }
 
 gitweb() {
 	pkgdesc="Simple web interface to git repositories"
 	depends="git=$pkgver-r$pkgrel perl"
-	replaces="git"
 
 	mkdir -p "$subpkgdir"/usr/share "$subpkgdir"$_gitcoredir
 	mv "$pkgdir"/usr/share/gitweb "$subpkgdir"/usr/share/
@@ -183,7 +196,6 @@ gitweb() {
 completion() {
 	pkgdesc="Bash completion for $pkgname"
 	depends=""
-	replaces=""
 	install_if="$pkgname=$pkgver-r$pkgrel bash-completion"
 
 	install -Dm644 "$builddir"/contrib/completion/git-completion.bash \
@@ -193,7 +205,6 @@ completion() {
 subtree() {
 	depends="git=$pkgver-r$pkgrel"
 	pkgdesc="Split git repository into subtrees"
-	replaces=""
 
 	cd "$builddir"/contrib/subtree
 	make prefix=/usr DESTDIR="$pkgdir"
@@ -203,7 +214,6 @@ subtree() {
 subtree_doc() {
 	pkgdesc="Split git repository into subtrees (documentation)"
 	depends=""
-	replaces=""
 
 	cd "$builddir"/contrib/subtree
 	make install-man prefix=/usr DESTDIR="$subpkgdir"
@@ -213,7 +223,6 @@ subtree_doc() {
 gui() {
 	pkgdesc="GUI interface for git"
 	depends="git=$pkgver-r$pkgrel tcl tk"
-	replaces=""
 
 	mkdir -p "$subpkgdir"/usr/share "$subpkgdir"/usr/libexec/git-core
 	mv "$pkgdir"/usr/share/git-gui "$subpkgdir"/usr/share/
@@ -226,7 +235,6 @@ gui() {
 gitk() {
 	pkgdesc="Gitk interface for git"
 	depends="git=$pkgver-r$pkgrel tcl tk"
-	replaces=""
 
 	mkdir -p "$subpkgdir"/usr/share "$subpkgdir"/usr/bin
 	mv "$pkgdir"/usr/share/gitk "$subpkgdir"/usr/share/
@@ -236,7 +244,6 @@ gitk() {
 diff_highlight() {
 	pkgdesc="diff highlight for git"
 	depends="git=$pkgver-r$pkgrel perl"
-	replaces=""
 
 	cd "$builddir"/contrib/diff-highlight
 
@@ -250,7 +257,7 @@ diff_highlight() {
 _git_perl() {
 	pkgdesc="Additional Git commands that requires perl"
 	depends="git=$pkgver-r$pkgrel perl-git=$pkgver-r$pkgrel perl"
-	replaces=""
+	install_if="git=$pkgver-r$pkgrel perl"
 
 	mkdir -p "$subpkgdir"/usr/lib
 	cd "$pkgdir"
@@ -266,7 +273,6 @@ _perl_config() {
 	perl -e "use Config; print \$Config{$1};"
 }
 
-sha512sums="3f05ea3a645d4d74c7380b03e2de39f893ff77a05d8b595ce30300d1d4e032f11d84952366096f8effd5fba18dfa5ebb946bc07a984eb7cbbda113cb88202f6c  git-2.20.1.tar.xz
-85767b5e03137008d6a96199e769e3979f75d83603ac8cb13a3481a915005637409a4fd94e0720da2ec6cd1124f35eba7cf20109a94816c4b4898a81fbc46bd2  bb-tar.patch
+sha512sums="8bbada0451fe0a3314e1b9a43a74135115449aa41f5b3e7f960279e4a7fe6069c36e78825fc4b60d06806e3a6fa8158f327cb8a3801686ac22a35e3704244191  git-2.25.0.tar.xz
 89528cdd14c51fd568aa61cf6c5eae08ea0844e59f9af9292da5fc6c268261f4166017d002d494400945e248df6b844e2f9f9cd2d9345d516983f5a110e4c42a  git-daemon.initd
 fbf1f425206a76e2a8f82342537ed939ff7e623d644c086ca2ced5f69b36734695f9f80ebda1728f75a94d6cd2fcb71bf845b64239368caab418e4d368c141ec  git-daemon.confd"

@@ -1,0 +1,26 @@
+# Contributor: Mathias LANG <pro.mathias.lang@gmail.com>
+# Maintainer: Mathias LANG <pro.mathias.lang@gmail.com>
+pkgname=dub
+pkgver=1.19.0
+pkgrel=0
+pkgdesc="Package and build management system for D"
+url="http://code.dlang.org/"
+arch="all !ppc64le" # GDC does not support PPC64le
+license="MIT"
+depends="libcurl"
+makedepends="gcc-gdc gdmd bash curl-dev"
+source="$pkgname-$pkgver.zip::https://github.com/dlang/dub/archive/v$pkgver.zip"
+
+build() {
+	DC=gdmd GITVER="v$pkgver" ./build.sh
+}
+
+check() {
+	bin/dub test
+}
+
+package() {
+	install -s -D "$builddir/bin/dub" "$pkgdir/usr/bin/dub"
+}
+
+sha512sums="8cdeb1b2d07a003c02e47f43f56362aeac257110cc4a477f5fe2e83ff0b979f5e1b3aa553d75d97b16c22230ff823ac3cf9dec40c2c24211cac969bfe7deb522  dub-1.19.0.zip"

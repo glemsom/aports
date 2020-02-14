@@ -1,31 +1,32 @@
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 pkgname=babl
-pkgver=0.1.60
+pkgver=0.1.74
 pkgrel=0
 pkgdesc="Dynamic, any to any, pixel format conversion library"
 url="http://gegl.org/babl"
 arch="all"
 license="LGPL-3.0-or-later"
+makedepends="meson gobject-introspection-dev lcms2-dev"
 subpackages="$pkgname-dev"
-source="https://ftp.gimp.org/pub/babl/${pkgver%.*}/$pkgname-$pkgver.tar.bz2"
+source="https://ftp.gimp.org/pub/babl/${pkgver%.*}/babl-$pkgver.tar.xz"
 
 build() {
-	cd "$builddir"
-	./configure \
-		--build=$CBUILD \
-		--host=$CHOST \
-		--prefix=/usr
-	make
+	meson \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--localstatedir=/var \
+		--buildtype=release \
+		. output
+	ninja -C output
 }
 
 check() {
-	cd "$builddir"
-	make check
+	ninja -C output test
 }
 
 package() {
-	cd "$builddir"
-	make DESTDIR="$pkgdir" install
+	DESTDIR="$pkgdir" ninja -C output install
 }
 
-sha512sums="a65533b4527c4334c7ab14fb16be41e3e2e93f51bbeb24dd427fa9263e25fa8ad83337b73a805bebc2414fb57bccceaa681f89ce5c5187bd0a03703bf07cccc2  babl-0.1.60.tar.bz2"
+sha512sums="97b4a5aad76b7d6dee1835774cee48f866a9513c6454d74c3378068a60359704c1ba106a7542b9ac6a7968b3cf632ed2626b835ec9c7f3fcc6e29968c1e39396  babl-0.1.74.tar.xz"

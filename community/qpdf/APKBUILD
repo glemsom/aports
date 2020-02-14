@@ -1,0 +1,96 @@
+# Maintainer: Natanael Copa <ncopa@alpinelinux.org>
+pkgname=qpdf
+pkgver=9.1.1
+pkgrel=0
+pkgdesc="Command-line tools and library for transforming PDF files"
+url="http://qpdf.sourceforge.net"
+arch="all"
+license="Apache-2.0"
+makedepends="zlib-dev libjpeg-turbo-dev bash gnutls-dev"
+checkdepends="coreutils perl"
+subpackages="$pkgname-dev
+	$pkgname-doc
+	$pkgname-libs
+	$pkgname-fix-qdf:fix_qdf
+	"
+source="https://downloads.sourceforge.net/sourceforge/qpdf/qpdf-$pkgver.tar.gz"
+
+# secfixes:
+#   7.0.0-r0:
+#   - CVE-2017-9208
+#   - CVE-2017-9209
+#   - CVE-2017-9210
+#   - CVE-2017-11624
+#   - CVE-2017-11625
+#   - CVE-2017-11626
+#   - CVE-2017-11627
+#   - CVE-2017-12595
+
+prepare() {
+	update_config_sub
+	default_prepare
+}
+
+build() {
+	./configure \
+		--build="$CBUILD" \
+		--host="$CHOST" \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--infodir=/usr/share/info \
+		--localstatedir=/var \
+		--disable-static \
+		--enable-crypto=gnutls \
+		--with-default-crypto=gnutls
+	make
+}
+
+check() {
+	case "$CARCH" in
+		armv7)
+			# qpdf 185
+			# qpdf 522
+			# qpdf 523
+			# qpdf 524
+			return 0
+			;;
+		aarch64)
+			# qpdf 243
+			# qpdf 522
+			# qpdf 523
+			# qpdf 524
+			return 0
+			;;
+		armhf)
+			# qpdf 193
+			# fuzz 1005
+			# qpdf 523
+			# fuzz 1007
+			return 0
+			;;
+		ppc64le)
+			# qpdf 156
+			# fuzz 982
+			# fuzz 983
+			# fuzz 985
+			return 0
+			;;
+		s390x)
+			return 0
+			;;
+	esac
+	make check
+}
+
+package() {
+	make DESTDIR="$pkgdir" install
+}
+
+fix_qdf() {
+	pkgdesc="Repair PDF files in QDF form after editing"
+	mkdir -p "$subpkgdir"/usr/bin
+	mv "$pkgdir"/usr/bin/fix-qdf "$subpkgdir"/usr/bin/
+}
+
+sha512sums="008a11fef663a57ca173631f2053988023babea6c333cfe01db0ef955c8cd36d387ed9f2039f55bd5f9ca94c7a8e400461a09a15c5f89e03bc0817fdd0d3d585  qpdf-9.1.1.tar.gz"

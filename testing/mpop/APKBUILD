@@ -1,0 +1,37 @@
+# Contributor: xcko <xcko@airmail.cc>
+# Maintainer: xcko <xcko@airmail.cc>
+pkgname=mpop
+pkgver=1.4.7
+pkgrel=0
+pkgdesc="retrieves mail from pop3 mailboxes"
+url="https://marlam.de/mpop"
+arch="all"
+license="GPL-3.0-or-later"
+options="!check" # no test suite
+makedepends="gettext-dev gnutls-dev"
+subpackages="$pkgname-doc $pkgname-lang $pkgname-vim:vim:noarch"
+source="https://marlam.de/mpop/releases/mpop-$pkgver.tar.xz"
+
+build() {
+	./configure \
+		--build=$CBUILD \
+		--host=$CHOST \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--localstatedir=/var
+	make
+}
+
+package() {
+	make DESTDIR="$pkgdir" install
+}
+
+vim() {
+	pkgdesc="Vim syntax for $pkgname"
+
+	install -Dm644 "$builddir"/scripts/vim/$pkgname.vim \
+		"$subpkgdir"/usr/share/vim/vimfiles/syntax/$pkgname.vim
+}
+
+sha512sums="ce0ac899fd2af1d50ef221c88282c12263c5862b9ff1f6341a8551c3fe6b69272772599a2040a0f553a776245514c55b8102ca8cf291b411e5127a3f39897832  mpop-1.4.7.tar.xz"

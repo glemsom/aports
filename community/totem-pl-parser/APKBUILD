@@ -1,0 +1,37 @@
+# Contributor: Leo <thinkabit.ukim@gmail.com>
+# Maintainer:
+pkgname=totem-pl-parser
+pkgver=3.26.4
+pkgrel=0
+pkgdesc="GNOME playlist parser library"
+options="!check" # Requires gvfs with http support
+url="https://www.gnome.org/"
+arch="all"
+license="LGPL-2.0-or-later"
+makedepends="meson gnome-desktop-dev libsoup-dev libxml2-dev json-glib-dev
+	gmime-dev libxml2-utils libxslt itstool libarchive-dev libgcrypt-dev"
+subpackages="$pkgname-dev $pkgname-lang"
+source="https://download.gnome.org/sources/totem-pl-parser/${pkgver%.*}/totem-pl-parser-$pkgver.tar.xz"
+
+build() {
+	meson \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--localstatedir=/var \
+		-Denable-libarchive=yes \
+		-Denable-libgcrypt=yes \
+		-Dintrospection=true \
+		build
+	ninja -C build
+}
+
+check() {
+	ninja -C build test
+}
+
+package() {
+	DESTDIR="$pkgdir" ninja -C build install
+}
+
+sha512sums="afb02a7c70f2fda9cda67b9daa8bab5f15e68a4afd983fb865fb29de71fe8f5c8fdf716e714e3835ac1c3476ce188c6147924a840c4ba82f0c05c3d3c23f5173  totem-pl-parser-3.26.4.tar.xz"

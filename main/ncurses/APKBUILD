@@ -1,17 +1,17 @@
 # Maintainer: Natanael Copa <ncopa@alpinelinux.org>
 pkgname=ncurses
-pkgver=6.1_p20190105
+pkgver=6.1_p20200118
 _ver=${pkgver/_p/-}
 pkgrel=0
 pkgdesc="Console display library"
-url="https://www.gnu.org/software/ncurses/"
+url="https://invisible-island.net/ncurses/"
 arch="all"
 options="!check" # "tests" are actual demo programs, not a test suite.
 license="MIT"
 makedepends_build="ncurses"
 subpackages="$pkgname-static $pkgname-dev $pkgname-doc $pkgname-libs
 	$pkgname-terminfo-base:base:noarch $pkgname-terminfo:terminfo:noarch"
-source="https://invisible-mirror.net/archives/ncurses/current/ncurses-${_ver}.tgz"
+source="https://invisible-mirror.net/archives/ncurses/current/ncurses-$_ver.tgz"
 builddir="$srcdir"/ncurses-$_ver
 
 # secfixes:
@@ -51,7 +51,7 @@ package() {
 	for i in ansi console dumb linux rxvt screen sun vt52 vt100 vt102 \
 			vt200 vt220 xterm xterm-color xterm-xfree86; do
 		local termfile=$(find "$pkgdir"/usr/share/terminfo/ -name "$i" 2>/dev/null) || true
-		local basedir=$(basename $(dirname "$termfile"))
+		local basedir=$(basename "$(dirname "$termfile")")
 
 		[ -z "$termfile" ] && continue
 
@@ -66,8 +66,8 @@ dev() {
 	default_dev
 	# force link against *w.so
 	for lib in ncurses ncurses++ form panel menu; do
-		echo "INPUT(-l${lib}w)" > "$subpkgdir"/usr/lib/lib${lib}.so
-		ln -s ${lib}w.pc "$subpkgdir"/usr/lib/pkgconfig/${lib}.pc
+		echo "INPUT(-l${lib}w)" > "$subpkgdir"/usr/lib/lib$lib.so
+		ln -s ${lib}w.pc "$subpkgdir"/usr/lib/pkgconfig/$lib.pc
 	done
 	# link curses -> ncurses
 	echo "INPUT(-lncursesw)" > "$subpkgdir"/usr/lib/libcursesw.so
@@ -103,4 +103,4 @@ static() {
 	mv "$pkgdir"/usr/lib/*.a "$subpkgdir"/usr/lib/
 }
 
-sha512sums="98ccce35d315f278a732303fde974f5d3b5f8ee72e6d0948a8389f462a5991317b8d541981a022deba1223936b58fd36979418d51520507f42792dc411293d57  ncurses-6.1-20190105.tgz"
+sha512sums="759c81d539f3a34197730c2d9dd66ff5fe27e2bc12a7f80e27da4354f7c011a654096fb99aed8d2b5a5904a08b388927569e224b6cc9fd8f97447c9af1c13946  ncurses-6.1-20200118.tgz"

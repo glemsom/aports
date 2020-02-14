@@ -1,0 +1,39 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=kolourpaint
+pkgver=19.12.2
+pkgrel=0
+arch="all !armhf" # armhf blocked by extra-cmake-modules
+url="http://www.kolourpaint.org/"
+pkgdesc="An easy-to-use paint program"
+license="BSD-2-Clauase AND LGPL-2.0-or-later AND GFDL-1.2"
+makedepends="extra-cmake-modules qt5-qtbase-dev kdoctools-dev ki18n-dev kguiaddons-dev kwidgetsaddons-dev kio-dev kxmlgui-dev kiconthemes-dev ktextwidgets-dev kitemmodels-dev kdelibs4support-dev libksane-dev"
+source="https://download.kde.org/stable/release-service/$pkgver/src/kolourpaint-$pkgver.tar.xz"
+subpackages="$pkgname-doc $pkgname-lang"
+
+prepare() {
+	default_prepare
+
+	mkdir "$builddir"/build
+}
+
+build() {
+	cd "$builddir"/build
+	cmake "$builddir" \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	cd "$builddir"/build
+	CTEST_OUTPUT_ON_FAILURE=TRUE ctest
+}
+
+package() {
+	cd "$builddir"/build
+	DESTDIR="$pkgdir" make install
+}
+
+sha512sums="22006e9f360e7bd004f8387e5b6b989882fdcd93d688efce6a501502f68a34e63e8c87e1179ada70b02ece10536f64ccab2863f5548a46d74400c5fa0410f430  kolourpaint-19.12.2.tar.xz"

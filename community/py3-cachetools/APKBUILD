@@ -1,0 +1,29 @@
+# Contributor: Jakub Jirutka <jakub@jirutka.cz>
+# Maintainer: Jakub Jirutka <jakub@jirutka.cz>
+pkgname=py3-cachetools
+_pyname=cachetools
+pkgver=4.0.0
+pkgrel=0
+pkgdesc="Extensible memoizing collections and decorators"
+url="https://github.com/tkem/cachetools"
+arch="noarch"
+license="MIT"
+depends="python3"
+makedepends="py3-setuptools"
+checkdepends="py3-pytest"
+source="$pkgname-$pkgver.tar.gz::https://github.com/tkem/cachetools/archive/v$pkgver.tar.gz"
+builddir="$srcdir/$_pyname-$pkgver"
+
+build() {
+	python3 setup.py build
+}
+
+check() {
+	python3 -m pytest .
+}
+
+package() {
+	python3 setup.py install --prefix=/usr --root="$pkgdir"
+}
+
+sha512sums="d0711fef71ef51fe8860a1ca9f14faa76ec6bad1e40a2f6a2ba49f550f15d83d1531770e451e6b180ec77f66f3b382ce4d7c0ec2253782f8057c4e254aee6852  py3-cachetools-4.0.0.tar.gz"

@@ -1,34 +1,30 @@
 # Contributor: Francesco Colista <fcolista@alpinelinux.org>
 # Maintainer: Francesco Colista <fcolista@alpinelinux.org>
 pkgname=gns3-gui
-pkgver=2.1.11
+pkgver=2.2.5
 pkgrel=0
 pkgdesc="GNS3 network simulator. Graphical user interface package."
 url="https://github.com/GNS3/gns3-gui"
-arch="noarch"
-license="GPL-3.0"
-depends="python3 py3-paramiko gns3-converter py3-psutil py3-jsonschema
-	py3-raven py3-qt5 qt5-qtsvg"
+arch="noarch !armhf" # armhf blocked by py3-qt5 -> qt5-qtdeclarative
+license="GPL-3.0-or-later"
+depends="python3 py3-psutil-gns3 py3-jsonschema-gns3 py3-raven
+py3-qt5 qt5-qtsvg py3-sip"
 makedepends="python3-dev py-setuptools"
 subpackages="$pkgname-doc"
-source="${pkgname}-${pkgver}.tar.gz::https://github.com/GNS3/${pkgname}/archive/v${pkgver}.tar.gz"
-builddir="$srcdir"/$pkgname-$pkgver
+source="$pkgname-$pkgver.tar.gz::https://github.com/GNS3/gns3-gui/archive/v$pkgver.tar.gz"
 
 build() {
-	cd "$builddir"
 	python3 setup.py build
 }
 
 check() {
-	cd "$builddir"
 	python3 setup.py check
 }
 
 package() {
-	cd "$builddir"
-	python3 setup.py install --root=${pkgdir} --optimize=1
-	install -Dm644 ${srcdir}/${pkgname}-${pkgver}/resources/images/gns3_icon_256x256.png ${pkgdir}/usr/share/pixmaps/gns3.png
-	install -Dm644 ${srcdir}/${pkgname}-${pkgver}/LICENSE ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+	python3 setup.py install --root="$pkgdir" --optimize=1
+	install -Dm644 "$builddir"/resources/images/gns3_icon_256x256.png "$pkgdir"/usr/share/pixmaps/gns3.png
+	install -Dm644 "$builddir"/LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
 }
 
-sha512sums="328d12b761df8811d2aef93f62b0e681e1122ba71fb9fbd004b1fd0c23c7e5f8526a60b45c6adede19ac775a64b584f73806cf12298d9be6bdd4038ec3cbac55  gns3-gui-2.1.11.tar.gz"
+sha512sums="26cf790f1267fe7eeb9db6caeaef87b916ca06b96721c42c0cdcd7719c7a6deeca1a6ef13a4f55b465669de3e8d1076972372d3e35d423cc98700d1b01edcac6  gns3-gui-2.2.5.tar.gz"

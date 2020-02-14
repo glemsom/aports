@@ -2,30 +2,32 @@
 # Maintainer: Fabian Affolter <fabian@affolter-engineering.ch>
 # Contributor: Daniel Isaksen <d@duniel.no>
 pkgname=httpie
-pkgver=1.0.2
+pkgver=2.0.0
 pkgrel=0
 pkgdesc="A CLI, cURL-like tool"
+options="!check" # Requires 'pytest-httpbin'
 url="https://httpie.org/"
 arch="noarch"
 license="BSD-3-Clause"
 depends="python3 py3-requests py3-pygments"
-makedepends="python3-dev"
-source="https://files.pythonhosted.org/packages/source/${pkgname:0:1}/$pkgname/$pkgname-$pkgver.tar.gz"
-builddir="$srcdir/$pkgname-$pkgver"
+makedepends="py3-setuptools"
+checkdepends="py3-pytest"
+source="https://files.pythonhosted.org/packages/source/h/httpie/httpie-$pkgver.tar.gz"
+
+# secfixes:
+#   1.0.3-r0:
+#     - CVE-2019-10751
 
 check() {
-	cd "$builddir"
-	python3 setup.py check
+	PYTHONPATH="$PWD/build/lib" py.test-3
 }
 
 build() {
-	cd "$builddir"
 	python3 setup.py build
 }
 
 package() {
-	cd "$builddir"
 	python3 setup.py install --prefix=/usr --root="$pkgdir"
 }
 
-sha512sums="cc0f2b8928d68bdd0c4eba96f499365d294429e909d91538c48f5028a55ca4a7ba41abdb94ef851459799f437457639b43ba408bb6336702d6042e7e5d5a9cbf  httpie-1.0.2.tar.gz"
+sha512sums="9dc516bf3f41fda2f508133eef268a1a5208ecb56ff6f767d391a72a72dfdccd00ff4456c96a0b2070cab162983cdd51444328bcbb517e111582689e6a191b59  httpie-2.0.0.tar.gz"

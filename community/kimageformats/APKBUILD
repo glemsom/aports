@@ -1,0 +1,38 @@
+# Contributor: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Bart Ribbers <bribbers@disroot.org>
+pkgname=kimageformats
+pkgver=5.67.0
+pkgrel=0
+pkgdesc="Image format plugins for Qt5"
+arch="all !armhf" # armhf blocked by extra-cmake-modules
+url="https://community.kde.org/Frameworks"
+license="LGPL-2.1-or-later"
+makedepends="qt5-qtbase-dev karchive-dev extra-cmake-modules openexr-dev"
+checkdepends="xvfb-run"
+source="https://download.kde.org/stable/frameworks/${pkgver%.*}/kimageformats-$pkgver.tar.xz"
+
+prepare() {
+	default_prepare
+
+	mkdir "$builddir"/build
+}
+
+build() {
+	cd "$builddir"/build
+	cmake "$builddir" \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make
+}
+
+check() {
+	cd "$builddir"/build
+	CTEST_OUTPUT_ON_FAILURE=TRUE xvfb-run ctest
+}
+
+package() {
+	cd "$builddir"/build
+	DESTDIR="$pkgdir" make install
+}
+sha512sums="c54492ba2ca7b7b0771b364c46791b9ab3c11ecd22b9106168a0bce4fc0d3250eb6be9519e30e52ef5de7ab709123c38ed0527d243929c651c20e7e70ef52ec9  kimageformats-5.67.0.tar.xz"
