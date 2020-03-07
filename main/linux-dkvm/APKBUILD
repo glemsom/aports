@@ -2,7 +2,7 @@
 
 _flavor=dkvm
 pkgname=linux-${_flavor}
-pkgver=5.4.22
+pkgver=5.4.24
 case $pkgver in
 	*.*.*)	_kernver=${pkgver%.*};;
 	*.*) _kernver=$pkgver;;
@@ -199,5 +199,5 @@ _dev() {
 }
 
 sha512sums="9f60f77e8ab972b9438ac648bed17551c8491d6585a5e85f694b2eaa4c623fbc61eb18419b2656b6795eac5deec0edaa04547fc6723fbda52256bd7f3486898f  linux-5.4.tar.xz
-0ad1dc72580eec63eabe90c9421bd055017f3b441bb1aba64f0ba0f7ac5c0196f2335dccf35bfec661a9660012b220f4ee313ca0211d87cbd5987f8ac488d5a4  config-dkvm.x86_64
-2c2d6ddd1e785c32cdf32e5557bb8c8ee991d7cbf1dd445131d97a8b4507d780e0bcb2d03c17345f8f9dce448502aa402e35914007e9bf4e0debad006ad5eb1d  patch-5.4.22.xz"
+aaaa1d9e563825e4a9f0375fc83dc61a1d54b548ca4d2086f67a0e9fd14129826ffacf7d6f59e7dbd20459102927e1d6f4668659d72c4a2ab8c221489d2d8a97  config-dkvm.x86_64
+2036ddc1738f8d3fd0356fc2d0bf00646a882cbab7dcfbad6a8e3a4968de02a0613d9b513b45c4fd87210627405534a4af5711e3caa8bc5ebee574dc3235e133  patch-5.4.24.xz"
